@@ -102,6 +102,10 @@ If you prefer to run them as completely separate DigitalOcean Apps, use the spec
 - **Build Command**: Use `pnpm --filter <app>... build` (the `...` ensures shared packages are built first).
 - **Internal Networking**: Services in the same app can talk to each other using their service name as the hostname (e.g., `http://api:8080`).
 
+### Troubleshooting pnpm Builds
+
+If your build fails with `[ERR_PNPM_IGNORED_BUILDS]`, it means a dependency (like `sharp` or `esbuild`) needs permission to run its build script. This is explicitly handled in the root `package.json` under the `pnpm.onlyBuiltDependencies` field. If you add new packages that require native builds, add them to that list.
+
 ## Custom Domains & HTTPS
 
 DigitalOcean App Platform provides **automatic HTTPS** (SSL/TLS) for all applications, including those using custom domains.

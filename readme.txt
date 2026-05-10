@@ -70,3 +70,7 @@ SECRETS:
   5. Enter your subdomain (e.g., app.example.com).
   6. DigitalOcean will provide a CNAME or ALIAS record. Update your DNS provider with this value.
   7. Wait for propagation. DigitalOcean will automatically issue and manage the HTTPS certificate.
+
+TROUBLESHOOTING PNPM BUILDS:
+If the build fails with '[ERR_PNPM_IGNORED_BUILDS]', it's because pnpm requires explicit approval for build scripts (e.g., for 'sharp' or 'esbuild').
+We have configured this in the root package.json. If you add more dependencies with build scripts, update the 'pnpm.onlyBuiltDependencies' list in the root package.json.
