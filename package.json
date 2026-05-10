@@ -2,6 +2,9 @@
   "name": "dimensional-monorepo",
   "private": true,
   "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
@@ -11,6 +14,11 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build:all": "pnpm -r --workspace-concurrency 1 build",
+    "build:web": "pnpm --filter @dimensional/shared build && pnpm --filter web build",
+    "build:api": "pnpm --filter @dimensional/shared build && pnpm --filter api build",
+    "start:web": "pnpm --filter web start",
+    "start:api": "pnpm --filter api start",
+    "start": "pnpm --filter web start",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint"
   },

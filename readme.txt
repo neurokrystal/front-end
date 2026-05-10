@@ -2,6 +2,16 @@ DigitalOcean App Platform Configuration Guide (Combined Deployment)
 
 This guide covers deploying both the 'web' and 'api' applications as services within a single DigitalOcean App. This allows for "local" communication between services and shared domain routing.
 
+IMPORTANT: BEST DEPLOYMENT METHOD
+Instead of adding components manually, use the 'Spec Editor' in the DigitalOcean UI:
+1. Click 'Create' -> 'Apps' -> 'GitHub'.
+2. Select your repository.
+3. On the 'Resources' step, look for 'Edit App Spec' or 'Bulk Editor'.
+4. Paste the contents of 'app.yaml' from the root of this repo.
+5. This automatically adds both 'web' and 'api' with all correct settings.
+
+---
+
 1. GLOBAL / INITIAL APP SETTINGS
 - Service Type: Web Service (Add two of these)
 - Source: GitHub
@@ -104,6 +114,11 @@ If the build hangs during 'pnpm install' or 'pnpm build':
 - MEMORY: The Basic-XXS ($5/mo) instance has only 512MB RAM. This is very tight for monorepos. 
 - REQUIREMENT: Use Basic-XS ($10/mo) for 1GB RAM on the 'web' service.
 
+TROUBLESHOOTING "BACKEND API NOT FOUND" or "LAUNCH ERROR":
+- If DO only finds one service: Use the 'Spec Editor' method described above.
+- If DO fails to start (code 190): Ensure the 'Run Command' is explicitly set to 'pnpm --filter web start' or 'pnpm --filter api start'.
+- SOURCE DIRECTORY: Must be '/' for both services.
+
 TROUBLESHOOTING "FUNCTIONS" BUILD ERRORS:
 If you see errors like 'runtime type could not be determined' or 'runtime typescript:default is not supported' with references to 'project.yml':
 - CAUSE: DigitalOcean App Platform sometimes misinterprets monorepos as Functions (Serverless) projects because of the 'packages/' directory.
@@ -112,3 +127,15 @@ If you see errors like 'runtime type could not be determined' or 'runtime typesc
   2. If DO still auto-detects a 'Function' component (e.g., named 'front-end2'), DELETE IT in the UI.
   3. Manually add your components as 'Web Services' from the 'Resources' tab.
   4. Ensure all components are 'Web Services' and 'Source Directory' is '/'.
+
+LOCAL TESTING (DIGITALOCEAN SIMULATION):
+To test the build and run process locally using your App Spec:
+1. Install DigitalOcean CLI (doctl) and Docker.
+2. Build a component: doctl apps dev build web --spec app.yaml
+3. Run the entire app: doctl apps dev run --spec app.yaml
+
+VALIDATION SCRIPT (Pre-push/CI):
+We have provided a script to automate local build validation:
+$ ./scripts/validate-do-deployment.sh
+
+This is recommended for use in Git hooks or CI pipelines to catch build errors early.

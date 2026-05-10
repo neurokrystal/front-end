@@ -10,6 +10,11 @@ A production-ready TypeScript monorepo for DigitalOcean App Platform.
 
 ## Local Development
 
+0. Prerequisites:
+   - Node.js >= 22.0.0
+   - pnpm >= 9.0.0
+   - Docker (for local DO validation)
+
 1. Install dependencies:
    ```bash
    pnpm install
@@ -52,14 +57,18 @@ In this setup:
 - **API (Fastify)**: Served at `/api`.
 - **Automatic Configuration**: Most URLs are automatically inferred using DigitalOcean's `${APP_URL}` variable.
 
-##### Automated Setup via App Spec
+##### Automated Setup via App Spec (BEST METHOD)
+
+The most reliable way to deploy this monorepo is to use the DigitalOcean **Spec Editor**. This ensures all services and environment variables are configured exactly as intended.
 
 1.  Go to the [DigitalOcean Control Panel](https://cloud.digitalocean.com/apps).
 2.  Click **Create** -> **Apps**.
 3.  Choose **GitHub** and select the repository (`neurokrystal/front-end`).
-4.  DigitalOcean will automatically detect `.do/app.yaml`.
-5.  On the **Resources** page, ensure both the `web` and `api` services are listed.
-6.  On the **Environment Variables** page, you only need to fill in the **Secrets**:
+4.  If DigitalOcean doesn't automatically detect the spec, or you want to be sure:
+    - On the **Resources** page, scroll down and look for **"Edit App Spec"** or **"Bulk Editor"**.
+    - Copy the contents of `app.yaml` (from the root of this repo) and paste it into the editor.
+    - Click **Save**.
+5.  On the **Environment Variables** page, you only need to fill in the **Secrets**:
     - `POSTGRES_DB_URL`: Your database connection string.
     - `BETTER_AUTH_SECRET`: A long random string for auth security.
     - `MAILGUN_API_KEY`: If using email services.
@@ -93,9 +102,19 @@ If you prefer to configure it manually, add two **Web Services** to a single App
 
 #### Separate App Deployment
 
-If you prefer to run them as completely separate DigitalOcean Apps, use the specialized specs:
+If you prefer to run them as completely separate DigitalOcean Apps, use the specialized specs in the `.do/` directory:
 - `.do/web.app.yaml` for the frontend.
 - `.do/api.app.yaml` for the backend.
+
+### Troubleshooting "Backend API Not Found" or "Launch Error"
+
+If DigitalOcean only finds one component (the frontend) or fails to start:
+
+1.  **Use the Spec Editor**: As mentioned above, pasting the `app.yaml` directly into the "Edit App Spec" window in the DigitalOcean UI is the only way to guarantee both `web` and `api` are added correctly.
+2.  **Manual Start Command**: If you are configuring manually, ensure the **Run Command** is set:
+    - Web: `pnpm --filter web start` (or `pnpm start:web`)
+    - API: `pnpm --filter api start` (or `pnpm start:api`)
+3.  **Source Directory**: Ensure **Source Directory** is set to `/` (the root) for BOTH services. This allows `pnpm` to find the workspace root and shared libraries.
 
 **Important Monorepo Notes**:
 - **Source Directory**: Must always be set to the repository root (`/`) for all components.
@@ -147,6 +166,50 @@ DigitalOcean App Platform provides **automatic HTTPS** (SSL/TLS) for all applica
     - DigitalOcean will automatically provision a Let's Encrypt SSL certificate once the DNS propagates.
 
 **Note**: You do *not* need to set up a separate Load Balancer or CDN for HTTPS; it is a native feature of the App Platform.
+
+## Local Testing (DigitalOcean Simulation)
+
+To test the DigitalOcean build and run process locally without deploying to the cloud, you can use the DigitalOcean CLI (`doctl`). This uses Docker to simulate the App Platform environment.
+
+### Prerequisites
+- [DigitalOcean CLI (doctl)](https://docs.digitalocean.com/reference/doctl/how-to/install/) installed and authenticated.
+- [Docker](https://www.docker.com/products/docker-desktop/) installed and running.
+
+### Testing the Build Phase
+To verify that the build commands in the App Spec are working correctly:
+```bash
+# Build a specific component (e.g., web)
+doctl apps dev build web --spec app.yaml
+
+# Build the api component
+doctl apps dev build api --spec app.yaml
+```
+
+### Running the App Locally
+To run the entire app (both services) as it would run on DigitalOcean:
+```bash
+doctl apps dev run --spec app.yaml
+```
+This will start both the `web` and `api` services, mapping the ports and routes as defined in the spec.
+
+**Note**: Local simulation is useful for catching build-time errors (like missing dependencies, memory limits, or incorrect commands) before pushing to GitHub.
+
+### Local Validation (Pre-push/CI)
+
+We have provided a script to simulate the DigitalOcean build process locally. This is highly recommended before pushing changes to GitHub to catch build errors early.
+
+1.  **Run the validation script**:
+    ```bash
+    ./scripts/validate-do-deployment.sh
+    ```
+    *Prerequisites: `doctl` and `Docker` must be installed and running.*
+
+2.  **Hook into Git (Optional)**:
+    You can add this to your `.git/hooks/pre-push` to ensure you never push a broken build:
+    ```bash
+    #!/bin/bash
+    ./scripts/validate-do-deployment.sh
+    ```
 
 ## Scripts
 

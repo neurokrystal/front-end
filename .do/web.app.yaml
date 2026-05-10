@@ -11,6 +11,7 @@ services:
     environment_slug: node-js
     instance_count: 1
     instance_size_slug: basic-xs
+    http_port: 3000
     routes:
       - path: /
     envs:
