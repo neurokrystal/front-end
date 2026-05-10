@@ -1,0 +1,28 @@
+name: web-app
+services:
+  - name: web
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: neurokrystal/front-end
+    source_dir: /
+    build_command: pnpm --filter web... build
+    run_command: pnpm --filter web start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    routes:
+      - path: /
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: APP_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://api.your-domain.com # Update to your backend URL
+      - key: NEXT_PUBLIC_APP_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}

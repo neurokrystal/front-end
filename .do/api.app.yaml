@@ -1,0 +1,52 @@
+name: api-app
+services:
+  - name: api
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: neurokrystal/front-end
+    source_dir: /
+    build_command: pnpm --filter api... build
+    run_command: pnpm --filter api start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 8080
+    routes:
+      - path: /
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: APP_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+      - key: POSTGRES_DB_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: BETTER_AUTH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: BETTER_AUTH_URL
+        scope: RUN_TIME
+        value: ${APP_URL}
+      - key: CORS_ORIGIN
+        scope: RUN_TIME
+        value: https://your-web-app.com # Update to your frontend URL
+      - key: MAILGUN_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: MAILGUN_DOMAIN
+        scope: RUN_TIME
+      - key: DO_SPACES_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: DO_SPACES_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: DO_SPACES_ENDPOINT
+        scope: RUN_TIME
+      - key: DO_SPACES_BUCKET
+        scope: RUN_TIME
+      - key: DO_SPACES_REGION
+        scope: RUN_TIME

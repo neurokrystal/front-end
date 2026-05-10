@@ -1,0 +1,81 @@
+name: dimensional-monorepo
+services:
+  - name: web
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: neurokrystal/front-end
+    source_dir: /
+    build_command: pnpm --filter web... build
+    run_command: pnpm --filter web start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    routes:
+      - path: /
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: APP_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}/api
+      - key: NEXT_PUBLIC_APP_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}
+  - name: api
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: neurokrystal/front-end
+    source_dir: /
+    build_command: pnpm --filter api... build
+    run_command: pnpm --filter api start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 8080
+    routes:
+      - path: /api
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: APP_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+      - key: PORT
+        scope: RUN_TIME
+        value: "8080"
+      - key: POSTGRES_DB_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: BETTER_AUTH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: BETTER_AUTH_URL
+        scope: RUN_TIME
+        value: ${APP_URL}/api
+      - key: CORS_ORIGIN
+        scope: RUN_TIME
+        value: ${APP_URL}
+      - key: MAILGUN_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: MAILGUN_DOMAIN
+        scope: RUN_TIME
+      - key: DO_SPACES_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: DO_SPACES_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: DO_SPACES_ENDPOINT
+        scope: RUN_TIME
+      - key: DO_SPACES_BUCKET
+        scope: RUN_TIME
+      - key: DO_SPACES_REGION
+        scope: RUN_TIME

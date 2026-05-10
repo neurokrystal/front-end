@@ -41,27 +41,82 @@ A production-ready TypeScript monorepo for DigitalOcean App Platform.
 ### Database
 Ensure you have a DigitalOcean Managed PostgreSQL cluster. Create two databases: `app_test` and `app_prod`.
 
-### App Platform Component Settings
+### DigitalOcean App Platform Deployment
 
-#### Test Environment
-- **Web Service (`apps/web`)**:
-  - Build Command: `pnpm install --frozen-lockfile && pnpm --filter web build`
-  - Run Command: `pnpm --filter web start`
-  - HTTP Port: `3000`
-- **API Service (`apps/api`)**:
-  - Build Command: `pnpm install --frozen-lockfile && pnpm --filter api build`
-  - Run Command: `pnpm --filter api start`
-  - HTTP Port: `8080`
+This monorepo is designed to run both applications (Frontend and API) within a single DigitalOcean App. This allows them to share the same domain and communicate "locally" through DigitalOcean's internal network and path-based routing.
 
-#### Production Environment
-- **Web Service (`apps/web`)**:
-  - Build Command: `pnpm install --frozen-lockfile && pnpm --filter web build`
-  - Run Command: `pnpm --filter web start`
-  - HTTP Port: `3000`
-- **API Service (`apps/api`)**:
-  - Build Command: `pnpm install --frozen-lockfile && pnpm --filter api build`
-  - Run Command: `pnpm --filter api start`
-  - HTTP Port: `8080`
+#### Combined Deployment (Recommended)
+
+In this setup:
+- **Web (Next.js)**: Served at `/` (the root).
+- **API (Fastify)**: Served at `/api`.
+- **Automatic Configuration**: Most URLs are automatically inferred using DigitalOcean's `${APP_URL}` variable.
+
+##### Automated Setup via App Spec
+
+1.  Go to the [DigitalOcean Control Panel](https://cloud.digitalocean.com/apps).
+2.  Click **Create** -> **Apps**.
+3.  Choose **GitHub** and select the repository (`neurokrystal/front-end`).
+4.  DigitalOcean will automatically detect `.do/app.yaml`.
+5.  On the **Resources** page, ensure both the `web` and `api` services are listed.
+6.  On the **Environment Variables** page, you only need to fill in the **Secrets**:
+    - `POSTGRES_DB_URL`: Your database connection string.
+    - `BETTER_AUTH_SECRET`: A long random string for auth security.
+    - `MAILGUN_API_KEY`: If using email services.
+    - `DO_SPACES_KEY` / `SECRET`: If using object storage.
+
+##### Manual Dashboard Configuration (Single App)
+
+If you prefer to configure it manually, add two **Web Services** to a single App:
+
+**1. Service: `web`**
+- **Source Directory**: `/`
+- **Build Command**: `pnpm --filter web... build`
+- **Run Command**: `pnpm --filter web start`
+- **HTTP Port**: `3000`
+- **Routes**: Path `/`
+- **Environment Variables**:
+  - `NEXT_PUBLIC_API_URL`: `${APP_URL}/api` (Build-time) - Auto-infers the API location.
+  - `NEXT_PUBLIC_APP_URL`: `${APP_URL}` (Build-time) - Auto-infers the App URL.
+
+**2. Service: `api`**
+- **Source Directory**: `/`
+- **Build Command**: `pnpm --filter api... build`
+- **Run Command**: `pnpm --filter api start`
+- **HTTP Port**: `8080`
+- **Routes**: Path `/api`
+- **Environment Variables**:
+  - `PORT`: `8080` (Run-time)
+  - `POSTGRES_DB_URL`: (Secret, Run-time)
+  - `BETTER_AUTH_URL`: `${APP_URL}/api` (Run-time) - Auto-inferred.
+  - `CORS_ORIGIN`: `${APP_URL}` (Run-time) - Auto-inferred.
+
+#### Separate App Deployment
+
+If you prefer to run them as completely separate DigitalOcean Apps, use the specialized specs:
+- `.do/web.app.yaml` for the frontend.
+- `.do/api.app.yaml` for the backend.
+
+**Important Monorepo Notes**:
+- **Source Directory**: Must always be set to the repository root (`/`) for all components.
+- **Build Command**: Use `pnpm --filter <app>... build` (the `...` ensures shared packages are built first).
+- **Internal Networking**: Services in the same app can talk to each other using their service name as the hostname (e.g., `http://api:8080`).
+
+## Custom Domains & HTTPS
+
+DigitalOcean App Platform provides **automatic HTTPS** (SSL/TLS) for all applications, including those using custom domains.
+
+1.  **Default Domain**: Every app gets a `*.ondigitalocean.app` domain with HTTPS enabled by default.
+2.  **Custom Domains/Subdomains**:
+    - Go to your App in the DigitalOcean Control Panel.
+    - Click on the **Settings** tab.
+    - Find the **Domains** section and click **Edit**.
+    - Click **Add Domain**.
+    - Enter your domain or subdomain (e.g., `app.yourdomain.com`).
+    - Follow the instructions to update your DNS (usually adding a CNAME record).
+    - DigitalOcean will automatically provision a Let's Encrypt SSL certificate once the DNS propagates.
+
+**Note**: You do *not* need to set up a separate Load Balancer or CDN for HTTPS; it is a native feature of the App Platform.
 
 ## Scripts
 
