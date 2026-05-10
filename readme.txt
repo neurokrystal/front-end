@@ -41,8 +41,9 @@ Instead of adding components manually, use the 'Spec Editor' in the DigitalOcean
   * NODE_OPTIONS: --max-old-space-size=400 (Run-time only)
   * NODE_OPTIONS: --max-old-space-size=1024 (Build-time only)
   * NODE_ENV: production (Run-time)
+  * NODE_ENV: development (Build-time) - Ensures build tools are installed.
   * APP_ENV: production (Build & Run-time)
-  * SKIP_NODE_PRUNE: true (Build-time) - Prevents removal of build tools before custom build command.
+  * SKIP_NODE_PRUNE: true (Build-time) - Prevents removal of build tools.
   * NEXT_PUBLIC_API_URL: ${APP_URL}/api (Build-time) - Automatically infers the API path.
   * NEXT_PUBLIC_APP_URL: ${APP_URL} (Build-time) - Automatically infers the App URL.
 
@@ -67,6 +68,7 @@ Instead of adding components manually, use the 'Spec Editor' in the DigitalOcean
   * NODE_OPTIONS: --max-old-space-size=400 (Run-time only)
   * NODE_OPTIONS: --max-old-space-size=448 (Build-time only)
   * NODE_ENV: production (Run-time)
+  * NODE_ENV: development (Build-time) - Ensures build tools are installed.
   * APP_ENV: production (Build & Run-time)
   * SKIP_NODE_PRUNE: true (Build-time) - Prevents removal of build tools.
   * PORT: 8080 (Run-time)
@@ -108,6 +110,13 @@ We have configured this in the root package.json.
 If the build fails with 'ERR_PNPM_OUTDATED_LOCKFILE':
 - Run 'pnpm install' locally to sync your pnpm-lock.yaml with package.json.
 - CI environments require the lockfile to be perfectly in sync.
+
+If the build fails with 'sh: 1: tsc: not found':
+- CAUSE: Heroku/DO buildpack prunes 'devDependencies' before our custom build command runs.
+- SOLUTION: 
+  1. We have moved 'typescript' to 'dependencies' in all packages so it survives pruning.
+  2. We set 'NODE_ENV: development' during BUILD_TIME to force pnpm to install all tools.
+  3. We use 'SKIP_NODE_PRUNE: true' at build-time.
 
 If the build hangs during 'pnpm install' or 'pnpm build':
 - REDUNDANT BUILDS: We renamed the root 'build' script to 'build:all'. DigitalOcean's Node buildpack automatically runs any script named 'build'. In a monorepo, this caused it to build the entire project multiple times.

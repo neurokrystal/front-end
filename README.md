@@ -106,9 +106,13 @@ If you prefer to run them as completely separate DigitalOcean Apps, use the spec
 - `.do/web.app.yaml` for the frontend.
 - `.do/api.app.yaml` for the backend.
 
-### Troubleshooting "Backend API Not Found" or "Launch Error"
+### Troubleshooting Monorepo Build Issues
 
-If DigitalOcean only finds one component (the frontend) or fails to start:
+If you encounter errors like `sh: 1: tsc: not found` or similar during deployment:
+
+- **Dependency Pruning**: We move `typescript` to `dependencies` (not `devDependencies`) in the affected packages. This ensures the tools remain available after the buildpack's pruning phase.
+- **Build-Time Environment**: We set `NODE_ENV: development` during `BUILD_TIME` in the App Spec. This forces `pnpm` to install all tools, regardless of the production flag.
+- **SKIP_NODE_PRUNE**: We use `SKIP_NODE_PRUNE: "true"` at build-time. This provides an additional hint to the buildpack to keep dependencies intact for our custom build commands.
 
 1.  **Use the Spec Editor**: As mentioned above, pasting the `app.yaml` directly into the "Edit App Spec" window in the DigitalOcean UI is the only way to guarantee both `web` and `api` are added correctly.
 2.  **Manual Start Command**: If you are configuring manually, ensure the **Run Command** is set:

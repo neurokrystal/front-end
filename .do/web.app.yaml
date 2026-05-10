@@ -39,6 +39,9 @@ services:
       - key: NODE_ENV
         scope: RUN_TIME
         value: production
+      - key: NODE_ENV
+        scope: BUILD_TIME
+        value: development
       - key: APP_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
