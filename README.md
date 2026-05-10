@@ -6,7 +6,7 @@ A production-ready TypeScript monorepo for DigitalOcean App Platform.
 
 - `apps/web`: Next.js frontend (App Router, Tailwind CSS).
 - `apps/api`: Fastify backend (Better Auth, PostgreSQL).
-- `packages/shared`: Shared TypeScript types and utilities.
+- `libs/shared`: Shared TypeScript types and utilities.
 
 ## Local Development
 
@@ -122,11 +122,13 @@ If the build seems to hang during `pnpm install` or `pnpm build`:
 
 If you see errors like `runtime type could not be determined` or `runtime 'typescript:default' is not supported` along with a reference to `project.yml`:
 
-- **Cause**: You are likely attempting to deploy using DigitalOcean **Functions** (Serverless) instead of **App Platform** Services.
+- **Cause**: DigitalOcean App Platform sometimes misinterprets monorepos as **Functions** (Serverless) projects, especially if they have a `packages/` directory.
 - **Solution**: 
-  1. Ensure you are in the **Apps** section of the DigitalOcean Control Panel, NOT the **Functions** section.
-  2. If DigitalOcean automatically added a "Functions" component during the "Create App" flow, **Delete it**. You should only have "Web Services" named `web` and `api`.
-  3. DigitalOcean sometimes misinterprets the `packages/` directory as a serverless functions project. Always ensure your components are configured as **Web Services**.
+  1. We have renamed the `packages/` directory to `libs/` to bypass DigitalOcean's auto-detection for functions.
+  2. If the DigitalOcean UI still auto-detects a "Function" component named something like `front-end2`: **Delete it**.
+  3. Manually add your components as **Web Services**.
+  4. Always ensure your components are configured as **Web Services** and the **Source Directory** is set to `/`.
+  5. Use the "Resources" tab to ensure you have exactly two Web Services named `web` and `api`.
 
 - **Note on doctl**: If you are using the DigitalOcean CLI, ensure you use `doctl app create --spec .do/app.yaml`. **Do NOT use** `doctl serverless deploy`, as this will attempt to deploy the monorepo as a collection of serverless functions.
 

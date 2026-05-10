@@ -106,8 +106,9 @@ If the build hangs during 'pnpm install' or 'pnpm build':
 
 TROUBLESHOOTING "FUNCTIONS" BUILD ERRORS:
 If you see errors like 'runtime type could not be determined' or 'runtime typescript:default is not supported' with references to 'project.yml':
-- CAUSE: You are in the 'Functions' (Serverless) section of DigitalOcean, not 'Apps'.
+- CAUSE: DigitalOcean App Platform sometimes misinterprets monorepos as Functions (Serverless) projects because of the 'packages/' directory.
 - SOLUTION: 
-  1. Go to 'Apps' in the DO Control Panel.
-  2. If DO auto-detected 'packages/shared' as a Function component, DELETE IT.
-  3. Ensure all your components are 'Web Services'.
+  1. We have renamed the 'packages/' directory to 'libs/' to stop the auto-detection.
+  2. If DO still auto-detects a 'Function' component (e.g., named 'front-end2'), DELETE IT in the UI.
+  3. Manually add your components as 'Web Services' from the 'Resources' tab.
+  4. Ensure all components are 'Web Services' and 'Source Directory' is '/'.
