@@ -71,7 +71,7 @@ If you prefer to configure it manually, add two **Web Services** to a single App
 
 **1. Service: `web`**
 - **Source Directory**: `/`
-- **Build Command**: `pnpm --filter web... build`
+- **Build Command**: `pnpm --filter @dimensional/shared build && pnpm --filter web build`
 - **Run Command**: `pnpm --filter web start`
 - **HTTP Port**: `3000`
 - **Routes**: Path `/`
@@ -81,7 +81,7 @@ If you prefer to configure it manually, add two **Web Services** to a single App
 
 **2. Service: `api`**
 - **Source Directory**: `/`
-- **Build Command**: `pnpm --filter api... build`
+- **Build Command**: `pnpm --filter @dimensional/shared build && pnpm --filter api build`
 - **Run Command**: `pnpm --filter api start`
 - **HTTP Port**: `8080`
 - **Routes**: Path `/api`
@@ -99,7 +99,7 @@ If you prefer to run them as completely separate DigitalOcean Apps, use the spec
 
 **Important Monorepo Notes**:
 - **Source Directory**: Must always be set to the repository root (`/`) for all components.
-- **Build Command**: Use `pnpm --filter <app>... --workspace-concurrency 1 build` (ensures shared packages are built first and sequentially to save memory).
+- **Build Command**: Use `pnpm --filter @dimensional/shared build && pnpm --filter <app> build` (ensures shared packages are built first and sequentially to save memory).
 - **Internal Networking**: Services in the same app can talk to each other using their service name as the hostname (e.g., `http://api:8080`).
 
 ### Troubleshooting pnpm Builds
@@ -112,10 +112,10 @@ If the build fails with `ERR_PNPM_OUTDATED_LOCKFILE`:
 - DigitalOcean (and most CI systems) use `--frozen-lockfile` by default to ensure reproducible builds.
 
 If the build seems to hang during `pnpm install` or `pnpm build`:
-- **Concurrency**: We have set `--workspace-concurrency 1` in the root `package.json` and App Specs to build packages one-by-one, which significantly reduces peak memory usage.
-- **Node Memory Limits**: We have added `NODE_OPTIONS: --max-old-space-size=400` to the App Specs. This tells Node.js to be more aggressive with garbage collection on small instances.
-- **Update Notifier**: We have disabled the pnpm update notifier and other resource-heavy CI features via `.npmrc` and environment variables.
-- **Memory Check**: DigitalOcean's `Basic-XXS` ($5.00/mo) instance has only 512MB RAM. This is extremely tight for monorepo builds. **We strongly recommend upgrading to `Basic-XS` ($10.00/mo) which provides 1GB RAM.**
+- **Redundant Builds**: We have renamed the root `build` script to `build:all`. This prevents the DigitalOcean Node.js buildpack from automatically running a full monorepo build for every service, which previously caused memory exhaustion.
+- **Concurrency**: We use `CHILD_CONCURRENCY: 1` and `--workspace-concurrency 1` to ensure builds and installs happen sequentially.
+- **Node Memory Limits**: We have moved `NODE_OPTIONS: --max-old-space-size=400` to the **Run-time** scope, and added explicit `NODE_OPTIONS` for the **Build-time** scope (768MB for `web`, 384MB for `api`) to ensure the build process has enough head-room without hitting container limits.
+- **Memory Recommendation**: The `Basic-XXS` ($5.00/mo) instance is extremely tight for monorepo builds. **The `web` service is now configured to use `Basic-XS` ($10.00/mo) by default to ensure reliable builds.**
 - If you must use 512MB, ensure you are using the optimized settings provided in this repo.
 
 ## Custom Domains & HTTPS

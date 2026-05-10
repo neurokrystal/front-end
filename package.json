@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "pnpm -r --parallel dev",
-    "build": "pnpm -r --workspace-concurrency 1 build",
+    "build:all": "pnpm -r --workspace-concurrency 1 build",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint"
   },

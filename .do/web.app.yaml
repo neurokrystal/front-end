@@ -6,17 +6,23 @@ services:
       deploy_on_push: true
       repo: neurokrystal/front-end
     source_dir: /
-    build_command: pnpm --filter web... --workspace-concurrency 1 build
+    build_command: pnpm --filter @dimensional/shared build && pnpm --filter web build
     run_command: pnpm --filter web start
     environment_slug: node-js
     instance_count: 1
-    instance_size_slug: basic-xxs
+    instance_size_slug: basic-xs
     routes:
       - path: /
     envs:
       - key: CI
         scope: RUN_AND_BUILD_TIME
         value: "true"
+      - key: NEXT_TELEMETRY_DISABLED
+        scope: RUN_AND_BUILD_TIME
+        value: "1"
+      - key: CHILD_CONCURRENCY
+        scope: BUILD_TIME
+        value: "1"
       - key: NPM_CONFIG_UPDATE_NOTIFIER
         scope: RUN_AND_BUILD_TIME
         value: "false"
@@ -42,5 +48,8 @@ services:
         scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}
       - key: NODE_OPTIONS
-        scope: RUN_AND_BUILD_TIME
+        scope: RUN_TIME
         value: --max-old-space-size=400
+      - key: NODE_OPTIONS
+        scope: BUILD_TIME
+        value: --max-old-space-size=768

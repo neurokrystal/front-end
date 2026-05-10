@@ -13,20 +13,23 @@ This guide covers deploying both the 'web' and 'api' applications as services wi
 2. COMPONENT: web (Frontend)
 - Component Type: Web Service
 - Source Directory: /
-- Build Command: pnpm --filter web... --workspace-concurrency 1 build
+- Build Command: pnpm --filter @dimensional/shared build && pnpm --filter web build
 - Run Command: pnpm --filter web start
 - HTTP Port: 3000
 - Routes: /
 - Health Check: Path: /
-- Instance Size: Basic-XS ($10.00/mo) RECOMMENDED (or Basic-XXS with risk)
+- Instance Size: Basic-XS ($10.00/mo) - REQUIRED for reliable Next.js builds
 - Instance Count: 1
 - Environment Variables:
   * CI: true (Build & Run-time)
+  * NEXT_TELEMETRY_DISABLED: 1 (Build & Run-time)
+  * CHILD_CONCURRENCY: 1 (Build-time)
   * NPM_CONFIG_UPDATE_NOTIFIER: false (Build & Run-time)
   * NPM_CONFIG_PROGRESS: false (Build & Run-time)
   * NPM_CONFIG_COLOR: false (Build & Run-time)
   * NPM_CONFIG_FUND: false (Build & Run-time)
-  * NODE_OPTIONS: --max-old-space-size=400 (Build & Run-time)
+  * NODE_OPTIONS: --max-old-space-size=400 (Run-time only)
+  * NODE_OPTIONS: --max-old-space-size=768 (Build-time only)
   * NODE_ENV: production (Run-time)
   * APP_ENV: production (Build & Run-time)
   * NEXT_PUBLIC_API_URL: ${APP_URL}/api (Build-time) - Automatically infers the API path.
@@ -35,7 +38,7 @@ This guide covers deploying both the 'web' and 'api' applications as services wi
 3. COMPONENT: api (Backend)
 - Component Type: Web Service
 - Source Directory: /
-- Build Command: pnpm --filter api... --workspace-concurrency 1 build
+- Build Command: pnpm --filter @dimensional/shared build && pnpm --filter api build
 - Run Command: pnpm --filter api start
 - HTTP Port: 8080
 - Routes: /api (This routes all https://your-domain.com/api/* requests to this service)
@@ -44,11 +47,14 @@ This guide covers deploying both the 'web' and 'api' applications as services wi
 - Instance Count: 1
 - Environment Variables:
   * CI: true (Build & Run-time)
+  * NEXT_TELEMETRY_DISABLED: 1 (Build & Run-time)
+  * CHILD_CONCURRENCY: 1 (Build-time)
   * NPM_CONFIG_UPDATE_NOTIFIER: false (Build & Run-time)
   * NPM_CONFIG_PROGRESS: false (Build & Run-time)
   * NPM_CONFIG_COLOR: false (Build & Run-time)
   * NPM_CONFIG_FUND: false (Build & Run-time)
-  * NODE_OPTIONS: --max-old-space-size=400 (Build & Run-time)
+  * NODE_OPTIONS: --max-old-space-size=400 (Run-time only)
+  * NODE_OPTIONS: --max-old-space-size=384 (Build-time only)
   * NODE_ENV: production (Run-time)
   * APP_ENV: production (Build & Run-time)
   * PORT: 8080 (Run-time)
@@ -92,8 +98,8 @@ If the build fails with 'ERR_PNPM_OUTDATED_LOCKFILE':
 - CI environments require the lockfile to be perfectly in sync.
 
 If the build hangs during 'pnpm install' or 'pnpm build':
-- CONCURRENCY: We use '--workspace-concurrency 1' to build packages one-by-one.
-- NODE_OPTIONS: We set '--max-old-space-size=400' to manage memory better.
+- REDUNDANT BUILDS: We renamed the root 'build' script to 'build:all'. DigitalOcean's Node buildpack automatically runs any script named 'build'. In a monorepo, this caused it to build the entire project multiple times.
+- CONCURRENCY: We use 'CHILD_CONCURRENCY: 1' to limit memory usage during pnpm install.
+- NODE_OPTIONS: We moved '--max-old-space-size=400' to RUN-TIME only so it doesn't cap the installer's memory.
 - MEMORY: The Basic-XXS ($5/mo) instance has only 512MB RAM. This is very tight for monorepos. 
-- RECOMMENDATION: Upgrade to Basic-XS ($10/mo) for 1GB RAM to ensure reliable builds.
-- If you must stay on Basic-XXS, ensure your .npmrc is present as configured in this repo.
+- REQUIREMENT: Use Basic-XS ($10/mo) for 1GB RAM on the 'web' service.
