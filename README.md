@@ -99,7 +99,7 @@ If you prefer to run them as completely separate DigitalOcean Apps, use the spec
 
 **Important Monorepo Notes**:
 - **Source Directory**: Must always be set to the repository root (`/`) for all components.
-- **Build Command**: Use `pnpm --filter <app>... build` (the `...` ensures shared packages are built first).
+- **Build Command**: Use `pnpm --filter <app>... --workspace-concurrency 1 build` (ensures shared packages are built first and sequentially to save memory).
 - **Internal Networking**: Services in the same app can talk to each other using their service name as the hostname (e.g., `http://api:8080`).
 
 ### Troubleshooting pnpm Builds
@@ -111,11 +111,12 @@ If the build fails with `ERR_PNPM_OUTDATED_LOCKFILE`:
 - Run `pnpm install` locally to update the lockfile and commit the changes.
 - DigitalOcean (and most CI systems) use `--frozen-lockfile` by default to ensure reproducible builds.
 
-If the build seems to hang during `pnpm install`:
-- We have disabled the pnpm update notifier and other resource-heavy CI features via `.npmrc` and environment variables.
-- We have pinned `better-auth` to a specific version.
-- **Memory Check**: DigitalOcean's `Basic-XXS` ($5.00/mo) instance has only 512MB RAM. This is often insufficient for pnpm resolution and Next.js builds in a monorepo. **We strongly recommend upgrading to `Basic-XS` ($10.00/mo) which provides 1GB RAM.**
-- If you must use 512MB, ensure you are using the optimized `.npmrc` provided in this repo.
+If the build seems to hang during `pnpm install` or `pnpm build`:
+- **Concurrency**: We have set `--workspace-concurrency 1` in the root `package.json` and App Specs to build packages one-by-one, which significantly reduces peak memory usage.
+- **Node Memory Limits**: We have added `NODE_OPTIONS: --max-old-space-size=400` to the App Specs. This tells Node.js to be more aggressive with garbage collection on small instances.
+- **Update Notifier**: We have disabled the pnpm update notifier and other resource-heavy CI features via `.npmrc` and environment variables.
+- **Memory Check**: DigitalOcean's `Basic-XXS` ($5.00/mo) instance has only 512MB RAM. This is extremely tight for monorepo builds. **We strongly recommend upgrading to `Basic-XS` ($10.00/mo) which provides 1GB RAM.**
+- If you must use 512MB, ensure you are using the optimized settings provided in this repo.
 
 ## Custom Domains & HTTPS
 

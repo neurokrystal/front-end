@@ -13,12 +13,12 @@ This guide covers deploying both the 'web' and 'api' applications as services wi
 2. COMPONENT: web (Frontend)
 - Component Type: Web Service
 - Source Directory: /
-- Build Command: pnpm --filter web... build
+- Build Command: pnpm --filter web... --workspace-concurrency 1 build
 - Run Command: pnpm --filter web start
 - HTTP Port: 3000
 - Routes: /
 - Health Check: Path: /
-- Instance Size: Basic-XXS ($5.00/mo) or higher
+- Instance Size: Basic-XS ($10.00/mo) RECOMMENDED (or Basic-XXS with risk)
 - Instance Count: 1
 - Environment Variables:
   * CI: true (Build & Run-time)
@@ -26,6 +26,7 @@ This guide covers deploying both the 'web' and 'api' applications as services wi
   * NPM_CONFIG_PROGRESS: false (Build & Run-time)
   * NPM_CONFIG_COLOR: false (Build & Run-time)
   * NPM_CONFIG_FUND: false (Build & Run-time)
+  * NODE_OPTIONS: --max-old-space-size=400 (Build & Run-time)
   * NODE_ENV: production (Run-time)
   * APP_ENV: production (Build & Run-time)
   * NEXT_PUBLIC_API_URL: ${APP_URL}/api (Build-time) - Automatically infers the API path.
@@ -34,7 +35,7 @@ This guide covers deploying both the 'web' and 'api' applications as services wi
 3. COMPONENT: api (Backend)
 - Component Type: Web Service
 - Source Directory: /
-- Build Command: pnpm --filter api... build
+- Build Command: pnpm --filter api... --workspace-concurrency 1 build
 - Run Command: pnpm --filter api start
 - HTTP Port: 8080
 - Routes: /api (This routes all https://your-domain.com/api/* requests to this service)
@@ -47,6 +48,7 @@ This guide covers deploying both the 'web' and 'api' applications as services wi
   * NPM_CONFIG_PROGRESS: false (Build & Run-time)
   * NPM_CONFIG_COLOR: false (Build & Run-time)
   * NPM_CONFIG_FUND: false (Build & Run-time)
+  * NODE_OPTIONS: --max-old-space-size=400 (Build & Run-time)
   * NODE_ENV: production (Run-time)
   * APP_ENV: production (Build & Run-time)
   * PORT: 8080 (Run-time)
@@ -89,9 +91,9 @@ If the build fails with 'ERR_PNPM_OUTDATED_LOCKFILE':
 - Run 'pnpm install' locally to sync your pnpm-lock.yaml with package.json.
 - CI environments require the lockfile to be perfectly in sync.
 
-If the build hangs during 'pnpm install':
-- We have disabled the pnpm update notifier and other resource-heavy CI features.
-- We have pinned 'better-auth' to a specific version.
+If the build hangs during 'pnpm install' or 'pnpm build':
+- CONCURRENCY: We use '--workspace-concurrency 1' to build packages one-by-one.
+- NODE_OPTIONS: We set '--max-old-space-size=400' to manage memory better.
 - MEMORY: The Basic-XXS ($5/mo) instance has only 512MB RAM. This is very tight for monorepos. 
 - RECOMMENDATION: Upgrade to Basic-XS ($10/mo) for 1GB RAM to ensure reliable builds.
 - If you must stay on Basic-XXS, ensure your .npmrc is present as configured in this repo.

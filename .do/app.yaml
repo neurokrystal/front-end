@@ -6,7 +6,7 @@ services:
       deploy_on_push: true
       repo: neurokrystal/front-end
     source_dir: /
-    build_command: pnpm --filter web... build
+    build_command: pnpm --filter web... --workspace-concurrency 1 build
     run_command: pnpm --filter web start
     environment_slug: node-js
     instance_count: 1
@@ -41,13 +41,16 @@ services:
       - key: NEXT_PUBLIC_APP_URL
         scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}
+      - key: NODE_OPTIONS
+        scope: RUN_AND_BUILD_TIME
+        value: --max-old-space-size=400
   - name: api
     github:
       branch: main
       deploy_on_push: true
       repo: neurokrystal/front-end
     source_dir: /
-    build_command: pnpm --filter api... build
+    build_command: pnpm --filter api... --workspace-concurrency 1 build
     run_command: pnpm --filter api start
     environment_slug: node-js
     instance_count: 1
@@ -109,3 +112,6 @@ services:
         scope: RUN_TIME
       - key: DO_SPACES_REGION
         scope: RUN_TIME
+      - key: NODE_OPTIONS
+        scope: RUN_AND_BUILD_TIME
+        value: --max-old-space-size=400
