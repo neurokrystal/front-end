@@ -106,6 +106,11 @@ If you prefer to run them as completely separate DigitalOcean Apps, use the spec
 
 If your build fails with `[ERR_PNPM_IGNORED_BUILDS]`, it means a dependency (like `sharp` or `esbuild`) needs permission to run its build script. This is explicitly handled in the root `package.json` under the `pnpm.onlyBuiltDependencies` field.
 
+If the build fails with `ERR_PNPM_OUTDATED_LOCKFILE`:
+- This means your `pnpm-lock.yaml` is out of sync with your `package.json` files.
+- Run `pnpm install` locally to update the lockfile and commit the changes.
+- DigitalOcean (and most CI systems) use `--frozen-lockfile` by default to ensure reproducible builds.
+
 If the build seems to hang during `pnpm install`:
 - We have disabled the pnpm update notifier via `.npmrc` and environment variables.
 - We have pinned `better-auth` to a specific version to avoid resolution delays.

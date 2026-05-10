@@ -79,6 +79,10 @@ TROUBLESHOOTING PNPM BUILDS:
 If the build fails with '[ERR_PNPM_IGNORED_BUILDS]', it's because pnpm requires explicit approval for build scripts (e.g., for 'sharp' or 'esbuild').
 We have configured this in the root package.json.
 
+If the build fails with 'ERR_PNPM_OUTDATED_LOCKFILE':
+- Run 'pnpm install' locally to sync your pnpm-lock.yaml with package.json.
+- CI environments require the lockfile to be perfectly in sync.
+
 If the build hangs during 'pnpm install':
 - We have disabled the pnpm update notifier.
 - We have pinned 'better-auth' to a specific version.
