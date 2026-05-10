@@ -112,9 +112,10 @@ If the build fails with `ERR_PNPM_OUTDATED_LOCKFILE`:
 - DigitalOcean (and most CI systems) use `--frozen-lockfile` by default to ensure reproducible builds.
 
 If the build seems to hang during `pnpm install`:
-- We have disabled the pnpm update notifier via `.npmrc` and environment variables.
-- We have pinned `better-auth` to a specific version to avoid resolution delays.
-- Ensure your DigitalOcean instance has enough memory (Basic-XXS might be tight for large builds).
+- We have disabled the pnpm update notifier and other resource-heavy CI features via `.npmrc` and environment variables.
+- We have pinned `better-auth` to a specific version.
+- **Memory Check**: DigitalOcean's `Basic-XXS` ($5.00/mo) instance has only 512MB RAM. This is often insufficient for pnpm resolution and Next.js builds in a monorepo. **We strongly recommend upgrading to `Basic-XS` ($10.00/mo) which provides 1GB RAM.**
+- If you must use 512MB, ensure you are using the optimized `.npmrc` provided in this repo.
 
 ## Custom Domains & HTTPS
 

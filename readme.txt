@@ -23,6 +23,9 @@ This guide covers deploying both the 'web' and 'api' applications as services wi
 - Environment Variables:
   * CI: true (Build & Run-time)
   * NPM_CONFIG_UPDATE_NOTIFIER: false (Build & Run-time)
+  * NPM_CONFIG_PROGRESS: false (Build & Run-time)
+  * NPM_CONFIG_COLOR: false (Build & Run-time)
+  * NPM_CONFIG_FUND: false (Build & Run-time)
   * NODE_ENV: production (Run-time)
   * APP_ENV: production (Build & Run-time)
   * NEXT_PUBLIC_API_URL: ${APP_URL}/api (Build-time) - Automatically infers the API path.
@@ -41,6 +44,9 @@ This guide covers deploying both the 'web' and 'api' applications as services wi
 - Environment Variables:
   * CI: true (Build & Run-time)
   * NPM_CONFIG_UPDATE_NOTIFIER: false (Build & Run-time)
+  * NPM_CONFIG_PROGRESS: false (Build & Run-time)
+  * NPM_CONFIG_COLOR: false (Build & Run-time)
+  * NPM_CONFIG_FUND: false (Build & Run-time)
   * NODE_ENV: production (Run-time)
   * APP_ENV: production (Build & Run-time)
   * PORT: 8080 (Run-time)
@@ -84,6 +90,8 @@ If the build fails with 'ERR_PNPM_OUTDATED_LOCKFILE':
 - CI environments require the lockfile to be perfectly in sync.
 
 If the build hangs during 'pnpm install':
-- We have disabled the pnpm update notifier.
+- We have disabled the pnpm update notifier and other resource-heavy CI features.
 - We have pinned 'better-auth' to a specific version.
-- Ensure the instance has at least 512MB RAM (Basic-XXS). If it still hangs, consider upgrading to Basic-XS ($10/mo).
+- MEMORY: The Basic-XXS ($5/mo) instance has only 512MB RAM. This is very tight for monorepos. 
+- RECOMMENDATION: Upgrade to Basic-XS ($10/mo) for 1GB RAM to ensure reliable builds.
+- If you must stay on Basic-XXS, ensure your .npmrc is present as configured in this repo.
