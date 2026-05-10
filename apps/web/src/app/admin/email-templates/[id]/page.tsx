@@ -24,7 +24,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
   const [testStatus, setTestStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    apiFetch<EmailTemplate>(`/api/admin/email-templates/${id}`)
+    apiFetch<EmailTemplate>(`/admin/email-templates/${id}`)
       .then(setTemplate)
       .finally(() => setLoading(false));
   }, [id]);
@@ -33,7 +33,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
     if (!template) return;
     setSaving(true);
     try {
-      await apiFetch(`/api/admin/email-templates/${id}`, {
+      await apiFetch(`/admin/email-templates/${id}`, {
         method: "PATCH",
         body: JSON.stringify(template),
       });
@@ -49,7 +49,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
     if (!template || !testEmail) return;
     setTestStatus("Sending...");
     try {
-      await apiFetch("/api/admin/email-templates/test", {
+      await apiFetch("/admin/email-templates/test", {
         method: "POST",
         body: JSON.stringify({
           to: testEmail,

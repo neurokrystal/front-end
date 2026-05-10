@@ -59,7 +59,7 @@ services:
         value: --max-old-space-size=400
       - key: NODE_OPTIONS
         scope: BUILD_TIME
-        value: --max-old-space-size=1024
+        value: --max-old-space-size=800
   - name: api
     github:
       branch: main
@@ -145,5 +145,5 @@ services:
         value: --max-old-space-size=400
       - key: NODE_OPTIONS
         scope: BUILD_TIME
-        value: --max-old-space-size=448
+        value: --max-old-space-size=800
 functions: []

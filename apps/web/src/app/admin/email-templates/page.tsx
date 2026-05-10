@@ -17,7 +17,7 @@ export default function EmailTemplatesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch<EmailTemplate[]>("/api/admin/email-templates")
+    apiFetch<EmailTemplate[]>("/admin/email-templates")
       .then(setTemplates)
       .finally(() => setLoading(false));
   }, []);

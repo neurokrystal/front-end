@@ -30,7 +30,7 @@ export default function AssetsPage() {
   const fetchAssets = async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<Asset[]>("/api/admin/assets");
+      const data = await apiFetch<Asset[]>("/admin/assets");
       setAssets(data);
     } catch (error) {
       console.error(error);
@@ -49,7 +49,7 @@ export default function AssetsPage() {
     formData.append("folder", folder);
 
     try {
-      await fetch(`${env.NEXT_PUBLIC_API_URL}/api/admin/assets/upload`, {
+      await fetch(`${env.NEXT_PUBLIC_API_URL}/admin/assets/upload`, {
         method: "POST",
         body: formData,
         credentials: "include",
@@ -65,7 +65,7 @@ export default function AssetsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this asset?")) return;
     try {
-      await apiFetch(`/api/admin/assets/${id}`, { method: "DELETE" });
+      await apiFetch(`/admin/assets/${id}`, { method: "DELETE" });
       fetchAssets();
     } catch (error) {
       alert("Failed to delete asset");

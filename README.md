@@ -106,6 +106,19 @@ If you prefer to run them as completely separate DigitalOcean Apps, use the spec
 - `.do/web.app.yaml` for the frontend.
 - `.do/api.app.yaml` for the backend.
 
+### Routing & Path Trimming
+
+DigitalOcean App Platform handles routing to different services based on paths. In our configuration:
+- `/` routes to the **Web** service (Next.js).
+- `/api` routes to the **API** service (Fastify).
+
+**Crucial Note on Path Trimming:**
+DigitalOcean is configured to **trim** the `/api` prefix before sending the request to the Fastify service. 
+- A request to `https://your-domain.com/api/health` arrives at Fastify as `GET /health`.
+- A request to `https://your-domain.com/api/auth/signin` arrives at Fastify as `GET /auth/signin`.
+
+Because of this, **Fastify routes must NOT include the `/api` prefix**. All API routes in this repository (e.g., `/me`, `/auth/*`, `/health`) are defined relative to the service root. This ensures they work both locally (on port 8080) and in production (behind the `/api` route).
+
 ### Troubleshooting Monorepo Build Issues
 
 If you encounter errors like `sh: 1: tsc: not found` or similar during deployment:

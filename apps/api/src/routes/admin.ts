@@ -20,19 +20,19 @@ export async function adminRoutes(fastify: FastifyInstance) {
   });
 
   // Email Templates
-  fastify.get("/api/admin/email-templates", async () => {
+  fastify.get("/admin/email-templates", async () => {
     const res = await query("SELECT * FROM email_templates ORDER BY id");
     return res.rows;
   });
 
-  fastify.get("/api/admin/email-templates/:id", async (request, reply) => {
+  fastify.get("/admin/email-templates/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
     const res = await query("SELECT * FROM email_templates WHERE id = $1", [id]);
     if (res.rowCount === 0) return reply.status(404).send({ message: "Not found" });
     return res.rows[0];
   });
 
-  fastify.patch("/api/admin/email-templates/:id", async (request) => {
+  fastify.patch("/admin/email-templates/:id", async (request) => {
     const { id } = request.params as { id: string };
     const { subject, body_text, body_html } = request.body as any;
     
@@ -44,7 +44,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
     return { success: true };
   });
 
-  fastify.post("/api/admin/email-templates/test", async (request) => {
+  fastify.post("/admin/email-templates/test", async (request) => {
     const { to, subject, body_text, body_html, data } = request.body as any;
     
     const renderedText = emailService.renderTemplate(body_text, data || {});
@@ -61,12 +61,12 @@ export async function adminRoutes(fastify: FastifyInstance) {
   });
 
   // Assets
-  fastify.get("/api/admin/assets", async () => {
+  fastify.get("/admin/assets", async () => {
     const res = await query("SELECT * FROM assets ORDER BY created_at DESC");
     return res.rows;
   });
 
-  fastify.post("/api/admin/assets/upload", async (request, reply) => {
+  fastify.post("/admin/assets/upload", async (request, reply) => {
     const data = await request.file();
     if (!data) return reply.status(400).send({ message: "No file uploaded" });
 
@@ -89,7 +89,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
     return { id, url, name: filename };
   });
 
-  fastify.delete("/api/admin/assets/:id", async (request) => {
+  fastify.delete("/admin/assets/:id", async (request) => {
     const { id } = request.params as { id: string };
     const res = await query("SELECT path FROM assets WHERE id = $1", [id]);
     if (res.rowCount && res.rowCount > 0) {

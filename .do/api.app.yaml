@@ -82,5 +82,5 @@ services:
         value: --max-old-space-size=400
       - key: NODE_OPTIONS
         scope: BUILD_TIME
-        value: --max-old-space-size=448
+        value: --max-old-space-size=800
 functions: []

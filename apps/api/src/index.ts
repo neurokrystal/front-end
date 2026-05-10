@@ -21,7 +21,7 @@ await server.register(cors, {
 await server.register(multipart);
 
 // Better Auth handler
-server.all("/api/auth/*", async (request, reply) => {
+server.all("/auth/*", async (request, reply) => {
   const protocol = request.protocol;
   const host = request.headers.host || request.hostname;
   const url = `${protocol}://${host}${request.url}`;

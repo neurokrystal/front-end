@@ -103,6 +103,14 @@ SECRETS:
   6. DigitalOcean will provide a CNAME or ALIAS record. Update your DNS provider with this value.
   7. Wait for propagation. DigitalOcean will automatically issue and manage the HTTPS certificate.
 
+TROUBLESHOOTING "API ROUTING & 404 ERRORS":
+- We use path-based routing: '/' for web, '/api' for backend.
+- DigitalOcean is set to TRIM the '/api' prefix.
+- EXAMPLE: https://domain.com/api/me -> Fastify sees '/me'.
+- RESULT: Fastify routes in 'apps/api/src' do NOT include '/api' (e.g., they use '/me', '/auth').
+- FRONTEND: Calls to 'apiFetch' do NOT include '/api' in the path (e.g., apiFetch('/me')).
+- LOCAL: This remains consistent with running the API on http://localhost:8080.
+
 TROUBLESHOOTING PNPM BUILDS:
 If the build fails with '[ERR_PNPM_IGNORED_BUILDS]', it's because pnpm requires explicit approval for build scripts (e.g., for 'sharp' or 'esbuild').
 We have configured this in the root package.json.
