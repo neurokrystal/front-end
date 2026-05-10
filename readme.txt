@@ -103,3 +103,11 @@ If the build hangs during 'pnpm install' or 'pnpm build':
 - NODE_OPTIONS: We moved '--max-old-space-size=400' to RUN-TIME only so it doesn't cap the installer's memory.
 - MEMORY: The Basic-XXS ($5/mo) instance has only 512MB RAM. This is very tight for monorepos. 
 - REQUIREMENT: Use Basic-XS ($10/mo) for 1GB RAM on the 'web' service.
+
+TROUBLESHOOTING "FUNCTIONS" BUILD ERRORS:
+If you see errors like 'runtime type could not be determined' or 'runtime typescript:default is not supported' with references to 'project.yml':
+- CAUSE: You are in the 'Functions' (Serverless) section of DigitalOcean, not 'Apps'.
+- SOLUTION: 
+  1. Go to 'Apps' in the DO Control Panel.
+  2. If DO auto-detected 'packages/shared' as a Function component, DELETE IT.
+  3. Ensure all your components are 'Web Services'.

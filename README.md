@@ -118,6 +118,18 @@ If the build seems to hang during `pnpm install` or `pnpm build`:
 - **Memory Recommendation**: The `Basic-XXS` ($5.00/mo) instance is extremely tight for monorepo builds. **The `web` service is now configured to use `Basic-XS` ($10.00/mo) by default to ensure reliable builds.**
 - If you must use 512MB, ensure you are using the optimized settings provided in this repo.
 
+### Troubleshooting "Functions" Build Errors
+
+If you see errors like `runtime type could not be determined` or `runtime 'typescript:default' is not supported` along with a reference to `project.yml`:
+
+- **Cause**: You are likely attempting to deploy using DigitalOcean **Functions** (Serverless) instead of **App Platform** Services.
+- **Solution**: 
+  1. Ensure you are in the **Apps** section of the DigitalOcean Control Panel, NOT the **Functions** section.
+  2. If DigitalOcean automatically added a "Functions" component during the "Create App" flow, **Delete it**. You should only have "Web Services" named `web` and `api`.
+  3. DigitalOcean sometimes misinterprets the `packages/` directory as a serverless functions project. Always ensure your components are configured as **Web Services**.
+
+- **Note on doctl**: If you are using the DigitalOcean CLI, ensure you use `doctl app create --spec .do/app.yaml`. **Do NOT use** `doctl serverless deploy`, as this will attempt to deploy the monorepo as a collection of serverless functions.
+
 ## Custom Domains & HTTPS
 
 DigitalOcean App Platform provides **automatic HTTPS** (SSL/TLS) for all applications, including those using custom domains.
