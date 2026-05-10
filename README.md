@@ -104,7 +104,12 @@ If you prefer to run them as completely separate DigitalOcean Apps, use the spec
 
 ### Troubleshooting pnpm Builds
 
-If your build fails with `[ERR_PNPM_IGNORED_BUILDS]`, it means a dependency (like `sharp` or `esbuild`) needs permission to run its build script. This is explicitly handled in the root `package.json` under the `pnpm.onlyBuiltDependencies` field. If you add new packages that require native builds, add them to that list.
+If your build fails with `[ERR_PNPM_IGNORED_BUILDS]`, it means a dependency (like `sharp` or `esbuild`) needs permission to run its build script. This is explicitly handled in the root `package.json` under the `pnpm.onlyBuiltDependencies` field.
+
+If the build seems to hang during `pnpm install`:
+- We have disabled the pnpm update notifier via `.npmrc` and environment variables.
+- We have pinned `better-auth` to a specific version to avoid resolution delays.
+- Ensure your DigitalOcean instance has enough memory (Basic-XXS might be tight for large builds).
 
 ## Custom Domains & HTTPS
 

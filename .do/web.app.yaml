@@ -14,6 +14,12 @@ services:
     routes:
       - path: /
     envs:
+      - key: CI
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+      - key: NPM_CONFIG_UPDATE_NOTIFIER
+        scope: RUN_AND_BUILD_TIME
+        value: "false"
       - key: NODE_ENV
         scope: RUN_TIME
         value: production
