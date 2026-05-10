@@ -42,6 +42,9 @@ services:
       - key: APP_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
+      - key: SKIP_NODE_PRUNE
+        scope: BUILD_TIME
+        value: "true"
       - key: NEXT_PUBLIC_API_URL
         scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}/api
@@ -53,7 +56,7 @@ services:
         value: --max-old-space-size=400
       - key: NODE_OPTIONS
         scope: BUILD_TIME
-        value: --max-old-space-size=768
+        value: --max-old-space-size=400
   - name: api
     github:
       branch: main
@@ -93,6 +96,9 @@ services:
       - key: APP_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
+      - key: SKIP_NODE_PRUNE
+        scope: BUILD_TIME
+        value: "true"
       - key: PORT
         scope: RUN_TIME
         value: "8080"
@@ -133,5 +139,5 @@ services:
         value: --max-old-space-size=400
       - key: NODE_OPTIONS
         scope: BUILD_TIME
-        value: --max-old-space-size=384
+        value: --max-old-space-size=448
 functions: []

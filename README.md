@@ -133,7 +133,8 @@ If the build fails with `ERR_PNPM_OUTDATED_LOCKFILE`:
 If the build seems to hang during `pnpm install` or `pnpm build`:
 - **Redundant Builds**: We have renamed the root `build` script to `build:all`. This prevents the DigitalOcean Node.js buildpack from automatically running a full monorepo build for every service, which previously caused memory exhaustion.
 - **Concurrency**: We use `CHILD_CONCURRENCY: 1` and `--workspace-concurrency 1` to ensure builds and installs happen sequentially.
-- **Node Memory Limits**: We have moved `NODE_OPTIONS: --max-old-space-size=400` to the **Run-time** scope, and added explicit `NODE_OPTIONS` for the **Build-time** scope (768MB for `web`, 384MB for `api`) to ensure the build process has enough head-room without hitting container limits.
+- **Node Memory Limits**: We have moved `NODE_OPTIONS: --max-old-space-size=400` to the **Run-time** scope, and added explicit `NODE_OPTIONS` for the **Build-time** scope (1024MB for `web`, 448MB for `api`) to ensure the build process has enough head-room without hitting container limits.
+- **Dependency Pruning**: We use `SKIP_NODE_PRUNE: "true"` at build-time. This prevents DigitalOcean from removing `devDependencies` (like `typescript`) before the custom build command runs.
 - **Memory Recommendation**: The `Basic-XXS` ($5.00/mo) instance is extremely tight for monorepo builds. **The `web` service is now configured to use `Basic-XS` ($10.00/mo) by default to ensure reliable builds.**
 - If you must use 512MB, ensure you are using the optimized settings provided in this repo.
 

@@ -39,6 +39,9 @@ services:
       - key: APP_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
+      - key: SKIP_NODE_PRUNE
+        scope: BUILD_TIME
+        value: "true"
       - key: POSTGRES_DB_URL
         scope: RUN_TIME
         type: SECRET
@@ -76,5 +79,5 @@ services:
         value: --max-old-space-size=400
       - key: NODE_OPTIONS
         scope: BUILD_TIME
-        value: --max-old-space-size=384
+        value: --max-old-space-size=448
 functions: []

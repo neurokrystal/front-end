@@ -39,9 +39,10 @@ Instead of adding components manually, use the 'Spec Editor' in the DigitalOcean
   * NPM_CONFIG_COLOR: false (Build & Run-time)
   * NPM_CONFIG_FUND: false (Build & Run-time)
   * NODE_OPTIONS: --max-old-space-size=400 (Run-time only)
-  * NODE_OPTIONS: --max-old-space-size=768 (Build-time only)
+  * NODE_OPTIONS: --max-old-space-size=1024 (Build-time only)
   * NODE_ENV: production (Run-time)
   * APP_ENV: production (Build & Run-time)
+  * SKIP_NODE_PRUNE: true (Build-time) - Prevents removal of build tools before custom build command.
   * NEXT_PUBLIC_API_URL: ${APP_URL}/api (Build-time) - Automatically infers the API path.
   * NEXT_PUBLIC_APP_URL: ${APP_URL} (Build-time) - Automatically infers the App URL.
 
@@ -64,9 +65,10 @@ Instead of adding components manually, use the 'Spec Editor' in the DigitalOcean
   * NPM_CONFIG_COLOR: false (Build & Run-time)
   * NPM_CONFIG_FUND: false (Build & Run-time)
   * NODE_OPTIONS: --max-old-space-size=400 (Run-time only)
-  * NODE_OPTIONS: --max-old-space-size=384 (Build-time only)
+  * NODE_OPTIONS: --max-old-space-size=448 (Build-time only)
   * NODE_ENV: production (Run-time)
   * APP_ENV: production (Build & Run-time)
+  * SKIP_NODE_PRUNE: true (Build-time) - Prevents removal of build tools.
   * PORT: 8080 (Run-time)
   * POSTGRES_DB_URL: (Secret, Run-time) - Set this in the UI.
   * BETTER_AUTH_SECRET: (Secret, Run-time) - Set this in the UI.
@@ -109,6 +111,7 @@ If the build fails with 'ERR_PNPM_OUTDATED_LOCKFILE':
 
 If the build hangs during 'pnpm install' or 'pnpm build':
 - REDUNDANT BUILDS: We renamed the root 'build' script to 'build:all'. DigitalOcean's Node buildpack automatically runs any script named 'build'. In a monorepo, this caused it to build the entire project multiple times.
+- PRUNING: We use 'SKIP_NODE_PRUNE: true' at build-time. This prevents DigitalOcean from removing devDependencies (like typescript) before the custom build command runs.
 - CONCURRENCY: We use 'CHILD_CONCURRENCY: 1' to limit memory usage during pnpm install.
 - NODE_OPTIONS: We moved '--max-old-space-size=400' to RUN-TIME only so it doesn't cap the installer's memory.
 - MEMORY: The Basic-XXS ($5/mo) instance has only 512MB RAM. This is very tight for monorepos. 

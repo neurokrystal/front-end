@@ -42,6 +42,9 @@ services:
       - key: APP_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
+      - key: SKIP_NODE_PRUNE
+        scope: BUILD_TIME
+        value: "true"
       - key: NEXT_PUBLIC_API_URL
         scope: RUN_AND_BUILD_TIME
         value: https://api.your-domain.com # Update to your backend URL
@@ -53,5 +56,5 @@ services:
         value: --max-old-space-size=400
       - key: NODE_OPTIONS
         scope: BUILD_TIME
-        value: --max-old-space-size=768
+        value: --max-old-space-size=400
 functions: []
