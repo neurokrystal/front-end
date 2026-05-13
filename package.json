@@ -20,7 +20,16 @@
     "start:api": "pnpm --filter api start",
     "start": "pnpm --filter web start",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "deploy:check": "./scripts/deploy/pre-deploy.sh",
+    "deploy:migrate": "./scripts/deploy/migrate.sh",
+    "deploy:smoke": "./scripts/deploy/smoke-test.sh",
+    "db:init": "pnpm --filter api db:init",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:test-pdf": "curl -s http://localhost:8080/health/pdf | python3 -m json.tool"
   },
   "devDependencies": {
     "typescript": "^5.4.5",

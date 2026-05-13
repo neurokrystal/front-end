@@ -1,0 +1,44 @@
+[
+  {
+    "reportType": "base",
+    "sectionKey": "domain_overview",
+    "domain": "safety",
+    "dimension": null,
+    "scoreBand": "balanced",
+    "alignmentDirection": null,
+    "alignmentSeverity": null,
+    "locale": "en",
+    "contentText": "Your safety domain is balanced — you tend to create stability without over-controlling.",
+    "displayOrder": 10,
+    "isActive": true,
+    "metadata": {}
+  },
+  {
+    "reportType": "base",
+    "sectionKey": "domain_overview",
+    "domain": "challenge",
+    "dimension": null,
+    "scoreBand": "balanced",
+    "alignmentDirection": null,
+    "alignmentSeverity": null,
+    "locale": "en",
+    "contentText": "Your challenge domain is balanced — you stretch yourself while keeping resilience.",
+    "displayOrder": 20,
+    "isActive": true,
+    "metadata": {}
+  },
+  {
+    "reportType": "base",
+    "sectionKey": "dimension",
+    "domain": null,
+    "dimension": "self",
+    "scoreBand": "balanced",
+    "alignmentDirection": null,
+    "alignmentSeverity": null,
+    "locale": "en",
+    "contentText": "Self dimension is steady — you relate to yourself with clarity and compassion.",
+    "displayOrder": 100,
+    "isActive": true,
+    "metadata": {}
+  }
+]

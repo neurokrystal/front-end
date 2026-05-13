@@ -1,0 +1,1 @@
+ALTER TABLE "reports" ADD COLUMN "is_revoked" boolean DEFAULT false NOT NULL;

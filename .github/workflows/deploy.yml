@@ -1,0 +1,122 @@
+name: Build, Test & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: registry.digitalocean.com
+  API_IMAGE: dimensional-system/api
+  WEB_IMAGE: dimensional-system/web
+
+jobs:
+  # =============================================
+  # Job 1: Type check and test
+  # =============================================
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build shared
+        run: pnpm --filter @dimensional/shared build
+
+      - name: Typecheck API
+        run: pnpm --filter api typecheck
+
+      - name: Typecheck Web
+        run: pnpm --filter web typecheck
+
+      - name: Run tests
+        run: pnpm --filter api test
+        env:
+          POSTGRES_DB_URL: postgresql://test:test@localhost:5432/test
+          BETTER_AUTH_SECRET: test-secret
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+  # =============================================
+  # Job 2: Build and push Docker images
+  # =============================================
+  build:
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build API image
+        run: docker build -f apps/api/Dockerfile -t ${{ env.API_IMAGE }}:${{ github.sha }} -t ${{ env.API_IMAGE }}:latest .
+
+      - name: Build Web image
+        run: docker build -f apps/web/Dockerfile -t ${{ env.WEB_IMAGE }}:${{ github.sha }} -t ${{ env.WEB_IMAGE }}:latest --build-arg NEXT_PUBLIC_API_URL=${{ vars.API_PUBLIC_URL }} .
+
+      - name: Test Puppeteer in API image
+        run: |
+          docker run --rm ${{ env.API_IMAGE }}:${{ github.sha }} node -e "
+            const puppeteer = require('puppeteer');
+            (async () => {
+              const browser = await puppeteer.launch({
+                executablePath: '/usr/bin/chromium',
+                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+              });
+              const page = await browser.newPage();
+              await page.setContent('<h1>CI Test</h1>');
+              const pdf = await page.pdf({ format: 'A4' });
+              console.log('PDF generated:', pdf.length, 'bytes');
+              await browser.close();
+              process.exit(pdf.length > 0 ? 0 : 1);
+            })();
+          "
+
+      # Push to DigitalOcean Container Registry (uncomment when registry is set up)
+      # - name: Install doctl
+      #   uses: digitalocean/action-doctl@v2
+      #   with:
+      #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      # - name: Log in to DOCR
+      #   run: doctl registry login --expiry-seconds 300
+      # - name: Push images
+      #   run: |
+      #     docker tag ${{ env.API_IMAGE }}:latest ${{ env.REGISTRY }}/${{ env.API_IMAGE }}:latest
+      #     docker tag ${{ env.WEB_IMAGE }}:latest ${{ env.REGISTRY }}/${{ env.WEB_IMAGE }}:latest
+      #     docker push ${{ env.REGISTRY }}/${{ env.API_IMAGE }}:latest
+      #     docker push ${{ env.REGISTRY }}/${{ env.WEB_IMAGE }}:latest
+
+  # =============================================
+  # Job 3: Post-deploy smoke test
+  # =============================================
+  smoke-test:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for deployment
+        run: sleep 120  # Give DO App Platform time to deploy
+      - name: Run smoke tests
+        run: ./scripts/deploy/smoke-test.sh ${{ vars.API_PUBLIC_URL }} ${{ vars.WEB_PUBLIC_URL }}

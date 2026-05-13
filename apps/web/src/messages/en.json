@@ -1,0 +1,14 @@
+{
+  "Common": {
+    "welcome": "Welcome",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading..."
+  },
+  "Dashboard": {
+    "title": "Dimensional Journey",
+    "reports": "Your Reports",
+    "shares": "Sharing",
+    "programmes": "Active Programmes"
+  }
+}

@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+      fontFamily: {
+        heading: ['"Cormorant Garamond"', "Georgia", '"Times New Roman"', "serif"],
+        sans: ['"Inter"', "-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "sans-serif"],
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -49,13 +53,50 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+        domain: {
+          safety: "hsl(var(--domain-safety))",
+          challenge: "hsl(var(--domain-challenge))",
+          play: "hsl(var(--domain-play))",
+        },
+        dim: {
+          self: "hsl(var(--dim-self))",
+          others: "hsl(var(--dim-others))",
+          past: "hsl(var(--dim-past))",
+          future: "hsl(var(--dim-future))",
+          senses: "hsl(var(--dim-senses))",
+          perception: "hsl(var(--dim-perception))",
+        },
+        sunrise: {
+          start: "hsl(var(--sunrise-start))",
+          mid: "hsl(var(--sunrise-mid))",
+          end: "hsl(var(--sunrise-end))",
+        },
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+      maxWidth: {
+        content: "1200px",
+        prose: "720px",
+      },
+      spacing: {
+        section: "120px",
+      },
+      boxShadow: {
+        card: "var(--shadow-card)",
+        elevated: "var(--shadow-elevated)",
+      },
+      transitionDuration: {
+        fast: "200ms",
+        normal: "350ms",
+        slow: "600ms",
+      },
+      transitionTimingFunction: {
+        brand: "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      },
   	}
   },
   plugins: [require("tailwindcss-animate")],

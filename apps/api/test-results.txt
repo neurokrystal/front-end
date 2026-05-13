@@ -1,0 +1,393 @@
+../..                                    |  WARN  Unsupported engine: wanted: {"node":"22.x"} (current: {"node":"v24.14.0","pnpm":"9.15.9"})
+.                                        |  WARN  Unsupported engine: wanted: {"node":"22.x"} (current: {"node":"v24.14.0","pnpm":"9.15.9"})
+../web                                   |  WARN  Unsupported engine: wanted: {"node":"22.x"} (current: {"node":"v24.14.0","pnpm":"9.15.9"})
+
+> api@0.0.0 test /Users/alistair/Documents/projects/dimensional/mono/apps/api
+> vitest run
+
+[1m[43m DEPRECATED [49m[22m [33m`test.poolOptions` was removed in Vitest 4. All previous `poolOptions` are now top-level options. Please, refer to the migration guide: https://vitest.dev/guide/migration#pool-rework[39m
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.5 [39m[90m/Users/alistair/Documents/projects/dimensional/mono/apps/api[39m
+
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+Using 'pg' driver for database querying
+Using 'pg' driver for database querying
+Using 'pg' driver for database querying
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+[⣷] Pulling schema from database...
+[⣷] Pulling schema from database...
+[⣷] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⡿] Pulling schema from database...
+[2K[1G[⡿] Pulling schema from database...
+Using 'pg' driver for database querying
+Using 'pg' driver for database querying
+[2K[1G[⡿] Pulling schema from database...
+Using 'pg' driver for database querying
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+Using 'pg' driver for database querying
+Using 'pg' driver for database querying
+Using 'pg' driver for database querying
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[2K[1G[⣽] Pulling schema from database...
+[2K[1G[⣽] Pulling schema from database...
+[⣷] Pulling schema from database...
+[⣷] Pulling schema from database...
+[⣷] Pulling schema from database...
+[⣷] Pulling schema from database...
+[⣷] Pulling schema from database...
+[⣷] Pulling schema from database...
+[2K[1G[⣽] Pulling schema from database...
+[2K[1G[⣷] Pulling schema from database...
+[2K[1G[⣷] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣷] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[✓] Changes applied
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+ [32m✓[39m src/domains/scoring/scoring.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 2278[2mms[22m[39m
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[✓] Changes applied
+[2K[1G[✓] Pulling schema from database...
+ [32m✓[39m src/domains/scoring/strategies/a5-consistency.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 2376[2mms[22m[39m
+[2K[1G[⡿] Pulling schema from database...
+[✓] Changes applied
+[2K[1G[⡿] Pulling schema from database...
+[2K[1G[⡿] Pulling schema from database...
+[2K[1G[⡿] Pulling schema from database...
+ [32m✓[39m src/test/error-handling.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 2413[2mms[22m[39m
+[2K[1G[⡿] Pulling schema from database...
+[2K[1G[⡿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[2K[1G[⣽] Pulling schema from database...
+[2K[1G[⣽] Pulling schema from database...
+[2K[1G[⣽] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+[2K[1G[⣽] Pulling schema from database...
+[✓] Changes applied
+[2K[1G[⣽] Pulling schema from database...
+[2K[1G[⣽] Pulling schema from database...
+[✓] Changes applied
+[2K[1G[✓] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+[✓] Changes applied
+error: constraint "instrument_items_instrument_version_id_instrument_versions_id_f" of relation "instrument_items" does not exist
+    at /Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Object.query (/Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/drizzle-kit@0.31.10/node_modules/drizzle-kit/bin.cjs:78906:26)
+    at async pgPush (/Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/drizzle-kit@0.31.10/node_modules/drizzle-kit/bin.cjs:82768:13)
+    at async Object.handler (/Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/drizzle-kit@0.31.10/node_modules/drizzle-kit/bin.cjs:92226:9)
+    at async run (/Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/drizzle-kit@0.31.10/node_modules/drizzle-kit/bin.cjs:91472:7) {
+  length: 192,
+  severity: 'ERROR',
+  code: '42704',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '12276',
+  routine: 'ATExecDropConstraint'
+}
+[2K[1G[✓] Pulling schema from database...
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+[2K[1G[✓] Pulling schema from database...
+[✓] Changes applied
+[✓] Changes applied
+ [31m❯[39m src/test/e2e/full-pipeline.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 2574[2mms[22m[39m
+[31m     [31m×[31m 7.1 INDIVIDUAL USER FULL FLOW[39m[32m 90[2mms[22m[39m
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+ [31m❯[39m src/domains/instrument/instrument.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 2725[2mms[22m[39m
+       [32m✓[39m Start run creates record and returns status[32m 115[2mms[22m[39m
+[31m       [31m×[31m Submit responses and complete run[39m[32m 70[2mms[22m[39m
+[31m       [31m×[31m Cannot complete run with missing responses[39m[32m 105[2mms[22m[39m
+ [32m✓[39m src/domains/audit/audit.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 2771[2mms[22m[39m
+ [31m❯[39m src/domains/report/report.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 2775[2mms[22m[39m
+[31m       [31m×[31m Generate base report creates record with HTML[39m[32m 190[2mms[22m[39m
+       [32m✓[39m Generate PDF returns non-zero buffer[32m 90[2mms[22m[39m
+ [32m✓[39m src/domains/billing/billing.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 2839[2mms[22m[39m
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+ [31m❯[39m src/domains/sharing/sharing.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 3049[2mms[22m[39m
+[31m       [31m×[31m Create a share grant[39m[32m 95[2mms[22m[39m
+[31m       [31m×[31m Revoke a grant[39m[32m 152[2mms[22m[39m
+       [32m✓[39m Subject accessing their own resource is allowed[32m 124[2mms[22m[39m
+       [32m✓[39m Active grant allows access[32m 93[2mms[22m[39m
+       [32m✓[39m Revoked grant denies access[32m 79[2mms[22m[39m
+       [32m✓[39m Subject shares with team → team leader can access[32m 88[2mms[22m[39m
+Using 'pg' driver for database querying
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+Using 'pg' driver for database querying
+Using 'pg' driver for database querying
+npm warn Unknown env config "recursive". This will stop working in the next major version of npm.
+npm warn Unknown env config "child-concurrency". This will stop working in the next major version of npm.
+[⣷] Pulling schema from database...
+[⣷] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[⣷] Pulling schema from database...
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+[2K[1G[⣯] Pulling schema from database...
+Reading config file '/Users/alistair/Documents/projects/dimensional/mono/apps/api/drizzle.config.ts'
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⡿] Pulling schema from database...
+Using 'pg' driver for database querying
+[2K[1G[⡿] Pulling schema from database...
+[2K[1G[⡿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+Using 'pg' driver for database querying
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⣻] Pulling schema from database...
+[⣷] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+[✓] Changes applied
+ [32m✓[39m src/domains/scoring/strategies/a1-validation.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1809[2mms[22m[39m
+[⣷] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+error: constraint "instrument_items_instrument_version_id_instrument_versions_id_f" of relation "instrument_items" does not exist
+    at /Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Object.query (/Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/drizzle-kit@0.31.10/node_modules/drizzle-kit/bin.cjs:78906:26)
+    at async pgPush (/Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/drizzle-kit@0.31.10/node_modules/drizzle-kit/bin.cjs:82768:13)
+    at async Object.handler (/Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/drizzle-kit@0.31.10/node_modules/drizzle-kit/bin.cjs:92226:9)
+    at async run (/Users/alistair/Documents/projects/dimensional/mono/node_modules/.pnpm/drizzle-kit@0.31.10/node_modules/drizzle-kit/bin.cjs:91472:7) {
+  length: 192,
+  severity: 'ERROR',
+  code: '42704',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '12276',
+  routine: 'ATExecDropConstraint'
+}
+[✓] Changes applied
+ [32m✓[39m src/domains/scoring/scoring.service.spec.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1754[2mms[22m[39m
+ [32m✓[39m src/domains/scoring/strategies/config-driven-scoring.strategy.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1797[2mms[22m[39m
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣯] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⣟] Pulling schema from database...
+[2K[1G[⡿] Pulling schema from database...
+[2K[1G[⡿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[⢿] Pulling schema from database...
+[2K[1G[✓] Pulling schema from database...
+[✓] Changes applied
+ [32m✓[39m src/domains/sharing/access-evaluator.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1637[2mms[22m[39m
+[2K[1G[✓] Pulling schema from database...
+[✓] Changes applied
+ [32m✓[39m src/domains/report/features/renderer/c5-resolution.spec.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1591[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 6 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/domains/instrument/instrument.test.ts[2m > [22mCategory 4: Instrument & Run Tests[2m > [22m4.2 RUN LIFECYCLE[2m > [22mSubmit responses and complete run
+[31m[1mNotFoundError[22m: Instrument version not found with identifier: 6bd88b48-1670-4202-b3ce-f681361601f0[39m
+[36m [2m❯[22m InstrumentService.getLatestVersion src/domains/instrument/instrument.service.ts:[2m25:13[22m[39m
+    [90m 23|[39m     const version = await this.instrumentRepository.findLatestVersion(…
+    [90m 24|[39m     [35mif[39m ([33m![39mversion) {
+    [90m 25|[39m       [35mthrow[39m [35mnew[39m [33mNotFoundError[39m([32m'Instrument version'[39m[33m,[39m instrumentId)[33m;[39m
+    [90m   |[39m             [31m^[39m
+    [90m 26|[39m     }
+    [90m 27|[39m     [35mreturn[39m [35mthis[39m[33m.[39m[34mgetInstrumentVersion[39m(version[33m.[39mid)[33m;[39m
+[90m [2m❯[22m RunService.startRun src/domains/instrument/features/run/run.service.ts:[2m48:21[22m[39m
+[90m [2m❯[22m src/domains/instrument/instrument.test.ts:[2m73:25[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/domains/instrument/instrument.test.ts[2m > [22mCategory 4: Instrument & Run Tests[2m > [22m4.2 RUN LIFECYCLE[2m > [22mCannot complete run with missing responses
+[31m[1mError[22m: Failed query: insert into "instruments" ("id", "slug", "name", "description", "status", "created_at", "updated_at") values ($1, $2, $3, default, $4, default, default)
+params: 78659176-12ab-419a-9c28-7f676007a2e5,base-diagnostic,Base Diagnostic,active[39m
+[90m [2m❯[22m NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/src/pg-core/session.ts:[2m73:10[22m[39m
+[36m [2m❯[22m src/domains/instrument/instrument.test.ts:[2m15:5[22m[39m
+    [90m 13|[39m     [90m// Seed instrument[39m
+    [90m 14|[39m     [35mconst[39m instrumentId [33m=[39m crypto[33m.[39m[34mrandomUUID[39m()[33m;[39m
+    [90m 15|[39m     [35mawait[39m db[33m.[39m[34minsert[39m(instruments)[33m.[39m[34mvalues[39m({
+    [90m   |[39m     [31m^[39m
+    [90m 16|[39m       id[33m:[39m instrumentId[33m,[39m
+    [90m 17|[39m       name[33m:[39m [32m'Base Diagnostic'[39m[33m,[39m
+
+[31m[1mCaused by: error[22m: duplicate key value violates unique constraint "instruments_slug_unique"[39m
+[90m [2m❯[22m ../../node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[90m [2m❯[22m ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/drizzle-orm/node-postgres/session.js:[2m113:20[22m[39m
+[90m [2m❯[22m NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/drizzle-orm/pg-core/session.js:[2m39:16[22m[39m
+[36m [2m❯[22m src/domains/instrument/instrument.test.ts:[2m15:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ length: 228, severity: 'ERROR', code: '23505', detail: 'Key (slug)=(base-diagnostic) already exists.', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'instruments', dataType: undefined, constraint: 'instruments_slug_unique', file: 'nbtinsert.c', routine: '_bt_check_unique' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/domains/report/report.test.ts[2m > [22mCategory 3: Report Pipeline Tests[2m > [22m3.1 REPORT GENERATION[2m > [22mGenerate base report creates record with HTML
+[31m[1mNotFoundError[22m: ReportTemplate not found with identifier: base[39m
+[36m [2m❯[22m ReportService.generateReport src/domains/report/report.service.ts:[2m61:26[22m[39m
+    [90m 59|[39m     [90m// 2. Load the active template for this report type[39m
+    [90m 60|[39m     const template = await this.templateRepository.findDefaultForRepor…
+    [90m 61|[39m     if (!template) throw new NotFoundError('ReportTemplate', params.re…
+    [90m   |[39m                          [31m^[39m
+    [90m 62|[39m
+    [90m 63|[39m     [90m// 3. Load CMS content blocks for this report type[39m
+[90m [2m❯[22m src/domains/report/report.test.ts:[2m76:22[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/domains/sharing/sharing.test.ts[2m > [22mCategory 2: Share Grant & Access Evaluator Tests[2m > [22m2.1 SHARE GRANT CRUD[2m > [22mCreate a share grant
+[31m[1mError[22m: Failed query: insert into "instrument_versions" ("id", "instrument_id", "version_number", "item_count", "scoring_strategy_key", "config_json", "published_at", "created_at") values ($1, $2, $3, $4, $5, default, default, default) on conflict do nothing
+params: c2dddd44-f930-44d0-b8e4-b7b6847d9a5f,74a9ed4e-27a3-49d5-b11b-8a413c3db65a,1,66,config-driven[39m
+[90m [2m❯[22m NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/src/pg-core/session.ts:[2m73:10[22m[39m
+[36m [2m❯[22m createTestScoredProfile src/test/helpers.ts:[2m134:3[22m[39m
+    [90m132|[39m
+    [90m133|[39m   [90m// 2. Create Version[39m
+    [90m134|[39m   [35mawait[39m db[33m.[39m[34minsert[39m(instrumentVersions)[33m.[39m[34mvalues[39m({
+    [90m   |[39m   [31m^[39m
+    [90m135|[39m     id[33m:[39m versionId[33m,[39m
+    [90m136|[39m     instrumentId[33m,[39m
+[90m [2m❯[22m src/domains/sharing/sharing.test.ts:[2m19:7[22m[39m
+
+[31m[1mCaused by: error[22m: insert or update on table "instrument_versions" violates foreign key constraint "instrument_versions_instrument_id_instruments_id_fk"[39m
+[90m [2m❯[22m ../../node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[90m [2m❯[22m ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/drizzle-orm/node-postgres/session.js:[2m113:20[22m[39m
+[90m [2m❯[22m NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/drizzle-orm/pg-core/session.js:[2m39:16[22m[39m
+[36m [2m❯[22m createTestScoredProfile src/test/helpers.ts:[2m134:3[22m[39m
+[90m [2m❯[22m src/domains/sharing/sharing.test.ts:[2m19:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ length: 383, severity: 'ERROR', code: '23503', detail: 'Key (instrument_id)=(74a9ed4e-27a3-49d5-b11b-8a413c3db65a) is not present in table "instruments".', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'instrument_versions', dataType: undefined, constraint: 'instrument_versions_instrument_id_instruments_id_fk', file: 'ri_triggers.c', routine: 'ri_ReportViolation' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/domains/sharing/sharing.test.ts[2m > [22mCategory 2: Share Grant & Access Evaluator Tests[2m > [22m2.1 SHARE GRANT CRUD[2m > [22mRevoke a grant
+[31m[1mError[22m: Failed query: insert into "instrument_versions" ("id", "instrument_id", "version_number", "item_count", "scoring_strategy_key", "config_json", "published_at", "created_at") values ($1, $2, $3, $4, $5, default, default, default) on conflict do nothing
+params: 0088949c-b5ff-42f3-b86e-2068b1fbc253,3ba29c1e-d6b5-406c-b181-b3dd5eeb3aa6,1,66,config-driven[39m
+[90m [2m❯[22m NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/src/pg-core/session.ts:[2m73:10[22m[39m
+[36m [2m❯[22m createTestScoredProfile src/test/helpers.ts:[2m134:3[22m[39m
+    [90m132|[39m
+    [90m133|[39m   [90m// 2. Create Version[39m
+    [90m134|[39m   [35mawait[39m db[33m.[39m[34minsert[39m(instrumentVersions)[33m.[39m[34mvalues[39m({
+    [90m   |[39m   [31m^[39m
+    [90m135|[39m     id[33m:[39m versionId[33m,[39m
+    [90m136|[39m     instrumentId[33m,[39m
+[90m [2m❯[22m src/domains/sharing/sharing.test.ts:[2m37:7[22m[39m
+
+[31m[1mCaused by: error[22m: insert or update on table "instrument_versions" violates foreign key constraint "instrument_versions_instrument_id_instruments_id_fk"[39m
+[90m [2m❯[22m ../../node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[90m [2m❯[22m ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/drizzle-orm/node-postgres/session.js:[2m113:20[22m[39m
+[90m [2m❯[22m NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/drizzle-orm/pg-core/session.js:[2m39:16[22m[39m
+[36m [2m❯[22m createTestScoredProfile src/test/helpers.ts:[2m134:3[22m[39m
+[90m [2m❯[22m src/domains/sharing/sharing.test.ts:[2m37:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ length: 383, severity: 'ERROR', code: '23503', detail: 'Key (instrument_id)=(3ba29c1e-d6b5-406c-b181-b3dd5eeb3aa6) is not present in table "instruments".', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'instrument_versions', dataType: undefined, constraint: 'instrument_versions_instrument_id_instruments_id_fk', file: 'ri_triggers.c', routine: 'ri_ReportViolation' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/test/e2e/full-pipeline.test.ts[2m > [22mCategory 7: End-to-End Pipeline Tests[2m > [22m7.1 INDIVIDUAL USER FULL FLOW
+[31m[1mError[22m: Failed query: insert into "instruments" ("id", "slug", "name", "description", "status", "created_at", "updated_at") values ($1, $2, $3, default, $4, default, default)
+params: 6774fd37-d372-415f-8abc-6f1006f437c6,base-diagnostic,Base Diagnostic,active[39m
+[90m [2m❯[22m NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/src/pg-core/session.ts:[2m73:10[22m[39m
+[36m [2m❯[22m src/test/e2e/full-pipeline.test.ts:[2m21:5[22m[39m
+    [90m 19|[39m     [90m// 1. Seed Instrument[39m
+    [90m 20|[39m     [35mconst[39m instrumentId [33m=[39m crypto[33m.[39m[34mrandomUUID[39m()[33m;[39m
+    [90m 21|[39m     [35mawait[39m db[33m.[39m[34minsert[39m(instruments)[33m.[39m[34mvalues[39m({
+    [90m   |[39m     [31m^[39m
+    [90m 22|[39m       id[33m:[39m instrumentId[33m,[39m
+    [90m 23|[39m       name[33m:[39m [32m'Base Diagnostic'[39m[33m,[39m
+
+[31m[1mCaused by: error[22m: duplicate key value violates unique constraint "instruments_slug_unique"[39m
+[90m [2m❯[22m ../../node_modules/.pnpm/pg-pool@3.13.0_pg@8.20.0/node_modules/pg-pool/index.js:[2m45:11[22m[39m
+[90m [2m❯[22m ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/drizzle-orm/node-postgres/session.js:[2m113:20[22m[39m
+[90m [2m❯[22m NodePgPreparedQuery.queryWithCache ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/drizzle-orm/pg-core/session.js:[2m39:16[22m[39m
+[36m [2m❯[22m src/test/e2e/full-pipeline.test.ts:[2m21:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ length: 228, severity: 'ERROR', code: '23505', detail: 'Key (slug)=(base-diagnostic) already exists.', hint: undefined, position: undefined, internalPosition: undefined, internalQuery: undefined, where: undefined, schema: 'public', table: 'instruments', dataType: undefined, constraint: 'instruments_slug_unique', file: 'nbtinsert.c', routine: '_bt_check_unique' }[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m10 passed[39m[22m[90m (14)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m42 passed[39m[22m[90m (48)[39m
+[2m   Start at [22m 21:25:39
+[2m   Duration [22m 5.88s[2m (transform 1.71s, setup 5.83s, import 3.38s, tests 32.39s, environment 1ms)[22m
+
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  api@0.0.0 test: `vitest run`
+Exit status 1

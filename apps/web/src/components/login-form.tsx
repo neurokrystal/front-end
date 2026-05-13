@@ -63,10 +63,10 @@ export function LoginForm() {
   return (
     <div className={cn("grid gap-6")}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid gap-2">
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
-              Email
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="email">
+              Email Address
             </Label>
             <Input
               id="email"
@@ -79,38 +79,40 @@ export function LoginForm() {
               {...register("email")}
             />
             {errors?.email && (
-              <p className="px-1 text-xs text-red-600">
+              <p className="px-1 text-xs text-destructive">
                 {errors.email.message}
               </p>
             )}
           </div>
-          <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="password">
+          <div className="grid gap-2">
+            <Label htmlFor="password">
               Password
             </Label>
             <Input
               id="password"
-              placeholder="Password"
+              placeholder="••••••••"
               type="password"
               autoComplete="current-password"
               disabled={isLoading}
               {...register("password")}
             />
             {errors?.password && (
-              <p className="px-1 text-xs text-red-600">
+              <p className="px-1 text-xs text-destructive">
                 {errors.password.message}
               </p>
             )}
           </div>
           {error && (
-            <p className="px-1 text-xs text-red-600">
+            <p className="px-1 text-xs text-destructive">
               {error}
             </p>
           )}
-          <Button disabled={isLoading}>
-            {isLoading && (
-              <span className="mr-2 h-4 w-4 animate-spin">...</span>
-            )}
+          <Button disabled={isLoading} className="btn-brand mt-2">
+            {isLoading ? (
+              <span className="mr-2 h-4 w-4 animate-spin">
+                <img src="https://dimensionalsystem.com/wp-content/uploads/Dimensional-Spinner.svg" className="w-full h-full" alt="" />
+              </span>
+            ) : null}
             Sign In
           </Button>
         </div>
