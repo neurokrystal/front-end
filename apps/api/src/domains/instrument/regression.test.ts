@@ -93,7 +93,7 @@ describe('Category 4: Instrument & Run', () => {
       responseValue: 4
     });
 
-    const [resp] = await db.select().from(instrumentResponses).where(and(eq(instrumentResponses.instrumentRunId, run.id), eq(instrumentResponses.itemId, 'item-1')));
+    const [resp] = await db.select().from(instrumentResponses).where(and(eq(instrumentResponses.runId, run.id), eq(instrumentResponses.itemId, 'item-1')));
     expect(resp.responseValue).toBe(4);
   });
 

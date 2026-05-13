@@ -15,19 +15,34 @@ describe('Category 8: Programmes', () => {
   async function setupProgramme() {
     const prog = await programmeService.createProgramme({
       name: 'Safety Foundation',
+      slug: 'safety-foundation',
       description: 'Test',
       targetDomain: 'safety',
       durationWeeks: 4,
       modules: [
-        { id: 'mod-1', name: 'Introduction', ordinal: 1 },
-        { id: 'mod-2', name: 'Deep Dive', ordinal: 2 }
+        { 
+          id: 'mod-1', 
+          title: 'Introduction', 
+          description: 'Desc', 
+          sequence: 1, 
+          estimatedMinutes: 10,
+          content: []
+        },
+        { 
+          id: 'mod-2', 
+          title: 'Deep Dive', 
+          description: 'Desc', 
+          sequence: 2, 
+          estimatedMinutes: 20,
+          content: []
+        }
       ]
     });
     return { prog };
   }
 
   it('8.1 Create programme → persisted', async () => {
-    const { prog } = await setupInstrument(); // Wait, setupProgramme!
+    const { prog } = await setupProgramme();
   });
   
   // Re-writing to be more robust

@@ -40,7 +40,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     const pending = await fastify.container.deletionService.getQueuedRequests();
     const myRequest = pending.find(r => r.userId === userId);
     if (!myRequest) return reply.status(404).send({ code: 'NOT_FOUND' });
-    await fastify.container.deletionService.cancelDeletion(myRequest.id, userId);
+    await fastify.container.deletionService.cancelDeletion(userId);
     return { success: true };
   });
 }

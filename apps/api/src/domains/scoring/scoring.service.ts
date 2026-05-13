@@ -17,6 +17,7 @@ export interface IScoringService {
   scoreRun(runId: string): Promise<ScoredProfileOutput>;
   getProfileById(profileId: string, requestingUserId?: string): Promise<ScoredProfileOutput>;
   getProfilesForUser(userId: string, requestingUserId?: string): Promise<ScoredProfileOutput[]>;
+  getUserProfiles(userId: string, requestingUserId?: string): Promise<ScoredProfileOutput[]>;
   setAccessEvaluator(evaluator: IAccessEvaluator): void;
 }
 
@@ -174,5 +175,9 @@ export class ScoringService implements IScoringService {
     
     const profiles = await this.scoringRepository.findByUserId(userId);
     return profiles as ScoredProfileOutput[];
+  }
+
+  async getUserProfiles(userId: string, requestingUserId?: string): Promise<ScoredProfileOutput[]> {
+    return this.getProfilesForUser(userId, requestingUserId);
   }
 }

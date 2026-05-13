@@ -9,15 +9,17 @@ import { NotFoundError, DomainError } from '@/shared/errors/domain-error';
 import crypto from 'crypto';
 
 export interface ICoachingService {
-  inviteClient(coachUserId: string, clientEmail: string): Promise<any>;
+  inviteClient(coachUserId: string, input: string | { clientEmail: string; clientName?: string }): Promise<any>;
   acceptClientInvite(token: string, clientUserId: string): Promise<any>;
   endClientRelationship(linkId: string, endingUserId: string): Promise<void>;
+  endRelationship(linkId: string, endingUserId: string): Promise<void>;
   getMyClients(coachUserId: string): Promise<any[]>;
   getMyCoach(clientUserId: string): Promise<any | null>;
   getCertification(coachUserId: string): Promise<any | null>;
   updateCertificationStatus(certId: string, newStatus: string, adminUserId: string, reason: string): Promise<void>;
   processLapsedCertifications(): Promise<number>;
-  createFirm(adminUserId: string, name: string): Promise<any>;
+  createFirm(input: string | { name: string; slug?: string }, adminUserId?: string): Promise<any>;
+  addCoachToFirm(firmId: string, coachUserId: string, role: string): Promise<void>;
   setShareService(shareService: IShareService): void;
 }
 
@@ -42,7 +44,8 @@ export class CoachingService implements ICoachingService {
     this.shareService = shareService;
   }
 
-  async inviteClient(coachUserId: string, clientEmail: string) {
+  async inviteClient(coachUserId: string, input: string | { clientEmail: string; clientName?: string }) {
+    const clientEmail = typeof input === 'string' ? input : input.clientEmail;
     // 1. Verify coach is certified
     const hasCert = await this.certificationRepository.hasActiveCertification(coachUserId);
     if (!hasCert) {
@@ -115,6 +118,10 @@ export class CoachingService implements ICoachingService {
     }
   }
 
+  async endRelationship(linkId: string, endingUserId: string) {
+    return this.endClientRelationship(linkId, endingUserId);
+  }
+
   async getMyClients(coachUserId: string) {
     return this.linkRepository.findByCoach(coachUserId);
   }
@@ -151,7 +158,17 @@ export class CoachingService implements ICoachingService {
     return 0;
   }
 
-  async createFirm(adminUserId: string, name: string) {
-    return this.firmRepository.create({ name, firmAdminUserId: adminUserId });
+  async createFirm(input: string | { name: string; slug?: string }, adminUserId?: string) {
+    const name = typeof input === 'string' ? input : input.name;
+    const userId = typeof input === 'string' ? adminUserId! : (adminUserId || 'system');
+    return this.firmRepository.create({ name, firmAdminUserId: userId });
+  }
+
+  async addCoachToFirm(firmId: string, coachUserId: string, role: string) {
+    await this.firmRepository.addMembership({
+      firmId,
+      userId: coachUserId,
+      role: role as any,
+    });
   }
 }

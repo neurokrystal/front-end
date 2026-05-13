@@ -22,9 +22,9 @@ export async function seedInstrument() {
     scoreGroups: [],
     computedFields: [],
     domainBandThresholds: [
-      { domain: 'safety', bandThresholds: percentBands() },
-      { domain: 'challenge', bandThresholds: percentBands() },
-      { domain: 'play', bandThresholds: percentBands() },
+      { domain: 'safety', bandThresholds: percentBands() as any },
+      { domain: 'challenge', bandThresholds: percentBands() as any },
+      { domain: 'play', bandThresholds: percentBands() as any },
     ],
     dimensions: [
       { dimension: 'self', domain: 'safety', aggregation: 'mean', bandThresholds: defaultBands() as any },
@@ -113,7 +113,7 @@ export async function seedInstrument() {
         const category = i <= 6 ? 'feelings' : 'behaviours';
         const scoreGroup = i <= 6 ? `${domain}_feelings` : `${domain}_behaviours`;
         const itemId = `item-${itemIdx++}`;
-        items.push({
+        const item = {
           instrumentVersionId: version.id,
           ordinal: itemIdx,
           itemText: `Sample question for ${domain} ${dimension} ${state} ${i}`,
@@ -122,7 +122,8 @@ export async function seedInstrument() {
           stateTag: state,
           categoryTag: category,
           scoreGroupTag: scoreGroup,
-        });
+        };
+        items.push(item);
         
         scoringConfig.itemRules.push({
           itemId: itemId,
@@ -134,7 +135,7 @@ export async function seedInstrument() {
           weight: 1,
           reverseScored: false,
           maxResponseValue: 5,
-        });
+        } as any);
       }
     }
   }
@@ -149,18 +150,18 @@ function percentBands() {
   return [
     { band: 'very_low', min: 0, max: 20 },
     { band: 'low', min: 20, max: 40 },
-    { band: 'almost_balanced', min: 40, max: 60 },
+    { band: 'slightly_low', min: 40, max: 60 },
     { band: 'balanced', min: 60, max: 80 },
-    { band: 'high_excessive', min: 80, max: 101 },
-  ];
+    { band: 'excessive', min: 80, max: 101 },
+  ] as const;
 }
 
 function defaultBands() {
   return [
     { band: 'very_low', min: 1.0, max: 1.8 },
     { band: 'low', min: 1.8, max: 2.6 },
-    { band: 'almost_balanced', min: 2.6, max: 3.4 },
+    { band: 'slightly_low', min: 2.6, max: 3.4 },
     { band: 'balanced', min: 3.4, max: 4.2 },
-    { band: 'high_excessive', min: 4.2, max: 5.1 },
-  ];
+    { band: 'excessive', min: 4.2, max: 5.1 },
+  ] as const;
 }

@@ -18,9 +18,9 @@ describe('ConfigDrivenScoringStrategy', () => {
         bandThresholds: [
           { band: 'very_low', min: 1, max: 1.8 },
           { band: 'low', min: 1.8, max: 2.6 },
-          { band: 'almost_balanced', min: 2.6, max: 3.4 },
+          { band: 'slightly_low', min: 2.6, max: 3.4 },
           { band: 'balanced', min: 3.4, max: 4.2 },
-          { band: 'high_excessive', min: 4.2, max: 5.1 },
+          { band: 'excessive', min: 4.2, max: 5.1 },
         ] as any
       },
       { 
@@ -28,9 +28,9 @@ describe('ConfigDrivenScoringStrategy', () => {
         bandThresholds: [
           { band: 'very_low', min: 1, max: 1.8 },
           { band: 'low', min: 1.8, max: 2.6 },
-          { band: 'almost_balanced', min: 2.6, max: 3.4 },
+          { band: 'slightly_low', min: 2.6, max: 3.4 },
           { band: 'balanced', min: 3.4, max: 4.2 },
-          { band: 'high_excessive', min: 4.2, max: 5.1 },
+          { band: 'excessive', min: 4.2, max: 5.1 },
         ] as any
       },
       { 
@@ -38,9 +38,9 @@ describe('ConfigDrivenScoringStrategy', () => {
         bandThresholds: [
           { band: 'very_low', min: 1, max: 1.8 },
           { band: 'low', min: 1.8, max: 2.6 },
-          { band: 'almost_balanced', min: 2.6, max: 3.4 },
+          { band: 'slightly_low', min: 2.6, max: 3.4 },
           { band: 'balanced', min: 3.4, max: 4.2 },
-          { band: 'high_excessive', min: 4.2, max: 5.1 },
+          { band: 'excessive', min: 4.2, max: 5.1 },
         ] as any
       },
       { 
@@ -48,9 +48,9 @@ describe('ConfigDrivenScoringStrategy', () => {
         bandThresholds: [
           { band: 'very_low', min: 1, max: 1.8 },
           { band: 'low', min: 1.8, max: 2.6 },
-          { band: 'almost_balanced', min: 2.6, max: 3.4 },
+          { band: 'slightly_low', min: 2.6, max: 3.4 },
           { band: 'balanced', min: 3.4, max: 4.2 },
-          { band: 'high_excessive', min: 4.2, max: 5.1 },
+          { band: 'excessive', min: 4.2, max: 5.1 },
         ] as any
       },
       { 
@@ -58,9 +58,9 @@ describe('ConfigDrivenScoringStrategy', () => {
         bandThresholds: [
           { band: 'very_low', min: 1, max: 1.8 },
           { band: 'low', min: 1.8, max: 2.6 },
-          { band: 'almost_balanced', min: 2.6, max: 3.4 },
+          { band: 'slightly_low', min: 2.6, max: 3.4 },
           { band: 'balanced', min: 3.4, max: 4.2 },
-          { band: 'high_excessive', min: 4.2, max: 5.1 },
+          { band: 'excessive', min: 4.2, max: 5.1 },
         ] as any
       },
       { 
@@ -68,9 +68,9 @@ describe('ConfigDrivenScoringStrategy', () => {
         bandThresholds: [
           { band: 'very_low', min: 1, max: 1.8 },
           { band: 'low', min: 1.8, max: 2.6 },
-          { band: 'almost_balanced', min: 2.6, max: 3.4 },
+          { band: 'slightly_low', min: 2.6, max: 3.4 },
           { band: 'balanced', min: 3.4, max: 4.2 },
-          { band: 'high_excessive', min: 4.2, max: 5.1 },
+          { band: 'excessive', min: 4.2, max: 5.1 },
         ] as any
       },
     ],
@@ -80,9 +80,9 @@ describe('ConfigDrivenScoringStrategy', () => {
         bandThresholds: [
           { band: 'very_low', min: 1, max: 1.8 },
           { band: 'low', min: 1.8, max: 2.6 },
-          { band: 'almost_balanced', min: 2.6, max: 3.4 },
+          { band: 'slightly_low', min: 2.6, max: 3.4 },
           { band: 'balanced', min: 3.4, max: 4.2 },
-          { band: 'high_excessive', min: 4.2, max: 5.1 },
+          { band: 'excessive', min: 4.2, max: 5.1 },
         ] as any
       },
       { 
@@ -90,9 +90,9 @@ describe('ConfigDrivenScoringStrategy', () => {
         bandThresholds: [
           { band: 'very_low', min: 1, max: 1.8 },
           { band: 'low', min: 1.8, max: 2.6 },
-          { band: 'almost_balanced', min: 2.6, max: 3.4 },
+          { band: 'slightly_low', min: 2.6, max: 3.4 },
           { band: 'balanced', min: 3.4, max: 4.2 },
-          { band: 'high_excessive', min: 4.2, max: 5.1 },
+          { band: 'excessive', min: 4.2, max: 5.1 },
         ] as any
       },
       { 
@@ -100,9 +100,9 @@ describe('ConfigDrivenScoringStrategy', () => {
         bandThresholds: [
           { band: 'very_low', min: 1, max: 1.8 },
           { band: 'low', min: 1.8, max: 2.6 },
-          { band: 'almost_balanced', min: 2.6, max: 3.4 },
+          { band: 'slightly_low', min: 2.6, max: 3.4 },
           { band: 'balanced', min: 3.4, max: 4.2 },
-          { band: 'high_excessive', min: 4.2, max: 5.1 },
+          { band: 'excessive', min: 4.2, max: 5.1 },
         ] as any
       },
     ],
@@ -137,17 +137,17 @@ describe('ConfigDrivenScoringStrategy', () => {
 
     const result = strategy.score(runData);
 
-    // Dimension: self (item1, item2) -> (4+2)/2 = 3.0 -> almost_balanced
+    // Dimension: self (item1, item2) -> (4+2)/2 = 3.0 -> slightly_low
     const selfDim = result.dimensions.find(d => d.dimension === 'self');
     expect(selfDim?.rawScore).toBe(3);
-    expect(selfDim?.band).toBe('almost_balanced');
+    expect(selfDim?.band).toBe('slightly_low');
 
-    // Domain: safety (item1, item2, item3) -> (4+2+4)/3 = 3.33 -> almost_balanced
+    // Domain: safety (item1, item2, item3) -> (4+2+4)/3 = 3.33 -> slightly_low
     const safetyDom = result.domains.find(d => d.domain === 'safety');
     expect(safetyDom?.rawScore).toBe(3.33);
     expect(safetyDom?.feltScore).toBe(4); // (item1+item3)/2 = 4
     expect(safetyDom?.expressedScore).toBe(2); // (item2)/1 = 2
-    expect(safetyDom?.band).toBe('almost_balanced');
+    expect(safetyDom?.band).toBe('slightly_low');
 
     // Alignment: safety expressed(2) - felt(4) = -2 (gap 2) -> masking_downward, severe
     const safetyAlign = result.alignments.find(a => a.domain === 'safety');

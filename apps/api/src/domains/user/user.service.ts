@@ -3,7 +3,7 @@ import type { UserProfileOutput, UpdateProfileInput } from './user.dto';
 import { NotFoundError } from '@/shared/errors/domain-error';
 
 export interface IUserService {
-  getProfile(userId: string): Promise<UserProfileOutput>;
+  getProfile(userId: string, requestingUserId?: string): Promise<UserProfileOutput>;
   getUserById(userId: string): Promise<any | null>;
   updateProfile(userId: string, input: UpdateProfileInput): Promise<UserProfileOutput>;
   getUserDisplayName(userId: string): Promise<string>;
@@ -12,7 +12,7 @@ export interface IUserService {
 export class UserService implements IUserService {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  async getProfile(userId: string): Promise<UserProfileOutput> {
+  async getProfile(userId: string, requestingUserId?: string): Promise<UserProfileOutput> {
     let profile = await this.userRepository.findByUserId(userId);
     
     if (!profile) {

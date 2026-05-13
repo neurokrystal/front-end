@@ -29,7 +29,7 @@ describe('Category 5: Billing & Entitlement', () => {
       const org = await createTestOrg();
       const purchase = await billingService.initiatePurchase(user.id, user.email, {
         purchaseType: 'org_seat_bundle',
-        organisationId: org.id,
+        organizationId: org.id,
         quantity: 10,
       });
       expect(purchase.purchaseType).toBe('org_seat_bundle');
@@ -89,14 +89,14 @@ describe('Category 5: Billing & Entitlement', () => {
       
       const purchase = await billingService.initiatePurchase(admin.id, admin.email, {
         purchaseType: 'org_seat_bundle',
-        organisationId: org.id,
+        organizationId: org.id,
         quantity: 5,
       });
       await billingService.completePurchase(purchase.id, 'tx_seat');
       
       const allocation = await billingService.allocateSeat(org.id, user.id);
       expect(allocation.userId).toBe(user.id);
-      expect(allocation.organisationId).toBe(org.id);
+      expect(allocation.organizationId).toBe(org.id);
       
       expect(await billingService.hasActiveOrgSeat(user.id)).toBe(true);
     });
@@ -105,7 +105,7 @@ describe('Category 5: Billing & Entitlement', () => {
         const admin = await createTestUser();
         const org = await createTestOrg();
         const user = await createTestUser();
-        const purchase = await billingService.initiatePurchase(admin.id, admin.email, { purchaseType: 'org_seat_bundle', organisationId: org.id, quantity: 5 });
+        const purchase = await billingService.initiatePurchase(admin.id, admin.email, { purchaseType: 'org_seat_bundle', organizationId: org.id, quantity: 5 });
         await billingService.completePurchase(purchase.id, 'tx_seat');
         
         const allocation = await billingService.allocateSeat(org.id, user.id);
@@ -119,7 +119,7 @@ describe('Category 5: Billing & Entitlement', () => {
     it('5.12 Cannot allocate more seats than purchased', async () => {
         const admin = await createTestUser();
         const org = await createTestOrg();
-        const purchase = await billingService.initiatePurchase(admin.id, admin.email, { purchaseType: 'org_seat_bundle', organisationId: org.id, quantity: 1 });
+        const purchase = await billingService.initiatePurchase(admin.id, admin.email, { purchaseType: 'org_seat_bundle', organizationId: org.id, quantity: 1 });
         await billingService.completePurchase(purchase.id, 'tx_seat');
         
         await billingService.allocateSeat(org.id, (await createTestUser()).id);

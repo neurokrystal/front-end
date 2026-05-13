@@ -6,6 +6,7 @@ export const CreatePurchaseInput = z.object({
   organizationId: z.string().uuid().optional(),
   referralCode: z.string().optional(),
   metadata: z.record(z.any()).optional(),
+  quantity: z.number().optional(),
 });
 
 export type CreatePurchaseInput = z.infer<typeof CreatePurchaseInput>;
@@ -18,6 +19,8 @@ export const PurchaseOutput = z.object({
   checkoutUrl: z.string().optional(),
   purchaseType: z.string().optional(),
   createdAt: z.string().optional(),
+  quantity: z.number().optional(),
+  externalTransactionId: z.string().optional(),
 });
 
 export type PurchaseOutput = z.infer<typeof PurchaseOutput>;

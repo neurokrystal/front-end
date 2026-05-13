@@ -146,6 +146,7 @@ export class RunService implements IRunService {
       status: run.status,
       totalItems: total,
       answeredItems: answered,
+      responsesCount: answered,
       startedAt: run.startedAt,
       completedAt: run.completedAt,
     };

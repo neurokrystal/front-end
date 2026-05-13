@@ -10,6 +10,8 @@ export interface InstrumentRunData {
     domainTag: string | null;
     dimensionTag: string | null;
     stateTag: string | null;
+    categoryTag?: string | null;
+    scoreGroupTag?: string | null;
     configJson: Record<string, unknown> | null;
   }>;
 }

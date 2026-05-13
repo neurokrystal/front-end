@@ -5,6 +5,7 @@ import { instruments, instrumentVersions, instrumentItems } from './instrument.s
 export interface IInstrumentRepository {
   findById(id: string): Promise<typeof instruments.$inferSelect | null>;
   findActiveBySlug(slug: string): Promise<typeof instruments.$inferSelect | null>;
+  findBySlug(slug: string): Promise<typeof instruments.$inferSelect | null>;
   findLatestVersion(instrumentId: string): Promise<typeof instrumentVersions.$inferSelect | null>;
   findVersionById(versionId: string): Promise<typeof instrumentVersions.$inferSelect | null>;
   findVersionWithItems(versionId: string): Promise<InstrumentVersionWithItems | null>;
@@ -25,6 +26,13 @@ export class InstrumentRepository implements IInstrumentRepository {
   async findActiveBySlug(slug: string) {
     const result = await this.db.select().from(instruments)
       .where(and(eq(instruments.slug, slug), eq(instruments.status, 'active')))
+      .limit(1);
+    return result[0] ?? null;
+  }
+
+  async findBySlug(slug: string) {
+    const result = await this.db.select().from(instruments)
+      .where(eq(instruments.slug, slug))
       .limit(1);
     return result[0] ?? null;
   }

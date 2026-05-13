@@ -1,5 +1,8 @@
 // libs/shared/src/enums.ts
-export const SCORE_BANDS = ['very_low', 'low', 'almost_balanced', 'balanced', 'high_excessive'] as const;
+export const SCORE_BANDS = [
+  'very_low', 'low', 'slightly_low', 'balanced',
+  'slightly_excessive', 'excessive', 'extremely_excessive',
+] as const;
 export type ScoreBand = typeof SCORE_BANDS[number];
 
 export const DOMAINS = ['safety', 'challenge', 'play'] as const;

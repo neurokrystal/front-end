@@ -26,6 +26,7 @@ export const RunStatusOutput = z.object({
   status: z.enum(RUN_STATUSES),
   totalItems: z.number(),
   answeredItems: z.number(),
+  responsesCount: z.number().optional(), // Alias for backward compatibility in tests
   startedAt: z.date(),
   completedAt: z.date().nullable(),
 });

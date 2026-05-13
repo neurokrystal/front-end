@@ -95,7 +95,7 @@ describe('Category 7: End-to-End Pipeline Tests', () => {
     // 6. Verify scored profile exists
     const profiles = await scoringService.getProfilesForUser(user.id);
     expect(profiles).toHaveLength(1);
-    expect(profiles[0].safetyBand).toBe('almost_balanced'); // ~3.77 is almost_balanced
+    expect(profiles[0].safetyBand).toBe('slightly_low'); // ~3.77 is slightly_low
     
     // 7. Verify base report was generated
     const userReports = await reportService.getReportsForUser(user.id, user.id);

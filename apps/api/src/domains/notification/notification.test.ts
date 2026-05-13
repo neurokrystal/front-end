@@ -14,16 +14,16 @@ describe('Category 10: Notification System', () => {
     // Seed templates
     await db.insert(emailTemplates).values([
       {
-        id: crypto.randomUUID(),
-        eventType: 'assessment_completed',
-        subjectTemplate: 'Assessment Complete',
-        bodyTemplate: 'Hi {{name}}, you finished!',
+        id: 'assessment_completed',
+        subject: 'Assessment Complete',
+        body_text: 'Hi {{name}}, you finished!',
+        body_html: '<p>Hi {{name}}, you finished!</p>',
       },
       {
-        id: crypto.randomUUID(),
-        eventType: 'report_ready',
-        subjectTemplate: 'Report Ready',
-        bodyTemplate: 'View here: {{report_url}}',
+        id: 'report_ready',
+        subject: 'Report Ready',
+        body_text: 'View here: {{report_url}}',
+        body_html: '<p>View here: {{report_url}}</p>',
       }
     ]);
   });
@@ -33,7 +33,7 @@ describe('Category 10: Notification System', () => {
       const user = await createTestUser({ name: 'Alice' });
       const spy = vi.spyOn(emailService, 'sendEmail');
       
-      await notificationService.notify(user.id, 'assessment_completed', { name: 'Alice' });
+      await notificationService.notify({ type: 'assessment_completed', userId: user.id, metadata: { name: 'Alice' } });
       
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
         to: user.email,
@@ -46,7 +46,7 @@ describe('Category 10: Notification System', () => {
       const user = await createTestUser();
       const spy = vi.spyOn(emailService, 'sendEmail');
       
-      await notificationService.notify(user.id, 'report_ready', { report_url: 'http://app.com/r/123' });
+      await notificationService.notify({ type: 'report_ready', userId: user.id, reportId: '123', reportType: 'base', metadata: { report_url: 'http://app.com/r/123' } });
       
       expect(spy).toHaveBeenCalledWith(expect.objectContaining({
         html: expect.stringContaining('http://app.com/r/123'),
@@ -57,7 +57,7 @@ describe('Category 10: Notification System', () => {
         const user = await createTestUser({ name: 'Bob' });
         const spy = vi.spyOn(emailService, 'sendEmail');
         
-        await notificationService.notify(user.id, 'assessment_completed', { name: 'Bob' });
+        await notificationService.notify({ type: 'assessment_completed', userId: user.id, metadata: { name: 'Bob' } });
         
         expect(spy).toHaveBeenCalledWith(expect.objectContaining({
           html: expect.stringContaining('Hi Bob'),
@@ -67,7 +67,7 @@ describe('Category 10: Notification System', () => {
     it('10.8 Email template not found → handled gracefully', async () => {
         const user = await createTestUser();
         // Should not throw
-        await expect(notificationService.notify(user.id, 'unknown_event' as any, {})).resolves.not.toThrow();
+        await expect(notificationService.notify({ type: 'unknown_event' as any, userId: user.id })).resolves.not.toThrow();
     });
   });
 });

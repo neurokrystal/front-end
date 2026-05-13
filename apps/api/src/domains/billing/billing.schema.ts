@@ -17,7 +17,9 @@ export const purchases = pgTable('purchases', {
   status: purchaseStatusEnum('status').notNull().default('pending'),
   amountCents: integer('amount_cents').notNull(),
   currency: text('currency').notNull().default('usd'),
-  externalPaymentId: text('external_payment_id'),       // Stripe/payment provider reference
+  externalTransactionId: text('external_transaction_id'),       // Stripe/payment provider reference
+  quantity: integer('quantity'),
+  usedAt: timestamp('used_at', { withTimezone: true }),
   referralCode: text('referral_code'),
   metadata: jsonb('metadata'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

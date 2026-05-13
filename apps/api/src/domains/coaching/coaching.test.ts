@@ -67,9 +67,9 @@ describe('Category 6: Coaching & Certification', () => {
       await db.insert(certifications).values({
         id: crypto.randomUUID(),
         coachUserId: coach.id,
-        certificationType: 'base_diagnostic',
+        programmeName: 'base_diagnostic',
         status: 'active',
-        issuedAt: new Date(),
+        certifiedAt: new Date(),
         expiresAt: new Date(Date.now() + 100000),
       });
       
@@ -92,9 +92,9 @@ describe('Category 6: Coaching & Certification', () => {
         await db.insert(certifications).values({
           id: crypto.randomUUID(),
           coachUserId: coach.id,
-          certificationType: 'base_diagnostic',
+          programmeName: 'base_diagnostic',
           status: 'active',
-          issuedAt: new Date(Date.now() - 200000),
+          certifiedAt: new Date(Date.now() - 200000),
           expiresAt: new Date(Date.now() - 100000), // Lapsed
         });
         
@@ -129,7 +129,7 @@ describe('Category 6: Coaching & Certification', () => {
       
       const memberships = await db.select().from(coachingFirmMemberships).where(eq(coachingFirmMemberships.firmId, firm.id));
       expect(memberships).toHaveLength(1);
-      expect(memberships[0].coachUserId).toBe(coach.id);
+      expect(memberships[0].userId).toBe(coach.id);
     });
   });
 });

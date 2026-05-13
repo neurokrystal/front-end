@@ -3,7 +3,7 @@ import { getTestContainer, cleanTestData, createTestUser } from '../../test/help
 import { db } from '../../test/setup';
 import { instruments, instrumentVersions, instrumentItems } from './instrument.schema';
 import { instrumentRuns, instrumentResponses } from './features/run/run.schema';
-import { sql, eq } from 'drizzle-orm';
+import { sql, eq, and } from 'drizzle-orm';
 import { NotFoundError, DomainError } from '../../shared/errors/domain-error';
 
 describe('Category 4: Instrument & Run', () => {
@@ -114,7 +114,7 @@ describe('Category 4: Instrument & Run', () => {
         const run = await runService.startRun(user.id, { instrumentSlug: 'diagnostic' });
         
         await runService.submitResponse(run.id, { itemId: 'item-1', responseValue: 4 });
-        const [resp] = await db.select().from(instrumentResponses).where(and(eq(instrumentResponses.instrumentRunId, run.id), eq(instrumentResponses.itemId, 'item-1')));
+        const [resp] = await db.select().from(instrumentResponses).where(and(eq(instrumentResponses.runId, run.id), eq(instrumentResponses.itemId, 'item-1')));
         expect(resp.responseValue).toBe(4);
     });
 
@@ -129,7 +129,7 @@ describe('Category 4: Instrument & Run', () => {
                 { itemId: 'item-2', responseValue: 2 }
             ]
         });
-        const resps = await db.select().from(instrumentResponses).where(eq(instrumentResponses.instrumentRunId, run.id));
+        const resps = await db.select().from(instrumentResponses).where(eq(instrumentResponses.runId, run.id));
         expect(resps).toHaveLength(2);
     });
 

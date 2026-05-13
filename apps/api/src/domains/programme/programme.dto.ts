@@ -23,6 +23,7 @@ export const ProgrammeOutput = z.object({
   description: z.string().nullable(),
   targetDomain: z.string().nullable(),
   status: z.string(),
+  slug: z.string(),
   durationWeeks: z.number().nullable(),
   modules: z.array(ProgrammeModuleSchema).nullable(),
   createdAt: z.string(),
@@ -33,6 +34,7 @@ export type ProgrammeOutput = z.infer<typeof ProgrammeOutput>;
 
 export const CreateProgrammeInput = z.object({
   name: z.string(),
+  slug: z.string(),
   description: z.string().optional(),
   targetDomain: z.string().optional(),
   durationWeeks: z.number().optional(),

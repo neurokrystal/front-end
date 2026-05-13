@@ -12,11 +12,11 @@ describe('Category 1: Scoring Engine Regression', () => {
     instrumentSlug: 'new-format',
     responseScale: { min: 1, max: 5, type: 'likert' as const },
     itemRules: [
-      { itemId: 'i1', domain: 'safety', scoreGroup: 'sg1', weight: 1 },
-      { itemId: 'i2', domain: 'safety', scoreGroup: 'sg1', weight: 1 },
-      { itemId: 'i3', domain: 'safety', scoreGroup: 'sg1', weight: 1 },
-      { itemId: 'i4', domain: 'safety', scoreGroup: 'sg1', weight: 1 },
-      { itemId: 'i5', domain: 'safety', scoreGroup: 'sg2', weight: 2 },
+      { itemId: 'i1', domain: 'safety' as const, dimension: 'self' as any, category: 'feelings', scoreGroup: 'sg1', weight: 1, reverseScored: false, maxResponseValue: 5 },
+      { itemId: 'i2', domain: 'safety' as const, dimension: 'self' as any, category: 'feelings', scoreGroup: 'sg1', weight: 1, reverseScored: false, maxResponseValue: 5 },
+      { itemId: 'i3', domain: 'safety' as const, dimension: 'self' as any, category: 'feelings', scoreGroup: 'sg1', weight: 1, reverseScored: false, maxResponseValue: 5 },
+      { itemId: 'i4', domain: 'safety' as const, dimension: 'self' as any, category: 'feelings', scoreGroup: 'sg1', weight: 1, reverseScored: false, maxResponseValue: 5 },
+      { itemId: 'i5', domain: 'safety' as const, dimension: 'others' as any, category: 'behaviours', scoreGroup: 'sg2', weight: 2, reverseScored: false, maxResponseValue: 5 },
     ],
     scoreGroups: [
       {
@@ -49,6 +49,7 @@ describe('Category 1: Scoring Engine Regression', () => {
             { sourceKey: 'sg2', sourceType: 'score_group' as const, useValue: 'percentage' as const },
           ]
         },
+        outputType: 'numeric' as const,
         directionLogic: { positiveLabel: 'pos', negativeLabel: 'neg', neutralLabel: 'neu', neutralThreshold: 5 }
       }
     ],
@@ -58,10 +59,10 @@ describe('Category 1: Scoring Engine Regression', () => {
         bandThresholds: [
           { band: 'very_low', min: 0, max: 20 },
           { band: 'low', min: 20, max: 40 },
-          { band: 'almost_balanced', min: 40, max: 60 },
+          { band: 'slightly_low', min: 40, max: 60 },
           { band: 'balanced', min: 60, max: 80 },
-          { band: 'high_excessive', min: 80, max: 101 },
-        ]
+          { band: 'excessive', min: 80, max: 101 },
+        ] as any
       }
     ]
   };
@@ -112,7 +113,7 @@ describe('Category 1: Scoring Engine Regression', () => {
       ],
       itemRules: [
         ...NEW_CONFIG.itemRules,
-        { itemId: 'i-extra', domain: 'safety', scoreGroup: 'sg2', weight: 1 }
+        { itemId: 'i-extra', domain: 'safety' as const, scoreGroup: 'sg2', weight: 1, reverseScored: false, maxResponseValue: 5 }
       ]
     };
     const strategy2 = new ConfigDrivenScoringStrategy(config as any);
@@ -222,8 +223,8 @@ describe('Category 1: Scoring Engine Regression', () => {
        ]
     } as any);
     // (2.6-1)/4*100 = 1.6/4*100 = 40
-    // Thresholds: [20, 40) is low, [40, 60) is almost_balanced
-    expect(res.domains.find(d => d.domain === 'safety')?.band).toBe('almost_balanced');
+    // Thresholds: [20, 40) is low, [40, 60) is slightly_low
+    expect(res.domains.find(d => d.domain === 'safety')?.band).toBe('slightly_low');
   });
 
   it('1.15 Computed field: difference formula (A=70%, B=40%) → 30', () => {
@@ -326,8 +327,8 @@ describe('Category 1: Scoring Engine Regression', () => {
     const config = {
       ...NEW_CONFIG,
       computedFields: [
-        { key: 'cf1', label: 'CF1', formula: { type: 'difference', inputs: [{ sourceKey: 'sg1', sourceType: 'score_group', useValue: 'percentage' }, { sourceKey: 'sg2', sourceType: 'score_group', useValue: 'percentage' }] } },
-        { key: 'cf2', label: 'CF2', formula: { type: 'ratio', inputs: [{ sourceKey: 'cf1', sourceType: 'computed_field', useValue: 'percentage' }, { sourceKey: 'sg2', sourceType: 'score_group', useValue: 'percentage' }] } }
+        { key: 'cf1', label: 'CF1', outputType: 'numeric' as const, formula: { type: 'difference', inputs: [{ sourceKey: 'sg1', sourceType: 'score_group', useValue: 'percentage' }, { sourceKey: 'sg2', sourceType: 'score_group', useValue: 'percentage' }] } },
+        { key: 'cf2', label: 'CF2', outputType: 'numeric' as const, formula: { type: 'ratio', inputs: [{ sourceKey: 'cf1', sourceType: 'computed_field', useValue: 'percentage' }, { sourceKey: 'sg2', sourceType: 'score_group', useValue: 'percentage' }] } }
       ]
     };
     const strategy = new ConfigDrivenScoringStrategy(config as any);
@@ -343,7 +344,7 @@ describe('Category 1: Scoring Engine Regression', () => {
     const responses = Array(66).fill(0).map((_, i) => ({ itemId: `item-${i+1}`, responseValue: 3 }));
     const config = {
       ...NEW_CONFIG,
-      itemRules: responses.map(r => ({ itemId: r.itemId, domain: 'safety' as const, scoreGroup: 'sg1' }))
+      itemRules: responses.map(r => ({ itemId: r.itemId, domain: 'safety' as const, scoreGroup: 'sg1', reverseScored: false, maxResponseValue: 5 }))
     };
     const strategy = new ConfigDrivenScoringStrategy(config as any);
     const res = strategy.score({ responses } as any);
@@ -364,7 +365,7 @@ describe('Category 1: Scoring Engine Regression', () => {
   it('1.25 All band values in valid set', () => {
     const strategy = new ConfigDrivenScoringStrategy(NEW_CONFIG as any);
     const res = strategy.score({ responses: [{ itemId: 'i1', responseValue: 4 }] } as any);
-    const validBands = ['very_low', 'low', 'almost_balanced', 'balanced', 'high_excessive'];
+    const validBands = ['very_low', 'low', 'slightly_low', 'balanced', 'excessive'] as const;
     res.domains.forEach(d => {
       expect(validBands).toContain(d.band);
     });

@@ -74,7 +74,7 @@ export async function setup() {
 
     process.stdout.write('Global setup complete.\n');
   } catch (error) {
-    process.stderr.write(`Global setup error: ${error.message}\n`);
+    process.stderr.write(`Global setup error: ${(error as Error).message}\n`);
     throw error;
   } finally {
     await pool.end();

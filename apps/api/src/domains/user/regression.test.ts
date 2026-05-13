@@ -16,7 +16,7 @@ describe('Category 9: GDPR Deletion', () => {
 
   it('9.1 Request deletion → pending, scheduled', async () => {
     const user = await createTestUser();
-    const { requestId, scheduledFor } = await deletionService.requestDeletion(user.id);
+    const { id: requestId, scheduledFor } = await deletionService.requestDeletion(user.id);
     
     const [request] = await db.select().from(deletionRequests).where(eq(deletionRequests.id, requestId));
     expect(request.status).toBe('pending');
@@ -25,7 +25,7 @@ describe('Category 9: GDPR Deletion', () => {
 
   it('9.2 Cancel → status cancelled', async () => {
     const user = await createTestUser();
-    const { requestId } = await deletionService.requestDeletion(user.id);
+    const { id: requestId } = await deletionService.requestDeletion(user.id);
     
     await deletionService.cancelDeletion(requestId, user.id);
     
@@ -37,7 +37,7 @@ describe('Category 9: GDPR Deletion', () => {
     const admin = await createTestUser({ role: 'admin' });
     const user = await createTestUser();
     await createTestScoredProfile(user.id);
-    const { requestId } = await deletionService.requestDeletion(user.id);
+    const { id: requestId } = await deletionService.requestDeletion(user.id);
 
     // Seed audit log
     await db.insert(auditLogs).values({

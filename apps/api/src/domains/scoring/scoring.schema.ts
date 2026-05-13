@@ -2,7 +2,10 @@ import { pgTable, text, timestamp, integer, jsonb, pgEnum, index } from 'drizzle
 import { betterAuthUser } from '@/infrastructure/auth/better-auth-refs.schema';
 import { instrumentRuns } from '../instrument/features/run/run.schema';
 
-export const scoreBandEnum = pgEnum('score_band', ['very_low', 'low', 'almost_balanced', 'balanced', 'high_excessive']);
+export const scoreBandEnum = pgEnum('score_band', [
+  'very_low', 'low', 'slightly_low', 'balanced',
+  'slightly_excessive', 'excessive', 'extremely_excessive',
+]);
 export const domainEnum = pgEnum('domain_type', ['safety', 'challenge', 'play']);
 export const dimensionEnum = pgEnum('dimension_type', ['self', 'others', 'past', 'future', 'senses', 'perception']);
 export const alignmentDirectionEnum = pgEnum('alignment_direction', ['masking_upward', 'masking_downward', 'aligned']);

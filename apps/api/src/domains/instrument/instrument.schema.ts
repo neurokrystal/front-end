@@ -1,6 +1,6 @@
-import { pgTable, text, timestamp, integer, jsonb, pgEnum, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer, jsonb, pgEnum, index, boolean } from 'drizzle-orm/pg-core';
 
-export const instrumentStatusEnum = pgEnum('instrument_status', ['draft', 'active', 'retired']);
+export const instrumentStatusEnum = pgEnum('instrument_status', ['draft', 'active', 'retired', 'inactive']);
 export const itemResponseFormatEnum = pgEnum('item_response_format', ['likert_5', 'likert_7', 'binary', 'free_text']);
 
 export const instruments = pgTable('instruments', {
@@ -20,6 +20,7 @@ export const instrumentVersions = pgTable('instrument_versions', {
   itemCount: integer('item_count').notNull(),
   scoringStrategyKey: text('scoring_strategy_key').notNull(), // Key into the scoring strategy registry
   configJson: jsonb('config_json'),                          // Instrument-level config
+  isActive: boolean('is_active').default(true),
   publishedAt: timestamp('published_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => {
@@ -47,3 +48,5 @@ export const instrumentItems = pgTable('instrument_items', {
     versionIdIdx: index('instrument_items_version_id_idx').on(table.instrumentVersionId),
   };
 });
+
+export * from './features/run/run.schema';

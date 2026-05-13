@@ -1,9 +1,9 @@
 export const DEFAULT_BANDS = [
   { min: 1, max: 2, band: 'very_low' as const },
   { min: 2, max: 3, band: 'low' as const },
-  { min: 3, max: 4, band: 'almost_balanced' as const },
+  { min: 3, max: 4, band: 'slightly_low' as const },
   { min: 4, max: 5, band: 'balanced' as const },
-  { min: 5, max: 6, band: 'high_excessive' as const },
+  { min: 5, max: 6, band: 'excessive' as const },
 ];
 
 export const MOCK_SCORING_CONFIG = {

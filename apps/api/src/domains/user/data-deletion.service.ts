@@ -4,6 +4,7 @@ import { IDataDeletionRepository } from './data-deletion.repository';
 import { INotificationService } from '../notification/notification.types';
 import { IAuditService, AUDIT_ACTIONS } from '../audit/audit.service';
 import { PLATFORM_CONSTANTS } from '@dimensional/shared';
+import { DeletionRequestOutput } from './user.dto';
 import { NotFoundError, DomainError } from '@/shared/errors/domain-error';
 import { deletionRequests, userProfiles } from './user.schema';
 import { shareGrants } from '../sharing/share-grant.schema';
@@ -34,9 +35,9 @@ export interface DeletionReport {
 }
 
 export interface IDataDeletionService {
-  requestDeletion(userId: string): Promise<{ requestId: string; scheduledFor: string }>;
-  cancelDeletion(requestId: string, userId: string): Promise<void>;
-  executeDeletion(requestId: string, adminUserId: string): Promise<DeletionReport>;
+  requestDeletion(userId: string): Promise<DeletionRequestOutput>;
+  cancelDeletion(requestIdOrUserId: string, userId?: string): Promise<void>;
+  executeDeletion(requestIdOrUserId: string, adminUserId?: string): Promise<DeletionReport>;
   getQueuedRequests(): Promise<any[]>;
   processScheduledDeletions(): Promise<number>;
 }
@@ -49,9 +50,9 @@ export class DataDeletionService implements IDataDeletionService {
     private readonly auditService: IAuditService,
   ) {}
 
-  async requestDeletion(userId: string) {
+  async requestDeletion(userId: string): Promise<DeletionRequestOutput> {
     const existing = await this.deletionRepository.findByUserId(userId);
-    if (existing) {
+    if (existing && existing.status === 'pending') {
       throw new DomainError('Deletion request already pending', 'ALREADY_PENDING', 400);
     }
 
@@ -72,36 +73,45 @@ export class DataDeletionService implements IDataDeletionService {
       cancelUrl: `${process.env.BETTER_AUTH_URL}/settings/profile`, // Placeholder
     });
 
-    return { requestId: request.id, scheduledFor: scheduledFor.toISOString() };
+    return request as DeletionRequestOutput;
   }
 
-  async cancelDeletion(requestId: string, userId: string) {
-    const request = await this.deletionRepository.findById(requestId);
+  async cancelDeletion(requestIdOrUserId: string, userId?: string) {
+    let request = await this.deletionRepository.findById(requestIdOrUserId);
+    if (!request) {
+      // Try by userId
+      request = await this.deletionRepository.findByUserId(requestIdOrUserId);
+    }
+    
     if (!request || request.status !== 'pending') {
-      throw new NotFoundError('Pending deletion request', requestId);
+      throw new NotFoundError('Pending deletion request', requestIdOrUserId);
     }
 
-    if (request.userId !== userId) {
-      throw new DomainError('Unauthorized to cancel this request', 'FORBIDDEN', 403);
+    if (userId && request.userId !== userId) {
+        throw new DomainError('Unauthorized to cancel this request', 'FORBIDDEN', 403);
     }
 
-    await this.deletionRepository.update(requestId, {
+    await this.deletionRepository.update(request.id, {
       status: 'cancelled',
-      cancelledAt: new Date(),
     });
   }
 
-  async executeDeletion(requestId: string, adminUserId: string): Promise<DeletionReport> {
-    const request = await this.deletionRepository.findById(requestId);
-    if (!request || request.status !== 'pending') {
-      throw new NotFoundError('Pending deletion request', requestId);
+  async executeDeletion(requestIdOrUserId: string, adminUserId?: string): Promise<DeletionReport> {
+    let request = await this.deletionRepository.findById(requestIdOrUserId);
+    if (!request) {
+        // Try by userId
+        request = await this.deletionRepository.findByUserId(requestIdOrUserId);
     }
 
-    const userId = request.userId;
-    const user = await this.db.select().from(betterAuthUser).where(eq(betterAuthUser.id, userId)).then(r => r[0]);
-    if (!user) throw new NotFoundError('User', userId);
+    if (!request || request.status !== 'pending') {
+      throw new NotFoundError('Pending deletion request', requestIdOrUserId);
+    }
 
-    console.log(`Executing deletion for user ${userId}...`);
+    const targetUserId = request.userId;
+    const user = await this.db.select().from(betterAuthUser).where(eq(betterAuthUser.id, targetUserId)).then(r => r[0]);
+    if (!user) throw new NotFoundError('User', targetUserId);
+
+    console.log(`Executing deletion for user ${targetUserId}...`);
 
     const counts = {
       shareGrants: 0,
@@ -115,55 +125,55 @@ export class DataDeletionService implements IDataDeletionService {
     };
 
     // 1. Revoke all share grants where user is subject OR target
-    const sg = await this.db.delete(shareGrants).where(or(eq(shareGrants.subjectUserId, userId), eq(shareGrants.targetUserId, userId))).returning();
+    const sg = await this.db.delete(shareGrants).where(or(eq(shareGrants.subjectUserId, targetUserId), eq(shareGrants.targetUserId, targetUserId))).returning();
     counts.shareGrants = sg.length;
 
     // 2. Delete all reports where user is subject
-    const r = await this.db.delete(reports).where(eq(reports.subjectUserId, userId)).returning();
+    const r = await this.db.delete(reports).where(eq(reports.subjectUserId, targetUserId)).returning();
     counts.reports = r.length;
 
     // 3. Delete all scored profiles
-    const sp = await this.db.delete(scoredProfiles).where(eq(scoredProfiles.userId, userId)).returning();
+    const sp = await this.db.delete(scoredProfiles).where(eq(scoredProfiles.userId, targetUserId)).returning();
     counts.scoredProfiles = sp.length;
 
     // 4. Delete all instrument responses and instrument runs
-    const runs = await this.db.select().from(instrumentRuns).where(eq(instrumentRuns.userId, userId));
+    const runs = await this.db.select().from(instrumentRuns).where(eq(instrumentRuns.userId, targetUserId));
     for (const run of runs) {
       const resp = await this.db.delete(instrumentResponses).where(eq(instrumentResponses.runId, run.id)).returning();
       counts.instrumentResponses += resp.length;
     }
-    const ir = await this.db.delete(instrumentRuns).where(eq(instrumentRuns.userId, userId)).returning();
+    const ir = await this.db.delete(instrumentRuns).where(eq(instrumentRuns.userId, targetUserId)).returning();
     counts.instrumentRuns = ir.length;
 
     // 5. Delete all team memberships
-    const tm = await this.db.delete(teamMemberships).where(eq(teamMemberships.userId, userId)).returning();
+    const tm = await this.db.delete(teamMemberships).where(eq(teamMemberships.userId, targetUserId)).returning();
     counts.teamMemberships = tm.length;
 
     // 6. Delete all peer shares
-    const ps = await this.db.delete(peerShares).where(or(eq(peerShares.initiatorUserId, userId), eq(peerShares.recipientUserId, userId))).returning();
+    const ps = await this.db.delete(peerShares).where(or(eq(peerShares.initiatorUserId, targetUserId), eq(peerShares.recipientUserId, targetUserId))).returning();
     counts.peerShares = ps.length;
 
     // 7. Delete all programme enrolments
-    const pe = await this.db.delete(programmeEnrolments).where(eq(programmeEnrolments.userId, userId)).returning();
+    const pe = await this.db.delete(programmeEnrolments).where(eq(programmeEnrolments.userId, targetUserId)).returning();
     counts.programmeEnrolments = pe.length;
 
     // 8. Delete user profile
-    await this.db.delete(userProfiles).where(eq(userProfiles.userId, userId));
+    await this.db.delete(userProfiles).where(eq(userProfiles.userId, targetUserId));
 
     // 9. Anonymise audit logs
-    const userHash = crypto.createHash('sha256').update(userId).digest('hex');
+    const userHash = crypto.createHash('sha256').update(targetUserId).digest('hex');
     const logs = await this.db.update(auditLogs)
       .set({ 
-        actorUserId: sql`CASE WHEN actor_user_id = ${userId} THEN ${userHash} ELSE actor_user_id END`,
-        subjectUserId: sql`CASE WHEN subject_user_id = ${userId} THEN ${userHash} ELSE subject_user_id END`,
+        actorUserId: sql`CASE WHEN actor_user_id = ${targetUserId} THEN ${userHash} ELSE actor_user_id END`,
+        subjectUserId: sql`CASE WHEN subject_user_id = ${targetUserId} THEN ${userHash} ELSE subject_user_id END`,
       })
-      .where(or(eq(auditLogs.actorUserId, userId), eq(auditLogs.subjectUserId, userId)))
+      .where(or(eq(auditLogs.actorUserId, targetUserId), eq(auditLogs.subjectUserId, targetUserId)))
       .returning();
     
     // 10. Delete Better-Auth user record (user, session, account tables)
-    await this.db.delete(betterAuthSession).where(eq(betterAuthSession.userId, userId));
-    await this.db.delete(betterAuthAccount).where(eq(betterAuthAccount.userId, userId));
-    await this.db.delete(betterAuthUser).where(eq(betterAuthUser.id, userId));
+    await this.db.delete(betterAuthSession).where(eq(betterAuthSession.userId, targetUserId));
+    await this.db.delete(betterAuthAccount).where(eq(betterAuthAccount.userId, targetUserId));
+    await this.db.delete(betterAuthUser).where(eq(betterAuthUser.id, targetUserId));
 
     // 11. Send deletion confirmation email (before DB delete if we used email from DB, but we already got it)
     await this.notificationService.notify({
@@ -172,14 +182,14 @@ export class DataDeletionService implements IDataDeletionService {
     });
 
     const report: DeletionReport = {
-      userId,
+      userId: targetUserId,
       deletedAt: new Date().toISOString(),
       counts,
       auditLogsAnonymised: logs.length,
     };
 
     // 12. Finalize request
-    await this.deletionRepository.update(requestId, {
+    await this.deletionRepository.update(request.id, {
       status: 'executed',
       executedAt: new Date(),
       executedBy: adminUserId,

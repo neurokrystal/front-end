@@ -5,7 +5,7 @@ export const InstrumentOutput = z.object({
   slug: z.string(),
   name: z.string(),
   description: z.string().nullable(),
-  status: z.enum(['draft', 'active', 'retired']),
+  status: z.enum(['draft', 'active', 'retired', 'inactive']),
 });
 
 export type InstrumentOutput = z.infer<typeof InstrumentOutput>;

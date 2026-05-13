@@ -32,6 +32,8 @@ export const AUDIT_ACTIONS = {
   BILLING_PURCHASE_COMPLETED: 'billing.purchase_completed',
   BILLING_PURCHASE_FAILED: 'billing.purchase_failed',
   BILLING_REFUNDED: 'billing.refunded',
+  BILLING_SEAT_ASSIGNED: 'billing.seat_assigned',
+  BILLING_SEAT_RECLAIMED: 'billing.seat_reclaimed',
 
   // Instrument
   RUN_STARTED: 'run.started',

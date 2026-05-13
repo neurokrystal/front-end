@@ -25,6 +25,7 @@ export class ProgrammeService implements IProgrammeService {
   async createProgramme(input: CreateProgrammeInput): Promise<ProgrammeOutput> {
     const [inserted] = await db.insert(programmes).values({
       name: input.name,
+      slug: input.slug,
       description: input.description,
       targetDomain: input.targetDomain,
       durationWeeks: input.durationWeeks,
@@ -152,6 +153,7 @@ export class ProgrammeService implements IProgrammeService {
     return {
       id: row.id,
       name: row.name,
+      slug: row.slug,
       description: row.description,
       targetDomain: row.targetDomain,
       status: row.status,

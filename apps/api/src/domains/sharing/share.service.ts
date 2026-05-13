@@ -58,7 +58,7 @@ export class ShareService implements IShareService {
     if (existingGrant) {
       // Update existing grant with new resourceTypes and expiry
       const updated = await this.shareGrantRepository.update(existingGrant.id, {
-        resourceTypes: input.resourceTypes,
+        resourceTypes: input.resourceTypes || existingGrant.resourceTypes,
         expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
       });
 
@@ -83,7 +83,7 @@ export class ShareService implements IShareService {
       targetUserId: input.targetUserId,
       targetTeamId: input.targetTeamId,
       targetOrgId: input.targetOrgId,
-      resourceTypes: input.resourceTypes,
+      resourceTypes: input.resourceTypes || ['base'],
       expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
       grantContext: input.grantContext,
       status: 'active',
@@ -101,7 +101,7 @@ export class ShareService implements IShareService {
         targetUserId: input.targetUserId,
         targetTeamId: input.targetTeamId,
         targetOrgId: input.targetOrgId,
-        resourceTypes: input.resourceTypes
+        resourceTypes: input.resourceTypes || ['base']
       },
     });
 

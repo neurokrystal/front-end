@@ -37,7 +37,7 @@ describe('Category 2: Access Control & Sharing', () => {
       const grant = await shareService.grantShare(u1.id, {
         targetType: 'user',
         targetUserId: u2.id,
-        expiresAt: expiry,
+        expiresAt: expiry.toISOString(),
       });
       const [dbGrant] = await db.select().from(shareGrants).where(eq(shareGrants.id, grant.id));
       expect(dbGrant.expiresAt?.getTime()).toBeCloseTo(expiry.getTime(), -2);
@@ -180,7 +180,7 @@ describe('Category 2: Access Control & Sharing', () => {
       const grant = await shareService.grantShare(u1.id, { 
         targetType: 'user', 
         targetUserId: u2.id,
-        expiresAt: new Date(Date.now() - 10000) 
+        expiresAt: new Date(Date.now() - 10000).toISOString()
       });
       const decision = await accessEvaluator.evaluate({
         viewerUserId: u2.id,

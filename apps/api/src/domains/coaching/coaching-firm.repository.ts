@@ -1,11 +1,12 @@
 import { eq } from 'drizzle-orm';
 import { type DrizzleDb } from '@/infrastructure/database/connection';
-import { coachingFirms } from './coaching-firm.schema';
+import { coachingFirms, coachingFirmMemberships } from './coaching-firm.schema';
 
 export interface ICoachingFirmRepository {
   create(data: typeof coachingFirms.$inferInsert): Promise<typeof coachingFirms.$inferSelect>;
   findById(id: string): Promise<typeof coachingFirms.$inferSelect | null>;
   findAll(): Promise<typeof coachingFirms.$inferSelect[]>;
+  addMembership(data: typeof coachingFirmMemberships.$inferInsert): Promise<void>;
 }
 
 export class CoachingFirmRepository implements ICoachingFirmRepository {
@@ -23,5 +24,9 @@ export class CoachingFirmRepository implements ICoachingFirmRepository {
 
   async findAll() {
     return this.db.select().from(coachingFirms);
+  }
+
+  async addMembership(data: typeof coachingFirmMemberships.$inferInsert) {
+    await this.db.insert(coachingFirmMemberships).values(data);
   }
 }

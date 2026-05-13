@@ -18,6 +18,9 @@ export interface IBillingService {
   hasUnusedAssessmentPurchase(userId: string): Promise<boolean>;
   hasUnusedSecondaryPurchase(userId: string, reportType: string): Promise<boolean>;
   createCompPurchase(userId: string, purchaseType: string, reason: string): Promise<any>;
+  allocateSeat(organizationId: string, userId: string): Promise<any>;
+  reclaimSeat(allocationId: string): Promise<void>;
+  hasActiveOrgSeat(userId: string): Promise<boolean>;
   setCommercialService(commercialService: ICommercialService): void;
 }
 
@@ -45,6 +48,7 @@ export class BillingService implements IBillingService {
       amountCents,
       status: 'pending',
       referralCode: input.referralCode,
+      quantity: input.quantity,
     });
 
     const checkout = await this.paymentProvider.createCheckoutSession({
@@ -75,6 +79,7 @@ export class BillingService implements IBillingService {
       amountCents: purchase.amountCents,
       currency: purchase.currency,
       checkoutUrl: checkout.checkoutUrl,
+      quantity: purchase.quantity ?? undefined,
     };
   }
 
@@ -84,13 +89,13 @@ export class BillingService implements IBillingService {
 
     await this.billingRepository.updatePurchase(purchaseId, {
       status: 'completed',
-      externalPaymentId,
+      externalTransactionId: externalPaymentId,
       completedAt: new Date(),
     });
 
     if (purchase.purchaseType === 'org_seat_bundle' && purchase.organizationId) {
-      // Create seat allocations (e.g., 10 seats for a bundle)
-      const seatCount = 10; // Placeholder
+      // Create seat allocations
+      const seatCount = purchase.quantity || 10;
       for (let i = 0; i < seatCount; i++) {
         await this.billingRepository.createSeatAllocation({
           organizationId: purchase.organizationId,
@@ -206,6 +211,39 @@ export class BillingService implements IBillingService {
       metadata: { reason, type: 'comp' },
       completedAt: new Date(),
     });
+  }
+
+  async allocateSeat(organizationId: string, userId: string): Promise<any> {
+    // 1. Check if user already has an active seat in this org
+    const existing = await this.billingRepository.getSeatAllocationsByUserId(userId);
+    if (existing.some(s => s.organizationId === organizationId && !s.reclaimedAt)) {
+      return existing.find(s => s.organizationId === organizationId && !s.reclaimedAt);
+    }
+
+    // 2. Find an unallocated seat in this org
+    const allSeats = await this.billingRepository.getSeatAllocationsByOrgId(organizationId);
+    const availableSeat = allSeats.find(s => !s.userId && !s.reclaimedAt);
+
+    if (!availableSeat) {
+      throw new Error('No available seat capacity in this organization');
+    }
+
+    // 3. Allocate it
+    return this.billingRepository.updateSeatAllocation(availableSeat.id, {
+      userId,
+      allocatedAt: new Date(),
+    });
+  }
+
+  async reclaimSeat(allocationId: string): Promise<void> {
+    await this.billingRepository.updateSeatAllocation(allocationId, {
+      reclaimedAt: new Date(),
+    });
+  }
+
+  async hasActiveOrgSeat(userId: string): Promise<boolean> {
+    const allocations = await this.billingRepository.getSeatAllocationsByUserId(userId);
+    return allocations.some(a => !a.reclaimedAt);
   }
 
   private calculatePrice(type: string): number {

@@ -420,7 +420,7 @@ export class ConfigDrivenScoringStrategy implements IScoringStrategy {
 
     switch (method) {
       case 'sum':
-        return 0;
+        return items.reduce((sum, i) => sum + i.scoredValue, 0);
       case 'weighted_mean': {
         const totalWeight = items.reduce((sum, i) => sum + i.weight, 0);
         if (totalWeight === 0) return 0;

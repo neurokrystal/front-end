@@ -6,6 +6,7 @@ export const programmeStatusEnum = pgEnum('programme_status', ['draft', 'active'
 
 export const programmes = pgTable('programmes', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  slug: text('slug').notNull().unique(),
   name: text('name').notNull(),
   description: text('description'),
   targetDomain: text('target_domain'),                // 'safety' | 'challenge' | 'play' | null (cross-domain)
@@ -39,3 +40,5 @@ export const programmeEnrolments = pgTable('programme_enrolments', {
     teamIdIdx: index('programme_enrolments_team_id_idx').on(table.teamId),
   };
 });
+
+export { programmeEnrolments as enrolments };

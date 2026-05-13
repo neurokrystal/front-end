@@ -39,10 +39,11 @@ describe('Category 13: End-to-End Pipelines', () => {
       templateJson: { pages: [{ children: [{ type: 'text', content: 'Result: {{domain.safety.band}}' }] }] } as any,
       isActive: true,
       isDefault: true,
+      version: 1,
     });
 
     // Seed CMS
-    const bands = ['very_low', 'low', 'almost_balanced', 'balanced', 'high_excessive'];
+    const bands = ['very_low', 'low', 'slightly_low', 'balanced', 'excessive'] as const;
     for (const band of bands) {
       await db.insert(reportContentBlocks).values({
         id: crypto.randomUUID(),
@@ -70,18 +71,18 @@ describe('Category 13: End-to-End Pipelines', () => {
       
       // 3. Submit 66 responses
       const responses = generateResponses({ safety: 4, challenge: 3, play: 2 });
-      await runService.submitBatchResponses(run.id, { responses });
+      await runService.submitBatchResponses(run.id, { responses: responses.map(r => ({ itemId: r.itemId, responseValue: r.value })) });
       
       // 4. Complete & Score
       await runService.completeRun(run.id);
       
       // 5. Verify Report
-      const reports = await reportService.getUserReports(user.id);
-      expect(reports).toHaveLength(1);
-      expect(reports[0].reportType).toBe('base_diagnostic');
+      const userReports = await reportService.getUserReports(user.id, user.id);
+      expect(userReports).toHaveLength(1);
+      expect(userReports[0].reportType).toBe('base_diagnostic');
       
       // 6. Download PDF
-      const pdf = await reportService.getReportPdf(reports[0].id, user.id);
+      const pdf = await reportService.getReportPdf(userReports[0].id, user.id);
       expect(pdf.toString('utf-8', 0, 4)).toBe('%PDF');
     });
   });
@@ -98,7 +99,7 @@ describe('Category 13: End-to-End Pipelines', () => {
         // Member completes assessment
         await billingService.completePurchase((await billingService.initiatePurchase(member.id, member.email, { purchaseType: 'individual_assessment' })).id, 'tx');
         const run = await runService.startRun(member.id, { instrumentSlug: 'diagnostic' });
-        await runService.submitBatchResponses(run.id, { responses: generateResponses({ safety: 3 }) });
+        await runService.submitBatchResponses(run.id, { responses: generateResponses({ safety: 3 }).map(r => ({ itemId: r.itemId, responseValue: r.value })) });
         await runService.completeRun(run.id);
         
         // Member shares with team
@@ -131,9 +132,9 @@ describe('Category 13: End-to-End Pipelines', () => {
         await runService.submitBatchResponses(run.id, { responses });
         await runService.completeRun(run.id);
         
-        const reports = await reportService.getUserReports(user.id);
-        expect(reports).toHaveLength(1);
-        expect(reports[0].renderedPayload?.html).toContain('very_low');
+        const userReports = await reportService.getUserReports(user.id, user.id);
+        expect(userReports).toHaveLength(1);
+        expect(userReports[0].renderedPayload?.html).toContain('very_low');
     });
   });
 });

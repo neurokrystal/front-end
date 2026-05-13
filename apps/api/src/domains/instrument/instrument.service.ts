@@ -4,6 +4,7 @@ import { NotFoundError } from '@/shared/errors/domain-error';
 
 export interface IInstrumentService {
   getActiveInstrument(slug: string): Promise<InstrumentOutput>;
+  getInstrumentBySlug(slug: string): Promise<InstrumentOutput>;
   getLatestVersion(instrumentId: string): Promise<InstrumentVersionWithItemsOutput>;
   getInstrumentVersion(versionId: string): Promise<InstrumentVersionWithItemsOutput>;
 }
@@ -13,6 +14,14 @@ export class InstrumentService implements IInstrumentService {
 
   async getActiveInstrument(slug: string): Promise<InstrumentOutput> {
     const instrument = await this.instrumentRepository.findActiveBySlug(slug);
+    if (!instrument) {
+      throw new NotFoundError('Instrument', slug);
+    }
+    return instrument;
+  }
+
+  async getInstrumentBySlug(slug: string): Promise<InstrumentOutput> {
+    const instrument = await this.instrumentRepository.findBySlug(slug);
     if (!instrument) {
       throw new NotFoundError('Instrument', slug);
     }

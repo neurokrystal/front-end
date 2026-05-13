@@ -16,3 +16,13 @@ export const UpdateProfileInput = z.object({
 });
 
 export type UpdateProfileInput = z.infer<typeof UpdateProfileInput>;
+ 
+export const DeletionRequestOutput = z.object({
+  id: z.string(),
+  userId: z.string(),
+  status: z.string(),
+  scheduledFor: z.date(),
+  createdAt: z.date(),
+});
+ 
+export type DeletionRequestOutput = z.infer<typeof DeletionRequestOutput>;

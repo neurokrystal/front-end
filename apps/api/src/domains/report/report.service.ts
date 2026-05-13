@@ -32,6 +32,9 @@ export interface ReportOutput extends Omit<typeof reports.$inferSelect, 'rendere
     html: string;
     pdfUrl: string;
   } | null;
+  data?: any;
+  meetsThreshold?: boolean;
+  completedAt?: Date | null;
 }
 
 export interface IReportService {
@@ -44,7 +47,9 @@ export interface IReportService {
     teamId?: string;
   }): Promise<ReportOutput>;
   getReport(reportId: string, viewerUserId: string): Promise<ReportOutput>;
-  getReportsForUser(userId: string, requestingUserId: string): Promise<ReportOutput[]>;
+  getReportsForUser(userId: string, requestingUserId?: string): Promise<ReportOutput[]>;
+  getUserReports(userId: string, requestingUserId?: string): Promise<ReportOutput[]>;
+  getTeamAggregate(teamId: string, requestingUserId: string): Promise<ReportOutput>;
   getReportPdf(reportId: string, viewerUserId: string): Promise<Buffer>;
 }
 
@@ -249,8 +254,9 @@ export class ReportService implements IReportService {
     return report;
   }
 
-  async getReportsForUser(userId: string, requestingUserId: string): Promise<ReportOutput[]> {
-    if (userId !== requestingUserId) {
+  async getReportsForUser(userId: string, requestingUserId?: string): Promise<ReportOutput[]> {
+    const viewerId = requestingUserId || userId;
+    if (userId !== viewerId) {
       // Basic check: requestingUserId must have at least 'base' access to the user
       // to see the LIST of reports? Actually, maybe we only show reports they have access to.
       const reports = await this.reportRepository.findBySubjectId(userId) as ReportOutput[];
@@ -258,7 +264,7 @@ export class ReportService implements IReportService {
       for (const r of reports) {
         const decision = await this.accessEvaluator.evaluate({
           subjectUserId: userId,
-          viewerUserId: requestingUserId,
+          viewerUserId: viewerId,
           resourceType: r.reportType,
         });
         if (decision.allowed) filtered.push(r);
@@ -267,13 +273,22 @@ export class ReportService implements IReportService {
     }
 
     await this.auditService.log({
-      actorUserId: requestingUserId,
+      actorUserId: viewerId,
       actionType: AUDIT_ACTIONS.REPORT_VIEWED,
       resourceType: 'report',
       subjectUserId: userId,
       metadata: { scope: 'all_reports' },
     });
     return this.reportRepository.findBySubjectId(userId) as Promise<ReportOutput[]>;
+  }
+
+  async getUserReports(userId: string, requestingUserId?: string): Promise<ReportOutput[]> {
+    return this.getReportsForUser(userId, requestingUserId);
+  }
+
+  async getTeamAggregate(teamId: string, requestingUserId: string): Promise<ReportOutput> {
+    // Stub
+    throw new Error('getTeamAggregate not implemented');
   }
 
   async getReportPdf(reportId: string, viewerUserId: string): Promise<Buffer> {

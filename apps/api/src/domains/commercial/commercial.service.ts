@@ -9,6 +9,8 @@ export interface ICommercialService {
   attributePurchase(purchaseId: string, referralCode: string): Promise<void>;
   getMyAttributions(resellerUserId: string): Promise<any[]>;
   createPartnerOrg(adminUserId: string, name: string, commissionRateBps: number): Promise<any>;
+  assignSeat(organizationId: string, userId: string, adminUserId: string): Promise<any>;
+  reclaimSeat(allocationId: string, adminUserId: string): Promise<void>;
 }
 
 export class CommercialService implements ICommercialService {
@@ -65,6 +67,32 @@ export class CommercialService implements ICommercialService {
       name,
       adminUserId,
       commissionRateBps,
+    });
+  }
+
+  async assignSeat(organizationId: string, userId: string, adminUserId: string) {
+    const allocation = await this.billingService.allocateSeat(organizationId, userId);
+    
+    await this.auditService.log({
+      actorUserId: adminUserId,
+      actionType: AUDIT_ACTIONS.BILLING_SEAT_ASSIGNED,
+      resourceType: 'seat_allocation',
+      resourceId: allocation.id,
+      subjectUserId: userId,
+      metadata: { organizationId },
+    });
+
+    return allocation;
+  }
+
+  async reclaimSeat(allocationId: string, adminUserId: string) {
+    await this.billingService.reclaimSeat(allocationId);
+
+    await this.auditService.log({
+      actorUserId: adminUserId,
+      actionType: AUDIT_ACTIONS.BILLING_SEAT_RECLAIMED,
+      resourceType: 'seat_allocation',
+      resourceId: allocationId,
     });
   }
 }

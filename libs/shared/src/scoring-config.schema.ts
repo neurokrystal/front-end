@@ -3,7 +3,10 @@ import { z } from 'zod';
 // --- Band Thresholds ---
 // Maps a raw score range to a named band
 const BandThresholdSchema = z.object({
-  band: z.enum(['very_low', 'low', 'almost_balanced', 'balanced', 'high_excessive']),
+  band: z.enum([
+    'very_low', 'low', 'slightly_low', 'balanced',
+    'slightly_excessive', 'excessive', 'extremely_excessive',
+  ]),
   min: z.number(),       // Inclusive lower bound
   max: z.number(),       // Exclusive upper bound (except for the last band)
 });
@@ -92,14 +95,14 @@ const DimensionScoringConfigSchema = z.object({
   dimension: z.enum(['self', 'others', 'past', 'future', 'senses', 'perception']),
   domain: z.enum(['safety', 'challenge', 'play']),
   aggregation: z.enum(['mean', 'sum', 'weighted_mean']).default('mean'),
-  bandThresholds: z.array(BandThresholdSchema).min(5).max(5),
+  bandThresholds: z.array(BandThresholdSchema).min(1),
 });
 
 // --- Domain Scoring Config ---
 const DomainScoringConfigSchema = z.object({
   domain: z.enum(['safety', 'challenge', 'play']),
   aggregation: z.enum(['mean', 'sum', 'weighted_mean']).default('mean'),
-  bandThresholds: z.array(BandThresholdSchema).min(5).max(5),
+  bandThresholds: z.array(BandThresholdSchema).min(1),
   // Felt/Expressed are scored from their respective item subsets
   feltAggregation: z.enum(['mean', 'sum', 'weighted_mean']).default('mean'),
   expressedAggregation: z.enum(['mean', 'sum', 'weighted_mean']).default('mean'),
@@ -150,7 +153,10 @@ export const ScoringConfigSchema = z.object({
   domainBandThresholds: z.array(z.object({
     domain: z.enum(['safety', 'challenge', 'play']),
     bandThresholds: z.array(z.object({
-      band: z.enum(['very_low', 'low', 'almost_balanced', 'balanced', 'high_excessive']),
+      band: z.enum([
+        'very_low', 'low', 'slightly_low', 'balanced',
+        'slightly_excessive', 'excessive', 'extremely_excessive',
+      ]),
       min: z.number(),
       max: z.number(),
     })),

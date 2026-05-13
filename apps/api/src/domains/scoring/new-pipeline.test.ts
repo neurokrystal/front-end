@@ -55,9 +55,9 @@ describe('New Scoring Pipeline', () => {
         bandThresholds: [
           { band: 'very_low', min: 0, max: 20 },
           { band: 'low', min: 20, max: 40 },
-          { band: 'almost_balanced', min: 40, max: 60 },
+          { band: 'slightly_low', min: 40, max: 60 },
           { band: 'balanced', min: 60, max: 80 },
-          { band: 'high_excessive', min: 80, max: 101 },
+          { band: 'excessive', min: 80, max: 101 },
         ]
       }
     ]

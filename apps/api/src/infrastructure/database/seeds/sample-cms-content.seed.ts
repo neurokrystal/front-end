@@ -8,7 +8,7 @@ export async function seedCmsContent() {
   const reportType = 'base';
   const domains = ['safety', 'challenge', 'play'] as const;
   const dimensions = ['self', 'others', 'past', 'future', 'senses', 'perception'] as const;
-  const bands = ['very_low', 'low', 'almost_balanced', 'balanced', 'high_excessive'] as const;
+  const bands = ['very_low', 'low', 'slightly_low', 'balanced', 'excessive'] as const;
   const sections = ['domain_overview', 'felt_state', 'expressed_state', 'alignment'] as const;
 
   // Domain blocks

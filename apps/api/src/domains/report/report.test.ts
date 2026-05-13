@@ -184,7 +184,12 @@ describe('Category 3: Report Pipeline', () => {
 
   describe('PDF & Multi-reports', () => {
     it('3.16 PDF generation: sample HTML → non-zero buffer starting with %PDF', async () => {
-      const buffer = await container.pdfGenerator.generateFromHtml('<html></html>');
+      const buffer = await container.pdfGenerator.generateFromHtml('<html></html>', {
+        pageWidth: 210,
+        pageHeight: 297,
+        printBackground: true,
+        displayHeaderFooter: false,
+      });
       expect(buffer.toString('utf-8', 0, 4)).toBe('%PDF');
     });
 

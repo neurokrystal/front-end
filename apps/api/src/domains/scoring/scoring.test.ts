@@ -160,13 +160,13 @@ describe('Category 1: Scoring Engine', () => {
       expect(safety?.band).toBe('very_low');
     });
 
-    it('1.11 Band resolution: score 3.0 → "almost_balanced"', () => {
+    it('1.11 Band resolution: score 3.0 → "slightly_low"', () => {
       const strategy = new ConfigDrivenScoringStrategy(MOCK_SCORING_CONFIG as any);
       const payload = strategy.score({
         responses: [{ itemId: 'item-1', responseValue: 3.0, domainTag: 'safety', dimensionTag: 'self', stateTag: 'felt' }]
       } as any);
       const safety = payload.domains.find(d => d.domain === 'safety');
-      expect(safety?.band).toBe('almost_balanced');
+      expect(safety?.band).toBe('slightly_low');
     });
 
     it('1.12 Band resolution: score 4.5 → "balanced"', () => {
@@ -184,7 +184,7 @@ describe('Category 1: Scoring Engine', () => {
         responses: [{ itemId: 'item-1', responseValue: 3.0, domainTag: 'safety', dimensionTag: 'self', stateTag: 'felt' }]
       } as any);
       const safety = payload.domains.find(d => d.domain === 'safety');
-      expect(safety?.band).toBe('almost_balanced');
+      expect(safety?.band).toBe('slightly_low');
     });
   });
 
@@ -304,7 +304,7 @@ describe('Category 1: Scoring Engine', () => {
     });
 
     it('1.20 All band values are from the valid set of 5 bands', () => {
-      const validBands = ['very_low', 'low', 'almost_balanced', 'balanced', 'high_excessive'];
+      const validBands = ['very_low', 'low', 'slightly_low', 'balanced', 'excessive'] as const;
       const responses = generateResponses({ safety: 1, challenge: 3, play: 5 });
       const config = {
         ...MOCK_SCORING_CONFIG,

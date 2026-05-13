@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, jsonb, pgEnum, boolean, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb, pgEnum, boolean, index, integer } from 'drizzle-orm/pg-core';
 import { betterAuthUser } from '@/infrastructure/auth/better-auth-refs.schema';
 import { scoredProfiles } from '../scoring/scoring.schema';
 
@@ -25,4 +25,17 @@ export const reports = pgTable('reports', {
     secondaryProfileIdx: index('reports_secondary_scored_profile_id_idx').on(table.secondaryScoredProfileId),
     statusIdx: index('reports_status_idx').on(table.status),
   };
+});
+
+export const reportTemplates = pgTable('report_templates', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  reportType: text('report_type').notNull(),
+  name: text('name').notNull(),
+  templateJson: jsonb('template_json').notNull(),
+  version: integer('version').notNull().default(1),
+  isActive: boolean('is_active').notNull().default(true),
+  isDefault: boolean('is_default').notNull().default(false),
+  createdBy: text('created_by'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

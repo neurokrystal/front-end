@@ -9,6 +9,8 @@ export interface IBillingRepository {
   getPurchaseById(id: string): Promise<typeof purchases.$inferSelect | null>;
   getPurchasesByUserId(userId: string): Promise<typeof purchases.$inferSelect[]>;
   getSeatAllocationsByUserId(userId: string): Promise<typeof seatAllocations.$inferSelect[]>;
+  getSeatAllocationsByOrgId(orgId: string): Promise<typeof seatAllocations.$inferSelect[]>;
+  updateSeatAllocation(id: string, data: Partial<typeof seatAllocations.$inferInsert>): Promise<typeof seatAllocations.$inferSelect>;
 }
 
 export class BillingRepository implements IBillingRepository {
@@ -43,5 +45,17 @@ export class BillingRepository implements IBillingRepository {
 
   async getSeatAllocationsByUserId(userId: string) {
     return this.db.select().from(seatAllocations).where(eq(seatAllocations.userId, userId));
+  }
+  
+  async getSeatAllocationsByOrgId(orgId: string) {
+    return this.db.select().from(seatAllocations).where(eq(seatAllocations.organizationId, orgId));
+  }
+
+  async updateSeatAllocation(id: string, data: Partial<typeof seatAllocations.$inferInsert>) {
+    const result = await this.db.update(seatAllocations)
+      .set(data)
+      .where(eq(seatAllocations.id, id))
+      .returning();
+    return result[0];
   }
 }

@@ -41,7 +41,7 @@ describe('Category 2: Access Control & Sharing', () => {
     const grant = await shareService.grantShare(userA.id, {
       targetType: 'user',
       targetUserId: userB.id,
-      expiresAt
+      expiresAt: expiresAt.toISOString()
     });
 
     expect(grant.expiresAt?.getTime()).toBeCloseTo(expiresAt.getTime(), -3);

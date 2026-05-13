@@ -32,7 +32,7 @@ export class NotificationService implements INotificationService {
 
     // Extract recipient email and name from event or user service
     if ('email' in event) {
-      email = event.email;
+      email = (event as any).email;
     }
     
     if ('userId' in event && event.userId && this.userService) {
@@ -64,6 +64,11 @@ export class NotificationService implements INotificationService {
       text: bodyText,
       html: bodyHtml,
     });
+  }
+
+  async sendSms(userId: string, message: string, channel: string = 'system'): Promise<void> {
+    console.log(`Sending SMS to ${userId} via ${channel}: ${message}`);
+    // Real implementation would use an SMS provider
   }
 
   private resolveVariables(content: string, variables: Record<string, any>): string {

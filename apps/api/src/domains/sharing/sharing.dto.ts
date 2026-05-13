@@ -6,7 +6,7 @@ export const GrantShareInput = z.object({
   targetUserId: z.string().uuid().optional(),
   targetTeamId: z.string().uuid().optional(),
   targetOrgId: z.string().uuid().optional(),
-  resourceTypes: z.array(z.string()).default([]),    // Empty = share all
+  resourceTypes: z.array(z.string()).optional(),    // Optional, defaults to ['base'] in service
   expiresAt: z.string().datetime().optional(),        // Null = indefinite
   grantContext: z.string().optional(),
 });

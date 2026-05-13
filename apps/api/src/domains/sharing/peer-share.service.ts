@@ -6,9 +6,11 @@ import { NotFoundError, DomainError } from '@/shared/errors/domain-error';
 import crypto from 'crypto';
 
 export interface IPeerShareService {
-  invite(initiatorUserId: string, recipientEmail: string, direction: 'one_way' | 'mutual'): Promise<any>;
+  invite(initiatorUserId: string, input: string | { recipientEmail: string; recipientName?: string; direction?: 'one_way' | 'mutual'; mutual?: boolean }, direction?: 'one_way' | 'mutual'): Promise<any>;
+  invitePeer(initiatorUserId: string, input: string | { recipientEmail: string; recipientName?: string; direction?: 'one_way' | 'mutual'; mutual?: boolean }, direction?: 'one_way' | 'mutual'): Promise<any>;
   acceptInvite(token: string, acceptingUserId: string): Promise<any>;
   revoke(peerShareId: string, revokingUserId: string): Promise<void>;
+  revokePeerShare(peerShareId: string, revokingUserId: string): Promise<void>;
   getMyPeerShares(userId: string): Promise<any[]>;
 }
 
@@ -20,13 +22,22 @@ export class PeerShareService implements IPeerShareService {
     private readonly userService: IUserService,
   ) {}
 
-  async invite(initiatorUserId: string, recipientEmail: string, direction: 'one_way' | 'mutual') {
+  async invite(initiatorUserId: string, input: string | { recipientEmail: string; direction?: 'one_way' | 'mutual'; mutual?: boolean }, direction?: 'one_way' | 'mutual') {
+    const recipientEmail = typeof input === 'string' ? input : input.recipientEmail;
+    let finalDirection: 'one_way' | 'mutual' = 'one_way';
+    
+    if (typeof input !== 'string') {
+      finalDirection = input.direction || (input.mutual ? 'mutual' : 'one_way');
+    } else if (direction) {
+      finalDirection = direction;
+    }
+
     const inviteToken = crypto.randomBytes(32).toString('hex');
     
     const peerShare = await this.peerShareRepository.create({
       initiatorUserId,
       recipientEmail,
-      direction,
+      direction: finalDirection,
       inviteToken,
       status: 'pending',
     });
@@ -42,6 +53,10 @@ export class PeerShareService implements IPeerShareService {
     });
 
     return peerShare;
+  }
+
+  async invitePeer(initiatorUserId: string, input: string | { recipientEmail: string; direction?: 'one_way' | 'mutual'; mutual?: boolean }, direction?: 'one_way' | 'mutual') {
+    return this.invite(initiatorUserId, input, direction);
   }
 
   async acceptInvite(token: string, acceptingUserId: string) {
@@ -98,6 +113,10 @@ export class PeerShareService implements IPeerShareService {
       await this.shareService.revokeAllSharesForTarget(peerShare.initiatorUserId, 'user', peerShare.recipientUserId);
       await this.shareService.revokeAllSharesForTarget(peerShare.recipientUserId, 'user', peerShare.initiatorUserId);
     }
+  }
+
+  async revokePeerShare(peerShareId: string, revokingUserId: string) {
+    return this.revoke(peerShareId, revokingUserId);
   }
 
   async getMyPeerShares(userId: string) {
