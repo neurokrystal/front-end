@@ -14,6 +14,8 @@ export interface AdminDashboardStats {
   totalOrgs: number;
   totalRevenue: number;
   monthlyRevenue: number;
+  userCount: number;
+  revenueCents: number;
 }
 
 export interface IAdminRepository {
@@ -117,6 +119,8 @@ export class AdminRepository implements IAdminRepository {
       totalOrgs: Number(totalOrgs[0].count),
       totalRevenue: Number(totalRevenue[0].sum || 0) / 100,
       monthlyRevenue: Number(monthlyRevenue[0].sum || 0) / 100,
+      userCount: Number(totalUsers[0].count),
+      revenueCents: Number(totalRevenue[0].sum || 0),
     };
   }
 }

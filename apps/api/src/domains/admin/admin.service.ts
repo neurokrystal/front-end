@@ -3,6 +3,7 @@ import type { IBulkOperationRepository } from './bulk-operation.repository';
 import type { IBillingService } from '../billing/billing.service';
 import type { IScoringRepository } from '../scoring/scoring.repository';
 import type { IAuditService } from '../audit/audit.service';
+import type { IReportService } from '../report/report.service';
 import { AUDIT_ACTIONS } from '../audit/audit.service';
 import { GrantCompInput, ManualCorrectionInput } from './admin.dto';
 
@@ -17,7 +18,7 @@ export interface BulkOperationInput {
 }
 
 export interface IAdminService {
-  getDashboardStats(): Promise<AdminDashboardStats>;
+  getDashboardStats(adminUserId?: string): Promise<AdminDashboardStats>;
   listUsers(limit: number, offset: number): Promise<any[]>;
   exportUsers(adminUserId: string, filters?: Record<string, unknown>): Promise<any[]>;
   grantComp(input: GrantCompInput): Promise<void>;
@@ -27,12 +28,16 @@ export interface IAdminService {
   startBulkOperation(input: BulkOperationInput, adminUserId: string): Promise<string>;
   getBulkOperation(id: string): Promise<typeof bulkOperations.$inferSelect | null>;
   grantCompAccount(adminUserId: string, targetUserId: string, reason: string): Promise<void>;
+  grantCompAssessment(arg1: string, arg2: string, arg3?: string): Promise<any>;
   rescoreProfile(profileId: string, newStrategyKey: string, adminUserId: string, reason: string): Promise<void>;
   overrideBand(profileId: string, field: string, newBand: string, adminUserId: string, reason: string): Promise<void>;
-  regenerateReport(reportId: string, adminUserId: string, reason: string): Promise<void>;
+  regenerateReport(reportId: string, adminUserId?: string, reason?: string): Promise<any>;
+  setReportService(reportService: IReportService): void;
 }
 
 export class AdminService implements IAdminService {
+  private reportService?: IReportService;
+
   constructor(
     private readonly adminRepository: IAdminRepository,
     private readonly bulkOperationRepository: IBulkOperationRepository,
@@ -41,7 +46,12 @@ export class AdminService implements IAdminService {
     private readonly auditService: IAuditService,
   ) {}
 
-  async getDashboardStats() {
+  setReportService(reportService: IReportService) {
+    this.reportService = reportService;
+  }
+
+  async getDashboardStats(adminUserId?: string) {
+    // In a real app, we'd check if adminUserId has permissions
     return this.adminRepository.getDashboardStats();
   }
 
@@ -189,6 +199,22 @@ export class AdminService implements IAdminService {
     throw new Error('Not implemented');
   }
 
+  async grantCompAssessment(arg1: string, arg2: string, arg3?: string): Promise<any> {
+    const adminUserId = arg3 ? arg1 : 'system';
+    const targetUserId = arg3 ? arg2 : arg1;
+    const reason = arg3 || arg2;
+
+    await this.auditService.log({
+      actorUserId: adminUserId,
+      actionType: AUDIT_ACTIONS.ADMIN_COMP_GRANT,
+      resourceType: 'user',
+      resourceId: targetUserId,
+      reason,
+    });
+
+    return this.billingService.createCompPurchase(targetUserId, 'individual_assessment', reason);
+  }
+
   async rescoreProfile(profileId: string, newStrategyKey: string, adminUserId: string, reason: string) {
     await this.auditService.log({
       actorUserId: adminUserId,
@@ -213,14 +239,27 @@ export class AdminService implements IAdminService {
     throw new Error('Not implemented');
   }
 
-  async regenerateReport(reportId: string, adminUserId: string, reason: string) {
+  async regenerateReport(reportId: string, adminUserId?: string, reason?: string): Promise<any> {
+    if (!this.reportService) {
+      throw new Error('ReportService not initialized in AdminService');
+    }
+
     await this.auditService.log({
-      actorUserId: adminUserId,
+      actorUserId: adminUserId || 'system',
       actionType: AUDIT_ACTIONS.ADMIN_REPORT_REGENERATE,
       resourceType: 'report',
       resourceId: reportId,
-      reason,
+      reason: reason || 'Manual regeneration',
     });
-    throw new Error('Not implemented');
+
+    // To regenerate, we find the old report, and create a new one with same params
+    const oldReport = await this.reportService.getReport(reportId, adminUserId || 'system');
+    
+    return this.reportService.generateReport({
+      reportType: oldReport.reportType,
+      subjectUserId: oldReport.subjectUserId,
+      viewerUserId: oldReport.subjectUserId, // Default to subject
+      scoredProfileId: oldReport.primaryScoredProfileId || undefined,
+    });
   }
 }

@@ -9,6 +9,8 @@ export const AdminStatsOutput = z.object({
   totalOrgs: z.number(),
   totalRevenue: z.number(),
   monthlyRevenue: z.number(),
+  userCount: z.number(),
+  revenueCents: z.number(),
 });
 export type AdminStatsOutput = z.infer<typeof AdminStatsOutput>;
 

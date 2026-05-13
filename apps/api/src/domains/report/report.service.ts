@@ -38,7 +38,7 @@ export interface IReportService {
   generateReport(params: {
     reportType: string;
     subjectUserId: string;
-    viewerUserId: string | null;
+    viewerUserId?: string | null;
     scoredProfileId?: string;
     secondaryScoredProfileId?: string;
     teamId?: string;
@@ -68,11 +68,12 @@ export class ReportService implements IReportService {
   async generateReport(params: {
     reportType: string;
     subjectUserId: string;
-    viewerUserId: string | null;
+    viewerUserId?: string | null;
     scoredProfileId?: string;
     secondaryScoredProfileId?: string;
     teamId?: string;
   }): Promise<ReportOutput> {
+    const viewerUserId = params.viewerUserId !== undefined ? params.viewerUserId : null;
     // 1. Load the scored profile(s)
     let profile: ScoredProfileOutput | undefined;
     if (params.scoredProfileId) {
@@ -160,7 +161,7 @@ export class ReportService implements IReportService {
       reportType: params.reportType,
       audience: REPORT_TYPE_AUDIENCE[params.reportType as ReportType],
       subjectUserId: params.subjectUserId,
-      viewerUserId: params.viewerUserId,
+      viewerUserId: viewerUserId,
       primaryScoredProfileId: params.scoredProfileId ?? '',
       secondaryScoredProfileId: params.secondaryScoredProfileId,
       renderedPayload: { html, pdfUrl },
@@ -169,7 +170,7 @@ export class ReportService implements IReportService {
 
     // 8. Audit log
     await this.auditService.log({
-      actorUserId: params.viewerUserId ?? params.subjectUserId,
+      actorUserId: viewerUserId ?? params.subjectUserId,
       actionType: AUDIT_ACTIONS.REPORT_GENERATED,
       resourceType: 'report',
       resourceId: report.id,

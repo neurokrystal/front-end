@@ -17,7 +17,7 @@ export interface IBillingService {
   getPurchaseById(purchaseId: string): Promise<any>;
   hasUnusedAssessmentPurchase(userId: string): Promise<boolean>;
   hasUnusedSecondaryPurchase(userId: string, reportType: string): Promise<boolean>;
-  createCompPurchase(userId: string, purchaseType: string, reason: string): Promise<void>;
+  createCompPurchase(userId: string, purchaseType: string, reason: string): Promise<any>;
   setCommercialService(commercialService: ICommercialService): void;
 }
 
@@ -197,8 +197,8 @@ export class BillingService implements IBillingService {
     return purchases.some(p => p.status === 'completed' && p.purchaseType === reportType);
   }
 
-  async createCompPurchase(userId: string, purchaseType: any, reason: string): Promise<void> {
-    await this.billingRepository.createPurchase({
+  async createCompPurchase(userId: string, purchaseType: any, reason: string): Promise<any> {
+    return this.billingRepository.createPurchase({
       buyerUserId: userId,
       purchaseType: purchaseType as any,
       amountCents: 0,

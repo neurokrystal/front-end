@@ -98,6 +98,7 @@ export function createContainer() {
   scoringService.setAccessEvaluator(accessEvaluator);
   runService.setScoringService(scoringService);
   runService.setReportService(reportService);
+  adminService.setReportService(reportService);
 
   return {
     storageService,

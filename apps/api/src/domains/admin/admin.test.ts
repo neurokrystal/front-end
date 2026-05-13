@@ -45,6 +45,7 @@ describe('Category 11: Admin Features', () => {
       const r1 = await reportService.generateReport({
         reportType: 'base_diagnostic',
         subjectUserId: user.id,
+        viewerUserId: user.id,
         scoredProfileId: profile.id,
       });
       
