@@ -5,7 +5,7 @@ import { apiFetch } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, Shield, Key, Gift, Ghost } from "lucide-react";
+import { User, Shield, Key, Gift, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface UserDetail {
@@ -25,6 +25,9 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   const [user, setUser] = useState<UserDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [showViewAsModal, setShowViewAsModal] = useState(false);
+  const [viewAsReason, setViewAsReason] = useState("");
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     // In a real app we'd have a specific endpoint for user details
@@ -38,32 +41,34 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
   }, [id]);
 
   const handleGrantComp = async () => {
-    if (!confirm("Grant a complimentary assessment to this user?")) return;
+    if (!user) return;
     setActionLoading(true);
     try {
       await apiFetch("/api/v1/admin/comp-grant", {
         method: "POST",
-        body: JSON.stringify({ userId: id, purchaseType: "individual_assessment", reason: "Admin manual grant" })
+        body: JSON.stringify({ targetUserId: id, reason: "Manual grant from user detail page" })
       });
-      alert("Comp assessment granted successfully");
+      setToast({ type: 'success', message: `Complimentary access granted to ${user.displayName || user.email}` });
     } catch (error) {
-      alert("Failed to grant comp assessment");
+      setToast({ type: 'error', message: "Failed to grant complimentary access" });
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleImpersonate = async () => {
+  const startViewAs = async () => {
     setActionLoading(true);
     try {
       await apiFetch("/api/v1/admin/impersonate", {
         method: "POST",
-        body: JSON.stringify({ userId: id })
+        body: JSON.stringify({ userId: id, reason: viewAsReason.trim() })
       });
-      // In a real implementation this would set a session cookie or token
-      alert("Impersonation started (stub)");
+      setToast({ type: 'success', message: 'View As session recorded. Full impersonation coming soon.' });
+      setShowViewAsModal(false);
+      setViewAsReason("");
+      // Optionally open dashboard: window.open(`/dashboard?viewAs=${id}`, '_blank');
     } catch (error) {
-      alert("Failed to start impersonation");
+      setToast({ type: 'error', message: 'Failed to start View As session' });
     } finally {
       setActionLoading(false);
     }
@@ -86,8 +91,8 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
         </div>
         <div className="flex space-x-2">
           <Button variant="outline" onClick={() => router.back()} className="shadow-sm">Back</Button>
-          <Button variant="destructive" onClick={handleImpersonate} disabled={actionLoading} className="shadow-sm">
-            <Ghost className="mr-2 h-4 w-4" /> Impersonate
+          <Button onClick={() => setShowViewAsModal(true)} disabled={actionLoading} className="shadow-sm bg-slate-800 hover:bg-slate-900 text-white">
+            <Eye className="mr-2 h-4 w-4" /> View As This User
           </Button>
         </div>
       </div>
@@ -161,6 +166,68 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
           </Card>
         </div>
       </div>
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm ${
+            toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+          }`}
+          role="status"
+        >
+          {toast.message}
+          <button className="ml-3 opacity-80 hover:opacity-100" onClick={() => setToast(null)}>✕</button>
+        </div>
+      )}
+
+      {/* View As Modal */}
+      {showViewAsModal && user && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setShowViewAsModal(false)} />
+          <div className="relative z-50 w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h3 className="text-lg font-semibold text-slate-900">View As User</h3>
+            </div>
+            <div className="px-6 py-4 space-y-4">
+              <p className="text-sm text-slate-600">You will see the platform as this user sees it. This is read-only — no actions can be taken on their behalf.</p>
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50">
+                <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-semibold">
+                  {(user.displayName || user.email).slice(0,1).toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-slate-900">{user.displayName || 'Unnamed'}</div>
+                  <div className="text-xs text-slate-500">{user.email}</div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-500">Reason (required)</label>
+                <textarea
+                  className="w-full min-h-[88px] p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500/20"
+                  value={viewAsReason}
+                  onChange={(e) => setViewAsReason(e.target.value)}
+                  placeholder="Explain why you are viewing as this user..."
+                />
+                <div className={`text-xs ${viewAsReason.trim().length >= 10 ? 'text-slate-400' : 'text-red-600'}`}>
+                  {viewAsReason.trim().length}/10 characters
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-500">This action is audit-logged.</p>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50/50">
+              <Button variant="outline" onClick={() => setShowViewAsModal(false)} className="border-slate-200">Cancel</Button>
+              <Button
+                onClick={startViewAs}
+                disabled={actionLoading || viewAsReason.trim().length < 10}
+                className="bg-slate-800 hover:bg-slate-900 text-white"
+              >
+                Start Viewing
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

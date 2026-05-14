@@ -28,6 +28,10 @@ export default function UserManagementPage() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [page, setPage] = useState(0);
+  const [compTarget, setCompTarget] = useState<UserSummary | null>(null);
+  const [compReason, setCompReason] = useState("");
+  const [compSubmitting, setCompSubmitting] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const limit = 50;
 
   useEffect(() => {
@@ -70,16 +74,25 @@ export default function UserManagementPage() {
     }
   };
 
-  const handleGrantComp = async (userId: string) => {
-    if (!confirm("Grant a complimentary assessment to this user?")) return;
+  const closeCompModal = () => {
+    setCompTarget(null);
+    setCompReason("");
+    setCompSubmitting(false);
+  };
+
+  const submitGrantComp = async () => {
+    if (!compTarget) return;
+    setCompSubmitting(true);
     try {
       await apiFetch("/api/v1/admin/comp-grant", {
         method: "POST",
-        body: JSON.stringify({ userId, purchaseType: "individual_assessment", reason: "Admin manual grant" })
+        body: JSON.stringify({ targetUserId: compTarget.id, reason: compReason.trim() })
       });
-      alert("Comp assessment granted successfully");
+      setToast({ type: 'success', message: `Complimentary access granted to ${compTarget.displayName || compTarget.email}` });
+      closeCompModal();
     } catch (error) {
-      alert("Failed to grant comp assessment");
+      setToast({ type: 'error', message: "Failed to grant complimentary access" });
+      setCompSubmitting(false);
     }
   };
 
@@ -199,9 +212,14 @@ export default function UserManagementPage() {
                           <Eye className="h-4 w-4 mr-1" /> View Details
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-slate-600 hover:text-amber-600 hover:bg-amber-50 font-medium" onClick={() => handleGrantComp(user.id)}>
-                        <Gift className="h-4 w-4 mr-1" /> Grant Comp
-                      </Button>
+                      <button
+                        onClick={() => setCompTarget(user)}
+                        className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                        title="Grant complimentary access"
+                        aria-label={`Grant complimentary access to ${user.displayName || user.email}`}
+                      >
+                        <Gift className="w-4 h-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -241,6 +259,68 @@ export default function UserManagementPage() {
            </div>
         </div>
       )}
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-sm ${
+            toast.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
+          }`}
+          role="status"
+        >
+          {toast.message}
+          <button className="ml-3 opacity-80 hover:opacity-100" onClick={() => setToast(null)}>✕</button>
+        </div>
+      )}
+
+      {/* Grant Comp Modal */}
+      {compTarget && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/30" onClick={closeCompModal} />
+          <div className="relative z-50 w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h3 className="text-lg font-semibold text-slate-900">Grant Complimentary Access</h3>
+            </div>
+            <div className="px-6 py-4 space-y-4">
+              <p className="text-sm text-slate-600">This will give the following user free access to take the assessment:</p>
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-semibold">
+                  {(compTarget.displayName || compTarget.email).slice(0,1).toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-slate-900">{compTarget.displayName || compTarget.name}</div>
+                  <div className="text-xs text-slate-500">{compTarget.email}</div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-500">Reason (required)</label>
+                <textarea
+                  className="w-full min-h-[88px] p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  value={compReason}
+                  onChange={(e) => setCompReason(e.target.value)}
+                  placeholder="Explain why you are granting complimentary access..."
+                />
+                <div className={`text-xs ${compReason.trim().length >= 10 ? 'text-slate-400' : 'text-red-600'}`}>
+                  {compReason.trim().length}/10 characters
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-500">This action is audit-logged.</p>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50/50">
+              <Button variant="outline" onClick={closeCompModal} className="border-slate-200">Cancel</Button>
+              <Button
+                onClick={submitGrantComp}
+                disabled={compSubmitting || compReason.trim().length < 10}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {compSubmitting ? 'Granting...' : 'Grant Access'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -11,11 +11,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   
   server.addHook('preHandler', requirePlatformAdmin);
 
-  server.get("/stats", {
-    schema: {
-      response: { 200: AdminStatsOutput }
-    }
-  }, async (request, reply) => {
+  server.get("/stats", async (request, reply) => {
     const stats = await fastify.container.adminService.getDashboardStats();
     return stats;
   });
@@ -55,32 +51,43 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     return data;
   });
 
-  server.post("/comp-grant", {
-    schema: {
-      body: GrantCompInput,
+  // Accept a simpler payload: { targetUserId, reason }
+  server.post("/comp-grant", async (request, reply) => {
+    const adminUserId = request.session!.user.id;
+    const body = (request.body ?? {}) as any;
+    const targetUserId: string | undefined = body.targetUserId || body.userId;
+    const reason: string | undefined = body.reason;
+
+    if (!targetUserId || typeof targetUserId !== 'string') {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'targetUserId is required' });
     }
-  }, async (request, reply) => {
-    await fastify.container.adminService.grantComp(request.body as GrantCompInput);
+    if (!reason || typeof reason !== 'string' || reason.trim().length < 10) {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'reason must be at least 10 characters' });
+    }
+
+    await fastify.container.adminService.grantCompAssessment(adminUserId, targetUserId, reason.trim());
     return { ok: true };
   });
 
-  server.post("/profile-correction", {
-    schema: {
-      body: ManualCorrectionInput,
+  server.post("/profile-correction", async (request, reply) => {
+    const body = (request.body ?? {}) as ManualCorrectionInput;
+    if (!body || typeof body !== 'object' || !('profileId' in body) || !('reason' in body)) {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'profileId and reason are required' });
     }
-  }, async (request, reply) => {
-    const body = request.body as ManualCorrectionInput;
     await fastify.container.adminService.correctProfile(body.profileId, request.session!.user.id, body.reason);
     return { ok: true };
   });
 
-  server.post("/impersonate", {
-    schema: {
-      body: z.object({ userId: z.string().uuid() }),
-      response: { 202: z.object({ ok: z.boolean(), message: z.string() }) }
+  server.post("/impersonate", async (request, reply) => {
+    const body = (request.body ?? {}) as any;
+    const userId: string | undefined = body.userId;
+    const reason: string | undefined = body.reason;
+    if (!userId || typeof userId !== 'string') {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'userId is required' });
     }
-  }, async (request, reply) => {
-    const { userId } = request.body as { userId: string };
+    if (!reason || typeof reason !== 'string' || reason.trim().length < 10) {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'reason must be at least 10 characters' });
+    }
     const actorUserId = request.session!.user.id;
     await fastify.container.auditService.log({
       actorUserId,
@@ -88,30 +95,34 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       resourceType: 'user',
       resourceId: userId,
       subjectUserId: userId,
+      reason: reason.trim(),
     });
-    return reply.status(202).send({ ok: false, message: 'Impersonation endpoint stubbed — session issuance to be wired with Better-Auth.' });
+    return reply.status(202).send({ ok: true, message: 'Impersonation recorded. Read-only View As mode to be handled by client.' });
   });
 
-  server.post("/bulk", {
-    schema: {
-      body: z.object({
-        operation: z.enum(['regenerate_reports', 'rescore_profiles', 'send_notification', 'tag_users']),
-        targetIds: z.array(z.string()),
-        params: z.record(z.any()).optional(),
-        reason: z.string().min(10),
-      })
+  server.post("/bulk", async (request, reply) => {
+    const body = (request.body ?? {}) as any;
+    const { operation, targetIds, params, reason } = body || {};
+    const allowedOps = new Set(['regenerate_reports', 'rescore_profiles', 'send_notification', 'tag_users']);
+    if (!allowedOps.has(operation)) {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'invalid operation' });
     }
-  }, async (request, reply) => {
-    const opId = await fastify.container.adminService.startBulkOperation(request.body as BulkOperationInput, request.session!.user.id);
+    if (!Array.isArray(targetIds) || targetIds.some((t: any) => typeof t !== 'string')) {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'targetIds must be an array of strings' });
+    }
+    if (typeof reason !== 'string' || reason.trim().length < 10) {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'reason must be at least 10 characters' });
+    }
+
+    const opId = await fastify.container.adminService.startBulkOperation({ operation, targetIds, params, reason } as BulkOperationInput, request.session!.user.id);
     return { opId };
   });
 
-  server.get("/bulk/:id", {
-    schema: {
-      params: z.object({ id: z.string() }),
+  server.get("/bulk/:id", async (request, reply) => {
+    const { id } = (request.params ?? {}) as { id?: string };
+    if (!id || typeof id !== 'string') {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'id is required' });
     }
-  }, async (request, reply) => {
-    const { id } = request.params as { id: string };
     const op = await fastify.container.adminService.getBulkOperation(id);
     if (!op) return reply.status(404).send({ code: 'NOT_FOUND' });
     return op;
@@ -121,12 +132,11 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     return fastify.container.deletionService.getQueuedRequests();
   });
 
-  server.post("/deletion-requests/:id/execute", {
-    schema: {
-      params: z.object({ id: z.string() }),
+  server.post("/deletion-requests/:id/execute", async (request, reply) => {
+    const { id } = (request.params ?? {}) as { id?: string };
+    if (!id || typeof id !== 'string') {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'id is required' });
     }
-  }, async (request, reply) => {
-    const { id } = request.params as { id: string };
     return fastify.container.deletionService.executeDeletion(id, request.session!.user.id);
   });
 }

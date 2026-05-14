@@ -304,7 +304,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-base font-semibold text-slate-900">Assessments Over Time</h3>
-            <select className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            <select className="text-sm text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
               <option>Last 30 days</option>
               <option>Last 90 days</option>
             </select>

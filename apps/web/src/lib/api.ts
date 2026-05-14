@@ -35,6 +35,14 @@ class ApiClient {
     });
     
     if (!res.ok) {
+      // If the user session has expired, redirect to login on the client.
+      if (res.status === 401 && typeof window !== 'undefined') {
+        try {
+          // Use a hard navigation to ensure all state is reset.
+          window.location.assign('/login');
+        } catch {}
+      }
+
       const error = await res.json().catch(() => ({ message: 'Request failed', code: 'UNKNOWN' }));
       throw new ApiError(res.status, error.code, error.message);
     }
@@ -119,7 +127,27 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   });
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.statusText}`);
+    // Redirect to login on client when session has expired
+    if (response.status === 401 && typeof window !== 'undefined') {
+      try {
+        window.location.assign('/login');
+      } catch {}
+    }
+
+    // Try to surface server-provided error details
+    let message = response.statusText || 'Request failed';
+    try {
+      const data = await response.json();
+      if (data && typeof data.message === 'string') {
+        message = data.message;
+      }
+    } catch {
+      try {
+        const text = await response.text();
+        if (text) message = text;
+      } catch {}
+    }
+    throw new Error(`API error: ${message}`);
   }
 
   return response.json();

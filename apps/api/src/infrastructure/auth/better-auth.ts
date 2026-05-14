@@ -51,9 +51,17 @@ export const auth = betterAuth({
       cookieCache: {
         enabled: true,
         maxAge: 5 * 60, // 5 minutes cache
+        // Proactively refresh the cookie cache shortly before the session expires
+        // to minimize chances of users seeing an expired token during navigation.
+        refreshCache: {
+          // When ~10 minutes remain before expiry, refresh the cached cookie
+          updateAge: 10 * 60,
+        },
       },
-      expiresIn: 60 * 60 * 24 * 7, // 7 days
-      updateAge: 60 * 60 * 24, // 1 day
+      // Session lifetime: 1 hour
+      expiresIn: 60 * 60,
+      // Refresh session on use when it's getting close to expiry (~50 minutes since last refresh)
+      updateAge: 50 * 60,
   },
   account: {
       modelName: "account",

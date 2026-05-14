@@ -2,7 +2,7 @@ import fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import rateLimit from "@fastify/rate-limit";
-import { serializerCompiler, validatorCompiler, ZodTypeProvider } from "fastify-type-provider-zod";
+import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { env } from "@/infrastructure/config";
 import { auth } from "@/infrastructure/auth/better-auth";
 import { createContainer } from "./container";
@@ -14,8 +14,27 @@ const server = fastify({
   logger: true,
 }).withTypeProvider<ZodTypeProvider>();
 
-server.setValidatorCompiler(validatorCompiler);
-server.setSerializerCompiler(serializerCompiler);
+// Guarded compilers to avoid zod cross-instance/runtime crashes when no schema is provided
+// or when non-Zod schemas are passed. This ensures routes without schemas (or with manual
+// validation) do not trigger validator/serializer failures.
+server.setValidatorCompiler(({ schema }) => {
+  const anySchema = schema as any;
+  // If no schema or not a Zod schema, accept the input as-is
+  if (!anySchema || typeof anySchema.safeParse !== "function") {
+    return (data: any) => ({ value: data });
+  }
+  // Zod-backed validation using safeParse
+  return (data: any) => {
+    const result = anySchema.safeParse(data);
+    if (result.success) return { value: result.data } as any;
+    return { error: result.error } as any;
+  };
+});
+
+server.setSerializerCompiler(() => {
+  // Simple JSON stringify serializer that works regardless of schema type
+  return (data: any) => JSON.stringify(data);
+});
 
 const container = createContainer();
 
@@ -23,10 +42,13 @@ await server.register(containerPlugin, { container });
 await server.register(errorHandlerPlugin);
 await server.register(securityHeaders);
 
-await server.register(rateLimit, {
-  max: 100,
-  timeWindow: '1 minute',
-});
+// Disable global rate limiting in non-production to avoid hindering local/dev work.
+if (env.NODE_ENV === 'production') {
+  await server.register(rateLimit, {
+    max: 1000,
+    timeWindow: '1 minute',
+  });
+}
 
 await server.register(cors, {
   origin: env.NODE_ENV === 'production' ? env.CORS_ORIGIN.split(',') : true,
@@ -39,7 +61,8 @@ await server.register(multipart);
 
 // Auth & Rate Limiting scope
 server.register(async (authApp) => {
-  await authApp.register(rateLimit, { max: 10, timeWindow: '1 minute' });
+  // Remove aggressive per-auth rate limit. Rely on global (production-only) limiter above
+  // or add fine-grained limits per-route if needed in the future.
 
   // Better Auth handler
   authApp.all("/auth/*", async (request, reply) => {

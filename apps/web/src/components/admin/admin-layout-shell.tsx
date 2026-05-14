@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, section: 'Admin Panel' },
   { label: 'CMS Content Blocks', href: '/admin/coming-soon?section=CMS', icon: FileEdit, section: 'CONTENT' },
-  { label: 'Report Templates', href: '/admin/coming-soon?section=Report+Templates', icon: FileText, section: 'CONTENT' },
+  { label: 'Report Templates', href: '/admin/templates', icon: FileText, section: 'CONTENT' },
   { label: 'Email Templates', href: '/admin/email-templates', icon: Mail, section: 'CONTENT' },
   { label: 'Instruments', href: '/admin/instruments', icon: FlaskConical, section: 'INSTRUMENTS' },
   { label: 'Scoring Configs', href: '/admin/coming-soon?section=Scoring+Configs', icon: Settings, section: 'INSTRUMENTS' },
