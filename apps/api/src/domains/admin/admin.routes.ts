@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { requirePlatformAdmin } from "@/infrastructure/auth/auth-middleware";
-import { AdminStatsOutput, AdminUserSummary, ListUsersQuery, GrantCompInput, ManualCorrectionInput } from './admin.dto';
+import { AdminStatsOutput, AdminUserSummary, GrantCompInput, ManualCorrectionInput } from './admin.dto';
 import { z } from 'zod';
 import { AUDIT_ACTIONS } from '@/domains/audit/audit.service';
 import { BulkOperationInput } from './admin.service';
@@ -20,13 +20,29 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     return stats;
   });
 
-  server.get("/users", {
-    schema: {
-      querystring: ListUsersQuery,
-      response: { 200: z.array(AdminUserSummary) }
-    }
-  }, async (request, reply) => {
-    const { limit, offset } = request.query as ListUsersQuery;
+  server.get("/stats/assessments-timeline", async (request, reply) => {
+    return fastify.container.adminService.getAssessmentsTimeline();
+  });
+
+  server.get("/stats/domain-distribution", async (request, reply) => {
+    return fastify.container.adminService.getDomainDistribution();
+  });
+
+  // NOTE: Do not attach a Zod response schema here — current fastify-type-provider-zod
+  // version in this project crashes during serialization with array/object schemas.
+  // We manually ensure shape in code until dependencies are aligned.
+  server.get("/users", async (request, reply) => {
+    const q = (request.query ?? {}) as Record<string, unknown>;
+    const parseNum = (v: unknown, def: number) => {
+      if (v === undefined || v === null || v === '') return def;
+      const n = parseInt(String(v), 10);
+      return Number.isFinite(n) ? n : def;
+    };
+    const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
+
+    const limit = clamp(parseNum(q.limit, 50), 1, 200);
+    const offset = Math.max(0, parseNum(q.offset, 0));
+
     const users = await fastify.container.adminService.listUsers(limit, offset);
     return users.map(u => ({
       ...u,

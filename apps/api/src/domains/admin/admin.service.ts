@@ -19,6 +19,8 @@ export interface BulkOperationInput {
 
 export interface IAdminService {
   getDashboardStats(adminUserId?: string): Promise<AdminDashboardStats>;
+  getAssessmentsTimeline(adminUserId?: string): Promise<Array<{ date: string; count: number }>>;
+  getDomainDistribution(adminUserId?: string): Promise<any>;
   listUsers(limit: number, offset: number): Promise<any[]>;
   exportUsers(adminUserId: string, filters?: Record<string, unknown>): Promise<any[]>;
   grantComp(input: GrantCompInput): Promise<void>;
@@ -53,6 +55,14 @@ export class AdminService implements IAdminService {
   async getDashboardStats(adminUserId?: string) {
     // In a real app, we'd check if adminUserId has permissions
     return this.adminRepository.getDashboardStats();
+  }
+
+  async getAssessmentsTimeline(adminUserId?: string) {
+    return this.adminRepository.getAssessmentsTimeline();
+  }
+
+  async getDomainDistribution(adminUserId?: string) {
+    return this.adminRepository.getDomainDistribution();
   }
 
   async listUsers(limit: number, offset: number) {

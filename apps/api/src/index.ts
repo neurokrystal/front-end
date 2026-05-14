@@ -43,6 +43,15 @@ server.register(async (authApp) => {
 
   // Better Auth handler
   authApp.all("/auth/*", async (request, reply) => {
+    return handleAuth(request, reply);
+  });
+
+  // Support /api/auth/* for local development where /api prefix isn't trimmed
+  authApp.all("/api/auth/*", async (request, reply) => {
+    return handleAuth(request, reply);
+  });
+
+  async function handleAuth(request: any, reply: any) {
     const protocol = request.protocol;
     const host = request.headers.host || request.hostname;
     const url = `${protocol}://${host}${request.url}`;
@@ -59,14 +68,14 @@ server.register(async (authApp) => {
     reply.status(response.status);
     
     // Forward headers
-    response.headers.forEach((value, key) => {
+    response.headers.forEach((value: string, key: string) => {
       reply.header(key, value);
     });
     
     // Forward body
     const body = await response.arrayBuffer();
     return reply.send(Buffer.from(body));
-  });
+  }
 });
 
 import userRoutes from './domains/user/user.routes';

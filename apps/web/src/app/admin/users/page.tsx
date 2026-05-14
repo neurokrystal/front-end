@@ -5,39 +5,55 @@ import { apiFetch } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Search, UserCheck } from "lucide-react";
+import { Download, Search, Gift, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 interface UserSummary {
   id: string;
-  displayName: string | null;
+  name: string;
+  displayName: string;
   email: string;
   role: string;
   createdAt: string;
+  profileType: string;
+  runCount: number;
+  reportCount: number;
 }
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [page, setPage] = useState(0);
+  const limit = 50;
 
   useEffect(() => {
-    apiFetch<UserSummary[]>("/admin/users")
+    // Fetch a larger batch for client-side filtering/pagination as suggested by requirements
+    apiFetch<UserSummary[]>(`/api/v1/admin/users?limit=200&offset=0`)
       .then(setUsers)
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredUsers = users.filter(u => 
-    u.email.toLowerCase().includes(search.toLowerCase()) || 
-    u.displayName?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.email.toLowerCase().includes(search.toLowerCase()) || 
+                         (u.displayName && u.displayName.toLowerCase().includes(search.toLowerCase()));
+    const matchesRole = roleFilter === "all" || u.role === roleFilter;
+    const matchesType = typeFilter === "all" || u.profileType === typeFilter;
+    return matchesSearch && matchesRole && matchesType;
+  });
+
+  const paginatedUsers = filteredUsers.slice(page * limit, (page + 1) * limit);
+  const totalPages = Math.ceil(filteredUsers.length / limit);
 
   const handleExport = async () => {
     try {
-      const data = await apiFetch<any[]>("/admin/users/export");
+      const data = await apiFetch<any[]>("/api/v1/admin/users/export");
       const csv = [
-        ["ID", "Email", "Name", "Type", "Joined"],
-        ...data.map(u => [u.id, u.email, u.displayName, u.profileType, u.createdAt])
+        ["ID", "Email", "Name", "Role", "Profile Type", "Joined"],
+        ...data.map(u => [u.id, u.email, u.displayName, u.role, u.profileType, u.createdAt])
       ].map(e => e.join(",")).join("\n");
       
       const blob = new Blob([csv], { type: 'text/csv' });
@@ -54,70 +70,177 @@ export default function UserManagementPage() {
     }
   };
 
-  if (loading) return <div>Loading users...</div>;
+  const handleGrantComp = async (userId: string) => {
+    if (!confirm("Grant a complimentary assessment to this user?")) return;
+    try {
+      await apiFetch("/api/v1/admin/comp-grant", {
+        method: "POST",
+        body: JSON.stringify({ userId, purchaseType: "individual_assessment", reason: "Admin manual grant" })
+      });
+      alert("Comp assessment granted successfully");
+    } catch (error) {
+      alert("Failed to grant comp assessment");
+    }
+  };
+
+  const RoleBadge = ({ role }: { role: string }) => {
+    const styles: Record<string, string> = {
+      super_admin: "bg-violet-50 text-violet-700 border-violet-100",
+      platform_admin: "bg-blue-50 text-blue-700 border-blue-100",
+      user: "bg-slate-50 text-slate-600 border-slate-200",
+    };
+    return (
+      <Badge variant="outline" className={`capitalize font-semibold ${styles[role] || styles.user}`}>
+        {role.replace('_', ' ')}
+      </Badge>
+    );
+  };
+
+  const TypeBadge = ({ type }: { type: string }) => {
+    const styles: Record<string, { label: string, classes: string }> = {
+      full: { label: "Full", classes: "bg-emerald-50 text-emerald-700 border-emerald-100" },
+      viewer: { label: "Viewer", classes: "bg-amber-50 text-amber-700 border-amber-100" },
+      none: { label: "No Profile", classes: "bg-slate-50 text-slate-400 border-slate-200" },
+    };
+    const config = styles[type] || styles.none;
+    return (
+      <Badge variant="outline" className={`font-semibold ${config.classes}`}>
+        {config.label}
+      </Badge>
+    );
+  };
+
+  if (loading) return <div className="p-8 text-center text-slate-500 font-sans">Loading users...</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">User Management</h1>
-        <Button onClick={handleExport} variant="outline">
+        <div>
+           <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">User Management</h1>
+           <p className="text-sm text-slate-500 mt-1">Showing {paginatedUsers.length} of {filteredUsers.length} users</p>
+        </div>
+        <Button onClick={handleExport} variant="outline" className="shadow-sm">
           <Download className="mr-2 h-4 w-4" /> Export CSV
         </Button>
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search users by email or name..."
-            className="pl-8"
+            placeholder="Search users..."
+            className="pl-9 bg-white border-slate-200"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
           />
+        </div>
+        <select 
+          className="h-10 px-3 py-2 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          value={roleFilter}
+          onChange={(e) => { setRoleFilter(e.target.value); setPage(0); }}
+        >
+          <option value="all">All Roles</option>
+          <option value="super_admin">Super Admin</option>
+          <option value="platform_admin">Platform Admin</option>
+          <option value="user">User</option>
+        </select>
+        <select 
+          className="h-10 px-3 py-2 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          value={typeFilter}
+          onChange={(e) => { setTypeFilter(e.target.value); setPage(0); }}
+        >
+          <option value="all">All Types</option>
+          <option value="full">Full Profile</option>
+          <option value="viewer">Viewer</option>
+          <option value="none">No Profile</option>
+        </select>
+      </div>
+
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50/50">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Profile Type</th>
+                <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Assessments</th>
+                <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Reports</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Joined</th>
+                <th className="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {paginatedUsers.map((user) => (
+                <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-semibold text-slate-900">{user.displayName}</div>
+                    <div className="text-xs text-slate-500">{user.email}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <RoleBadge role={user.role} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <TypeBadge type={user.profileType} />
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className="text-sm font-medium text-slate-700">{user.runCount}</span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <span className="text-sm font-medium text-slate-700">{user.reportCount}</span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-500">
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button asChild variant="ghost" size="sm" className="text-slate-600 hover:text-blue-600 hover:bg-blue-50 font-medium">
+                        <Link href={`/admin/users/${user.id}`}>
+                          <Eye className="h-4 w-4 mr-1" /> View Details
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="text-slate-600 hover:text-amber-600 hover:bg-amber-50 font-medium" onClick={() => handleGrantComp(user.id)}>
+                        <Gift className="h-4 w-4 mr-1" /> Grant Comp
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {paginatedUsers.length === 0 && (
+                <tr>
+                   <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                      No users found matching your filters.
+                   </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <div className="relative overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-muted-foreground uppercase bg-slate-50 border-b">
-                <tr>
-                  <th className="px-6 py-3">User</th>
-                  <th className="px-6 py-3">Role</th>
-                  <th className="px-6 py-3">Joined</th>
-                  <th className="px-6 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="bg-white border-b hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-slate-900">{user.displayName || "No Name"}</div>
-                      <div className="text-xs text-muted-foreground">{user.email}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-semibold ${
-                        user.role === 'super_admin' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-700'
-                      }`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href={`/admin/users/${user.id}`}>View Details</Link>
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+           <p className="text-sm text-slate-500">Page {page + 1} of {totalPages}</p>
+           <div className="flex gap-2">
+             <Button 
+               variant="outline" 
+               size="sm" 
+               onClick={() => setPage(p => Math.max(0, p - 1))}
+               disabled={page === 0}
+             >
+               <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+             </Button>
+             <Button 
+               variant="outline" 
+               size="sm" 
+               onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+               disabled={page === totalPages - 1}
+             >
+               Next <ChevronRight className="h-4 w-4 ml-1" />
+             </Button>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

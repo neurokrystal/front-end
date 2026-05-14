@@ -54,54 +54,62 @@ export default function BulkOperationsPage() {
   if (loading) return <div>Loading bulk operations...</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Bulk Operations</h1>
-        <Button variant="outline" onClick={fetchOperations}>
+        <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Bulk Operations</h1>
+        <Button variant="outline" onClick={fetchOperations} className="shadow-sm border-slate-200 font-medium">
           <RefreshCw className="mr-2 h-4 w-4" /> Refresh
         </Button>
       </div>
 
       <div className="grid gap-4">
         {operations.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center text-muted-foreground">
-              No recent bulk operations found.
-            </CardContent>
-          </Card>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center">
+            <RefreshCw className="w-10 h-10 text-slate-200 mx-auto mb-3" />
+            <p className="text-slate-500 font-medium">No recent bulk operations</p>
+            <p className="text-xs text-slate-400 mt-1">Status of automated system tasks will appear here</p>
+          </div>
         ) : (
           operations.map((op) => (
             <Card key={op.id}>
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <span className="font-semibold text-lg capitalize">{op.operation.replace('_', ' ')}</span>
-                      <Badge variant={
-                        op.status === 'completed' ? 'default' : 
-                        op.status === 'failed' ? 'destructive' : 
-                        op.status === 'running' ? 'outline' : 'secondary'
-                      }>
+                    <div className="flex items-center space-x-3">
+                      <span className="font-semibold text-slate-900 capitalize text-lg">{op.operation.replace('_', ' ')}</span>
+                      <span className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase border",
+                        op.status === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                        op.status === 'failed' ? 'bg-red-50 text-red-700 border-red-100' : 
+                        op.status === 'running' ? 'bg-blue-50 text-blue-700 border-blue-100 animate-pulse' : 
+                        'bg-slate-50 text-slate-600 border-slate-100'
+                      )}>
                         {op.status}
-                      </Badge>
+                      </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">{op.reason}</p>
+                    <p className="text-sm text-slate-500">{op.reason}</p>
                   </div>
-                  <div className="text-right text-xs text-muted-foreground">
-                    ID: {op.id.slice(0, 8)}...<br/>
-                    Started: {new Date(op.createdAt).toLocaleString()}
+                  <div className="text-right text-[10px] text-slate-400 font-mono uppercase tracking-tight">
+                    ID: {op.id.slice(0, 8)}<br/>
+                    {new Date(op.createdAt).toLocaleString()}
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                <div className="space-y-3">
+                  <div className="flex justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     <span>Progress: {op.completedCount + op.failedCount} / {op.targetCount}</span>
-                    <span className="font-medium">{Math.round(((op.completedCount + op.failedCount) / op.targetCount) * 100)}%</span>
+                    <span className="text-slate-900">{Math.round(((op.completedCount + op.failedCount) / op.targetCount) * 100)}%</span>
                   </div>
-                  <Progress value={((op.completedCount + op.failedCount) / op.targetCount) * 100} />
-                  <div className="flex space-x-4 text-xs">
-                    <span className="text-green-600 font-medium">Success: {op.completedCount}</span>
-                    <span className="text-red-600 font-medium">Failed: {op.failedCount}</span>
+                  <Progress value={((op.completedCount + op.failedCount) / op.targetCount) * 100} className="h-2 bg-slate-100" />
+                  <div className="flex space-x-4 text-xs font-medium">
+                    <span className="text-emerald-600 flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                      Success: {op.completedCount}
+                    </span>
+                    <span className="text-red-600 flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                      Failed: {op.failedCount}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -110,17 +118,17 @@ export default function BulkOperationsPage() {
         )}
       </div>
 
-      <Card>
+      <Card className="bg-slate-50 border-dashed border-slate-300 shadow-none">
         <CardHeader>
-          <CardTitle>Trigger New Operation</CardTitle>
+          <CardTitle className="text-base font-semibold text-slate-900">Trigger New Operation</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Bulk operations are typically triggered from other management pages (e.g. selecting multiple users in User Management).
+          <p className="text-sm text-slate-500 leading-relaxed max-w-2xl">
+            Bulk operations are typically triggered from other management pages (e.g. selecting multiple users in User Management). Manual global overrides are disabled by default.
           </p>
-          <div className="flex space-x-2">
-            <Button disabled>Regenerate All Reports</Button>
-            <Button disabled>Rescore Global Population</Button>
+          <div className="flex space-x-3">
+            <Button disabled variant="outline" className="bg-white border-slate-200">Regenerate All Reports</Button>
+            <Button disabled variant="outline" className="bg-white border-slate-200">Rescore Global Population</Button>
           </div>
         </CardContent>
       </Card>

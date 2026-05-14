@@ -1,16 +1,18 @@
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, aliasedTable } from 'drizzle-orm';
 import type { DrizzleDb } from '@/infrastructure/database/connection';
 import { auditLogs } from './audit.schema';
+import { betterAuthUser } from '@/infrastructure/auth/better-auth-refs.schema';
 
 export interface IAuditRepository {
   create(data: typeof auditLogs.$inferInsert): Promise<void>;
-  findBySubjectId(subjectUserId: string): Promise<typeof auditLogs.$inferSelect[]>;
+  findBySubjectId(subjectUserId: string): Promise<any[]>;
   find(filters: {
     actorUserId?: string;
     subjectUserId?: string;
     resourceType?: string;
     resourceId?: string;
-  }): Promise<typeof auditLogs.$inferSelect[]>;
+    limit?: number;
+  }): Promise<any[]>;
 }
 
 export class AuditRepository implements IAuditRepository {
@@ -29,19 +31,43 @@ export class AuditRepository implements IAuditRepository {
     subjectUserId?: string;
     resourceType?: string;
     resourceId?: string;
+    limit?: number;
   }) {
+    const actorUser = aliasedTable(betterAuthUser, 'actor_user');
+    const subjectUser = aliasedTable(betterAuthUser, 'subject_user');
+
     const conditions = [];
     if (filters.actorUserId) conditions.push(eq(auditLogs.actorUserId, filters.actorUserId));
     if (filters.subjectUserId) conditions.push(eq(auditLogs.subjectUserId, filters.subjectUserId));
     if (filters.resourceType) conditions.push(eq(auditLogs.resourceType, filters.resourceType));
     if (filters.resourceId) conditions.push(eq(auditLogs.resourceId, filters.resourceId));
 
-    let query = this.db.select().from(auditLogs);
+    let query = this.db
+      .select({
+        id: auditLogs.id,
+        actorUserId: auditLogs.actorUserId,
+        action: auditLogs.actionType,
+        resourceType: auditLogs.resourceType,
+        resourceId: auditLogs.resourceId,
+        subjectUserId: auditLogs.subjectUserId,
+        createdAt: auditLogs.createdAt,
+        actorName: actorUser.name,
+        subjectName: subjectUser.name,
+      })
+      .from(auditLogs)
+      .leftJoin(actorUser, eq(auditLogs.actorUserId, actorUser.id))
+      .leftJoin(subjectUser, eq(auditLogs.subjectUserId, subjectUser.id))
+      .orderBy(sql`created_at DESC`);
+
     if (conditions.length > 0) {
       // @ts-ignore
       query = query.where(and(...conditions));
     }
 
-    return query.orderBy(sql`created_at DESC`);
+    if (filters.limit) {
+      query = query.limit(filters.limit);
+    }
+
+    return query;
   }
 }

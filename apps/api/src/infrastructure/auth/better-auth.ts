@@ -82,6 +82,7 @@ export const auth = betterAuth({
   },
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
+  trustedOrigins: env.CORS_ORIGIN.split(',').map(o => o.trim()),
   advanced: {
     cookiePrefix: "dimensional",
     cookies: {

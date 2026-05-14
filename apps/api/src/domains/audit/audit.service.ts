@@ -48,6 +48,7 @@ export interface IAuditService {
     subjectUserId?: string;
     resourceType?: string;
     resourceId?: string;
+    limit?: number;
   }): Promise<typeof auditLogs.$inferSelect[]>;
 }
 
@@ -67,6 +68,7 @@ export class AuditService implements IAuditService {
     subjectUserId?: string;
     resourceType?: string;
     resourceId?: string;
+    limit?: number;
   }) {
     return this.auditRepository.find(filters);
   }

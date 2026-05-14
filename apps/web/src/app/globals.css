@@ -21,31 +21,31 @@
     --popover: 233 43% 11%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 37 38% 60%;              /* #C8A86E — gold accent */
-    --primary-foreground: 233 50% 5%;   /* dark text on gold buttons */
+    --primary: 211 66% 57%;              /* #4A90D9 — blue */
+    --primary-foreground: 0 0% 100%;    /* white text on blue buttons */
 
-    --secondary: 235 40% 12%;           /* slightly lighter surface */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 235 25% 15%;
-    --muted-foreground: 237 15% 49%;    /* #6E6E8A */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 37 38% 60%;              /* gold — same as primary */
-    --accent-foreground: 233 50% 5%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 100% / 0.08;        /* rgba(255,255,255,0.08) */
     --input: 233 43% 10%;              /* #0F0F25 */
-    --ring: 37 38% 60%;                /* gold focus ring */
+    --ring: 211 66% 57%;                /* blue focus ring */
 
     --radius: 0.375rem;                /* 6px — ShadCN default, matches brand */
 
     /* === EXTENDED BRAND TOKENS (not native ShadCN, but needed) === */
 
     --bg-tertiary: 240 56% 4%;         /* #060614 — deepest background */
-    --text-accent: 37 38% 60%;         /* gold text for links/labels */
+    --text-accent: 211 66% 57%;         /* blue text for links/labels */
 
     --domain-safety: 173 58% 55%;      /* #4ECDC4 — teal */
     --domain-challenge: 37 80% 56%;    /* #E8A838 — amber */
@@ -78,19 +78,19 @@
     --card-foreground: 0 0% 100%;
     --popover: 233 43% 11%;
     --popover-foreground: 0 0% 100%;
-    --primary: 37 38% 60%;
-    --primary-foreground: 233 50% 5%;
-    --secondary: 235 40% 12%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 235 25% 15%;
-    --muted-foreground: 237 15% 49%;
-    --accent: 37 38% 60%;
-    --accent-foreground: 233 50% 5%;
+    --primary: 211 66% 57%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 100% / 0.08;
     --input: 233 43% 10%;
-    --ring: 37 38% 60%;
+    --ring: 211 66% 57%;
     --radius: 0.375rem;
   }
 }

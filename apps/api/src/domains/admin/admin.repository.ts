@@ -8,14 +8,12 @@ import { purchases } from '@/domains/billing/billing.schema';
 
 export interface AdminDashboardStats {
   totalUsers: number;
-  usersTrend: number;
-  totalAssessments: number;
-  assessmentsTrend: number;
-  totalOrgs: number;
-  totalRevenue: number;
-  monthlyRevenue: number;
-  userCount: number;
-  revenueCents: number;
+  totalUsersThisWeek: number;
+  completedAssessments: number;
+  completedAssessmentsThisWeek: number;
+  activeOrganisations: number;
+  totalRevenueCents: number;
+  revenueThisMonthCents: number;
 }
 
 export interface IAdminRepository {
@@ -23,13 +21,19 @@ export interface IAdminRepository {
   countReports(): Promise<number>;
   listUsers(limit: number, offset: number): Promise<Array<{ 
     id: string; 
+    name: string;
     displayName: string | null;
     email: string;
     role: string;
     createdAt: Date;
+    profileType: string;
+    runCount: number;
+    reportCount: number;
   }>>;
   exportUsersData(): Promise<any[]>;
   getDashboardStats(): Promise<AdminDashboardStats>;
+  getAssessmentsTimeline(): Promise<Array<{ date: string; count: number }>>;
+  getDomainDistribution(): Promise<any>;
 }
 
 export class AdminRepository implements IAdminRepository {
@@ -45,82 +49,140 @@ export class AdminRepository implements IAdminRepository {
     return Number(res[0]?.count ?? 0);
   }
 
-  async listUsers(limit: number, offset: number): Promise<Array<{ 
-    id: string; 
-    displayName: string | null;
-    email: string;
-    role: string;
-    createdAt: Date;
-  }>> {
+  async listUsers(limit: number, offset: number) {
+    const runsSubquery = this.db.select({ 
+      userId: instrumentRuns.userId, 
+      runCount: sql<number>`count(*)`.as('run_count')
+    })
+    .from(instrumentRuns)
+    .where(eq(instrumentRuns.status, 'completed'))
+    .groupBy(instrumentRuns.userId)
+    .as('runs');
+
+    const reportsSubquery = this.db.select({ 
+      subjectUserId: reports.subjectUserId, 
+      reportCount: sql<number>`count(*)`.as('report_count')
+    })
+    .from(reports)
+    .groupBy(reports.subjectUserId)
+    .as('reports');
+
     const rows = await this.db
       .select({ 
         id: betterAuthUser.id, 
+        name: betterAuthUser.name,
         email: betterAuthUser.email,
         role: betterAuthUser.role,
         createdAt: betterAuthUser.createdAt,
-        displayName: userProfiles.displayName 
+        displayName: userProfiles.displayName,
+        profileType: userProfiles.profileType,
+        runCount: sql<number>`COALESCE(${runsSubquery.runCount}, 0)`,
+        reportCount: sql<number>`COALESCE(${reportsSubquery.reportCount}, 0)`,
       })
       .from(betterAuthUser)
       .leftJoin(userProfiles, eq(userProfiles.userId, betterAuthUser.id))
+      .leftJoin(runsSubquery, eq(runsSubquery.userId, betterAuthUser.id))
+      .leftJoin(reportsSubquery, eq(reportsSubquery.subjectUserId, betterAuthUser.id))
       .limit(limit)
       .offset(offset)
       .orderBy(desc(betterAuthUser.createdAt));
       
     return rows.map(r => ({ 
       id: r.id, 
+      name: r.name,
       email: r.email,
       role: r.role || 'user',
       createdAt: r.createdAt,
-      displayName: r.displayName ?? null 
+      displayName: r.displayName ?? r.name,
+      profileType: r.profileType ?? 'none',
+      runCount: Number(r.runCount),
+      reportCount: Number(r.reportCount),
     }));
   }
 
   async exportUsersData(): Promise<any[]> {
-    // Basic join for export
-    return this.db
+    const rows = await this.db
       .select({
         id: betterAuthUser.id,
+        name: betterAuthUser.name,
         email: betterAuthUser.email,
+        role: betterAuthUser.role,
         displayName: userProfiles.displayName,
         profileType: userProfiles.profileType,
-        createdAt: userProfiles.createdAt,
+        createdAt: betterAuthUser.createdAt,
       })
       .from(betterAuthUser)
       .leftJoin(userProfiles, eq(userProfiles.userId, betterAuthUser.id));
+
+    return rows.map(r => ({
+      ...r,
+      displayName: r.displayName ?? r.name,
+      role: r.role || 'user',
+      profileType: r.profileType ?? 'none',
+    }));
   }
 
   async getDashboardStats(): Promise<AdminDashboardStats> {
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    const [totalUsers, usersTrend] = await Promise.all([
+    const [totalUsers, usersThisWeek] = await Promise.all([
       this.db.select({ count: sql<number>`count(*)` }).from(betterAuthUser),
       this.db.select({ count: sql<number>`count(*)` }).from(betterAuthUser).where(sql`created_at > ${oneWeekAgo}`)
     ]);
 
-    const [totalRuns, runsTrend] = await Promise.all([
+    const [completedAssessments, completedAssessmentsThisWeek] = await Promise.all([
       this.db.select({ count: sql<number>`count(*)` }).from(instrumentRuns).where(eq(instrumentRuns.status, 'completed')),
       this.db.select({ count: sql<number>`count(*)` }).from(instrumentRuns).where(sql`status = 'completed' AND completed_at > ${oneWeekAgo}`)
     ]);
 
-    const totalOrgs = await this.db.select({ count: sql<number>`count(*)` }).from(betterAuthOrganization);
+    const activeOrganisations = await this.db.select({ count: sql<number>`count(*)` }).from(betterAuthOrganization);
 
-    const [totalRevenue, monthlyRevenue] = await Promise.all([
+    const [totalRevenue, revenueThisMonth] = await Promise.all([
       this.db.select({ sum: sql<number>`sum(amount_cents)` }).from(purchases).where(eq(purchases.status, 'completed')),
-      this.db.select({ sum: sql<number>`sum(amount_cents)` }).from(purchases).where(sql`status = 'completed' AND completed_at > ${oneMonthAgo}`)
+      this.db.select({ sum: sql<number>`sum(amount_cents)` }).from(purchases).where(sql`status = 'completed' AND created_at > ${new Date(now.getFullYear(), now.getMonth(), 1)}`)
     ]);
 
     return {
       totalUsers: Number(totalUsers[0].count),
-      usersTrend: Number(usersTrend[0].count),
-      totalAssessments: Number(totalRuns[0].count),
-      assessmentsTrend: Number(runsTrend[0].count),
-      totalOrgs: Number(totalOrgs[0].count),
-      totalRevenue: Number(totalRevenue[0].sum || 0) / 100,
-      monthlyRevenue: Number(monthlyRevenue[0].sum || 0) / 100,
-      userCount: Number(totalUsers[0].count),
-      revenueCents: Number(totalRevenue[0].sum || 0),
+      totalUsersThisWeek: Number(usersThisWeek[0].count),
+      completedAssessments: Number(completedAssessments[0].count),
+      completedAssessmentsThisWeek: Number(completedAssessmentsThisWeek[0].count),
+      activeOrganisations: Number(activeOrganisations[0].count),
+      totalRevenueCents: Number(totalRevenue[0].sum || 0),
+      revenueThisMonthCents: Number(revenueThisMonth[0].sum || 0),
     };
+  }
+
+  async getAssessmentsTimeline(): Promise<Array<{ date: string; count: number }>> {
+    const rows = await this.db.execute(sql`
+      SELECT DATE(completed_at) as date, COUNT(*) as count 
+      FROM instrument_runs 
+      WHERE status = 'completed' AND completed_at > NOW() - INTERVAL '30 days'
+      GROUP BY DATE(completed_at) ORDER BY date
+    `);
+    return rows.map((r: any) => ({
+      date: new Date(r.date).toISOString().split('T')[0],
+      count: Number(r.count)
+    }));
+  }
+
+  async getDomainDistribution(): Promise<any> {
+    // This is a bit more complex, we want counts per band per domain
+    // We can do it in 3 queries or one with case statements
+    const rows = await this.db.execute(sql`
+      SELECT 
+        safety_band as band, 'safety' as domain, count(*) as count
+      FROM scored_profiles GROUP BY safety_band
+      UNION ALL
+      SELECT 
+        challenge_band as band, 'challenge' as domain, count(*) as count
+      FROM scored_profiles GROUP BY challenge_band
+      UNION ALL
+      SELECT 
+        play_band as band, 'play' as domain, count(*) as count
+      FROM scored_profiles GROUP BY play_band
+    `);
+    return rows;
   }
 }

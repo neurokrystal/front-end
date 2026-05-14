@@ -13,8 +13,8 @@ const cormorant = Cormorant_Garamond({
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  variable: "--font-sans",
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -31,7 +31,7 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${cormorant.variable} ${inter.variable} font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
           {children}

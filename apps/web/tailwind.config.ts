@@ -11,7 +11,7 @@ const config: Config = {
   	extend: {
       fontFamily: {
         heading: ['"Cormorant Garamond"', "Georgia", '"Times New Roman"', "serif"],
-        sans: ['"Inter"', "-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "sans-serif"],
+        sans: ['var(--font-inter)', 'Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
       },
   		colors: {
   			background: 'hsl(var(--background))',

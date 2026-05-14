@@ -3,29 +3,37 @@ import { ScoredProfilePayloadSchema } from '../scoring/scoring.types';
 
 export const AdminStatsOutput = z.object({
   totalUsers: z.number(),
-  usersTrend: z.number(),
-  totalAssessments: z.number(),
-  assessmentsTrend: z.number(),
-  totalOrgs: z.number(),
-  totalRevenue: z.number(),
-  monthlyRevenue: z.number(),
-  userCount: z.number(),
-  revenueCents: z.number(),
+  totalUsersThisWeek: z.number(),
+  completedAssessments: z.number(),
+  completedAssessmentsThisWeek: z.number(),
+  activeOrganisations: z.number(),
+  totalRevenueCents: z.number(),
+  revenueThisMonthCents: z.number(),
 });
 export type AdminStatsOutput = z.infer<typeof AdminStatsOutput>;
 
 export const AdminUserSummary = z.object({
   id: z.string(),
+  name: z.string(),
   displayName: z.string().nullable(),
   email: z.string(),
   role: z.string(),
   createdAt: z.string(),
+  profileType: z.string(),
+  runCount: z.number(),
+  reportCount: z.number(),
 });
 export type AdminUserSummary = z.infer<typeof AdminUserSummary>;
 
 export const ListUsersQuery = z.object({
-  limit: z.coerce.number().int().min(1).max(200).default(50),
-  offset: z.coerce.number().int().min(0).default(0),
+  limit: z.any().transform(v => {
+    const n = parseInt(String(v), 10);
+    return isNaN(n) ? 50 : n;
+  }).pipe(z.number().int().min(1).max(200)),
+  offset: z.any().transform(v => {
+    const n = parseInt(String(v), 10);
+    return isNaN(n) ? 0 : n;
+  }).pipe(z.number().int().min(0)),
 });
 export type ListUsersQuery = z.infer<typeof ListUsersQuery>;
 
