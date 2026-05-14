@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { apiFetch } from "@/lib/api";
 
 const navItems = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, section: 'Admin Panel' },
@@ -82,14 +83,34 @@ export function AdminLayoutShell({
 
   const sections = Array.from(new Set(navItems.map(item => item.section)));
 
+  // Optional fetch for display name when hitting /admin/templates/[id]
+  const [templateDisplayName, setTemplateDisplayName] = useState<string | null>(null);
+  useEffect(() => {
+    const parts = pathname.split('/').filter(Boolean);
+    const idx = parts.findIndex(p => p === 'admin');
+    if (idx !== -1 && parts[idx + 1] === 'templates' && parts[idx + 2]) {
+      const id = parts[idx + 2];
+      // Fetch template to display human name instead of UUID
+      apiFetch<{ name: string }>(`/api/v1/admin/templates/${id}`)
+        .then((r) => setTemplateDisplayName(r?.name || null))
+        .catch(() => setTemplateDisplayName(null));
+    } else {
+      setTemplateDisplayName(null);
+    }
+  }, [pathname]);
+
   const breadcrumbs = pathname
     .split('/')
     .filter(Boolean)
-    .map((part, i, arr) => ({
-      label: part.charAt(0).toUpperCase() + part.slice(1),
-      href: '/' + arr.slice(0, i + 1).join('/'),
-      active: i === arr.length - 1
-    }));
+    .map((part, i, arr) => {
+      const isLast = i === arr.length - 1;
+      const isTemplateId = arr[i - 1] === 'templates' && arr[i - 2] === 'admin';
+      return {
+        label: isTemplateId && templateDisplayName ? templateDisplayName : part.charAt(0).toUpperCase() + part.slice(1),
+        href: '/' + arr.slice(0, i + 1).join('/'),
+        active: isLast,
+      };
+    });
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8FAFC] text-[#1E293B] dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">

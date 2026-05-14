@@ -21,6 +21,7 @@ export type EditorAction =
   | { type: 'REMOVE_PAGE'; pageId: string }
   | { type: 'REORDER_PAGES'; fromIndex: number; toIndex: number }
   | { type: 'SELECT_PAGE'; pageId: string }
+  | { type: 'MOVE_ELEMENT'; elementId: string; toPageId: string; toIndex: number }
   | { type: 'SET_ZOOM'; zoom: number }
   | { type: 'LOAD_TEMPLATE'; template: ReportTemplate }
   | { type: 'MARK_SAVED' };
@@ -92,6 +93,28 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
       const pages = [...state.template.pages];
       const [moved] = pages.splice(action.fromIndex, 1);
       pages.splice(action.toIndex, 0, moved);
+      return { ...state, template: { ...state.template, pages }, isDirty: true };
+    }
+    case 'MOVE_ELEMENT': {
+      const pages = state.template.pages.map((p) => ({ ...p }));
+      // Remove element from any page it currently exists in
+      let movingEl: TemplateElement | null = null as any;
+      for (const p of pages) {
+        const idx = p.children.findIndex((c: any) => c?.id === action.elementId);
+        if (idx !== -1) {
+          const [extracted] = p.children.splice(idx, 1);
+          movingEl = extracted as any;
+          break;
+        }
+      }
+      if (!movingEl) return state; // nothing to move
+
+      // Insert into target page at requested index (clamp)
+      const target = pages.find((p) => p.id === action.toPageId);
+      if (!target) return state;
+      const insertIndex = Math.max(0, Math.min(action.toIndex, target.children.length));
+      target.children.splice(insertIndex, 0, movingEl);
+
       return { ...state, template: { ...state.template, pages }, isDirty: true };
     }
     case 'SELECT_PAGE': {

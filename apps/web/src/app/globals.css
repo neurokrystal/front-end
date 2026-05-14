@@ -108,3 +108,13 @@
 .btn-brand {
   @apply font-sans text-sm font-medium uppercase tracking-widest;
 }
+
+/* Template Editor: drag-and-drop insertion indicators */
+.drop-indicator-above {
+  border-top: 2px solid #4A90D9 !important;
+  margin-top: -1px;
+}
+.drop-indicator-below {
+  border-bottom: 2px solid #4A90D9 !important;
+  margin-bottom: -1px;
+}

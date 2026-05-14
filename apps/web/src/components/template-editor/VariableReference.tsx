@@ -37,29 +37,37 @@ const TOKENS: { title: string; items: string[] }[] = [
 ];
 
 export default function VariableReference() {
-  const [open, setOpen] = useState(true);
+  const [showVars, setShowVars] = useState(true);
 
-  const copy = async (t: string) => {
-    await navigator.clipboard.writeText(t);
-    // A simple toast replacement
-    const prev = document.title;
-    document.title = `Copied ${t}`;
-    setTimeout(() => { document.title = prev; }, 500);
+  const copyToClipboard = async (t: string) => {
+    try {
+      await navigator.clipboard.writeText(t);
+      // naive toast replacement
+      const prev = document.title;
+      document.title = `Copied ${t}`;
+      setTimeout(() => { document.title = prev; }, 500);
+    } catch {}
   };
 
   return (
-    <div className="border-t bg-white">
-      <button className="w-full text-left px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" onClick={() => setOpen(!open)}>
-        {open ? '▼' : '►'} Variables Reference
+    <div className="border-t border-slate-200 bg-slate-50 px-4 py-3">
+      <button onClick={() => setShowVars(!showVars)} className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        {showVars ? '▼' : '▶'} Template Variables
       </button>
-      {open && (
-        <div className="px-4 py-3 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {showVars && (
+        <div className="mt-3 grid grid-cols-3 gap-6">
           {TOKENS.map((g) => (
             <div key={g.title}>
-              <div className="text-xs font-semibold text-slate-500 mb-1">{g.title}</div>
-              <div className="flex flex-wrap gap-2">
-                {g.items.map((t) => (
-                  <button key={t} className="text-[11px] px-2 py-1 rounded border bg-slate-50 hover:bg-slate-100" onClick={() => copy(t)}>{t}</button>
+              <p className="text-[11px] font-semibold text-slate-400 uppercase mb-2">{g.title}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {g.items.map((v) => (
+                  <button 
+                    key={v} 
+                    onClick={() => copyToClipboard(v)}
+                    className="bg-white border border-slate-200 rounded px-2 py-1 text-[11px] text-slate-600 font-mono hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                  >
+                    {v}
+                  </button>
                 ))}
               </div>
             </div>

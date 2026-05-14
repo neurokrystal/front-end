@@ -73,7 +73,9 @@ export default function TemplateEditor({
     const base = {
       id: crypto.randomUUID(),
       type,
-      position: 'grid' as const,
+      position: 'absolute' as const,
+      absoluteX: 20,
+      absoluteY: 20,
       gridColumn: '1 / -1',
       gridRow: 'auto',
       padding: { top: 0, right: 0, bottom: 0, left: 0 },
