@@ -118,3 +118,60 @@
   border-bottom: 2px solid #4A90D9 !important;
   margin-bottom: -1px;
 }
+
+/* === Admin Panel Global Form Styles ===
+   These rules ensure light inputs/selects across the admin and full-width selects. */
+@layer components {
+  /* Inputs, selects, textareas */
+  .admin-panel input[type="text"],
+  .admin-panel input[type="number"],
+  .admin-panel input[type="email"],
+  .admin-panel input[type="search"],
+  .admin-panel input[type="url"],
+  .admin-panel input[type="password"],
+  .admin-panel input:not([type]),
+  .admin-panel select,
+  .admin-panel textarea {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important; /* slate-200 */
+    border-radius: 0.5rem;                 /* rounded-lg */
+    padding: 0.5rem 0.75rem;               /* px-3 py-2 */
+    font-size: 0.875rem;                   /* text-sm */
+    color: #1e293b !important;             /* slate-800 */
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .admin-panel input:focus,
+  .admin-panel select:focus,
+  .admin-panel textarea:focus {
+    border-color: #4A90D9 !important;
+    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2) !important;
+  }
+
+  .admin-panel input::placeholder,
+  .admin-panel textarea::placeholder {
+    color: #94a3b8 !important; /* slate-400 */
+  }
+
+  /* Select dropdown arrow and sizing */
+  .admin-panel select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem; /* space for arrow */
+    width: 100% !important; /* FULL-WIDTH selects globally */
+    min-width: 0;           /* allow shrinking within flex/grid */
+  }
+
+  /* Labels */
+  .admin-panel label {
+    font-size: 0.75rem;     /* text-xs */
+    font-weight: 500;       /* font-medium */
+    color: #64748b;         /* slate-500 */
+    text-transform: uppercase;
+    letter-spacing: 0.05em; /* tracking-wide */
+  }
+}

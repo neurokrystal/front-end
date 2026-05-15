@@ -5,20 +5,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 function CmsBlockPreviewImpl({ element, dispatch }: { element: any; dispatch: React.Dispatch<any> }) {
-  const text = `CMS: ${element.sectionKey || 'section'} · ${element.domain || 'domain'}${element.dimension ? ' · ' + element.dimension : ''}`;
+  const text = `CMS: ${element.sectionKey || 'section'} · ${element.domain || 'auto'}${element.dimension ? ' · ' + element.dimension : ''}`;
   const [open, setOpen] = useState(false);
 
   const update = (updates: any) => dispatch({ type: 'UPDATE_ELEMENT', elementId: element.id, updates });
 
   return (
     <div className="relative">
-      <div
-        onDoubleClick={(e) => { e.stopPropagation(); setOpen(true); }}
-        className="border border-dashed border-slate-300 rounded p-2 text-xs text-slate-500 bg-slate-50 cursor-pointer"
-        title="Double-click to configure"
-      >
-        {text}
-      </div>
+      {element.previewHtml ? (
+        <div 
+          className="prose prose-sm max-w-none"
+          dangerouslySetInnerHTML={{ __html: element.previewHtml }}
+        />
+      ) : (
+        <div
+          onDoubleClick={(e) => { e.stopPropagation(); setOpen(true); }}
+          className="border border-dashed border-slate-300 rounded p-2 text-xs text-slate-500 bg-slate-50 cursor-pointer text-center"
+          title="Double-click to configure"
+        >
+          {text} · band varies
+        </div>
+      )}
       {open && (
         <div className="absolute left-0 top-full mt-2 z-30 bg-white border border-slate-200 rounded-md shadow p-3 w-64" onClick={(e) => e.stopPropagation()}>
           <div className="space-y-2">

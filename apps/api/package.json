@@ -18,6 +18,8 @@
     "auth:generate": "better-auth generate",
     "auth:migrate": "better-auth migrate",
     "seed": "tsx src/infrastructure/database/seeds/run-seeds.ts",
+    "seed:emails": "tsx src/infrastructure/database/seeds/email-templates.seed.ts",
+    "seed:email-templates": "tsx scripts/seed-templates.ts",
     "seed:instrument": "tsx src/infrastructure/database/seeds/sample-instrument.seed.ts",
     "seed:cms": "tsx src/infrastructure/database/seeds/sample-cms-content.seed.ts",
     "seed:template": "tsx src/infrastructure/database/seeds/sample-template.seed.ts",

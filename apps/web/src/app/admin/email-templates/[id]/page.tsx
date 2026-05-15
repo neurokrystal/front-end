@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { getTemplateLabel } from "@/lib/email-templates";
 
 interface EmailTemplate {
   id: string;
@@ -71,7 +72,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
   return (
     <div className="space-y-6 max-w-5xl font-sans">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Edit Template: <span className="text-blue-600 font-mono text-xl">{id}</span></h1>
+        <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Edit Template: <span className="text-blue-600 text-xl">{getTemplateLabel(id)}</span></h1>
         <div className="flex gap-3">
           <Button variant="outline" onClick={() => router.back()} className="shadow-sm border-slate-200">Cancel</Button>
           <Button onClick={handleSave} disabled={saving} className="shadow-sm">{saving ? "Saving..." : "Save Template"}</Button>
@@ -103,11 +104,19 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">HTML Body</label>
+              <p className="text-[10px] text-slate-400 -mt-1 mb-1 italic">Raw HTML. Placeholders like {"{{name}}"} are not rendered in preview.</p>
               <textarea 
                 className="w-full h-64 p-3 border border-slate-200 rounded-xl font-mono text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                 value={template.body_html} 
                 onChange={(e) => setTemplate({ ...template, body_html: e.target.value })}
               />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Live HTML Preview</label>
+              <div className="w-full min-h-32 p-4 border border-slate-200 rounded-xl bg-white prose prose-slate max-w-none overflow-auto">
+                {/* Admin-only page: render the HTML directly for preview purposes */}
+                <div dangerouslySetInnerHTML={{ __html: template.body_html || '<p class="text-slate-400">Nothing to preview.</p>' }} />
+              </div>
             </div>
           </CardContent>
         </Card>

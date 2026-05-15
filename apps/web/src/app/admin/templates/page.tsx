@@ -130,7 +130,9 @@ export default function TemplateListPage() {
             <SelectContent>
               <SelectItem value="all"><div className="flex items-center"><Filter className="mr-2 h-4 w-4"/>All types</div></SelectItem>
               {REPORT_TYPES.map((t) => (
-                <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
+                <SelectItem key={t} value={t}>
+                  {t.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -160,7 +162,9 @@ export default function TemplateListPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {REPORT_TYPES.map((t) => (
-                        <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
+                        <SelectItem key={t} value={t}>
+                          {t.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -204,7 +208,7 @@ export default function TemplateListPage() {
           <div className="space-y-8">
             {Object.entries(grouped).map(([type, rows]) => (
               <div key={type} className="space-y-3">
-                <h2 className="text-lg font-semibold capitalize">{type}</h2>
+                <h2 className="text-lg font-semibold">{type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {rows.map((tpl) => (
                     <Card key={tpl.id} className="flex flex-col">

@@ -13,10 +13,11 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { getTemplateLabel as getEmailTemplateLabel } from "@/lib/email-templates";
 
 const navItems = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, section: 'Admin Panel' },
-  { label: 'CMS Content Blocks', href: '/admin/coming-soon?section=CMS', icon: FileEdit, section: 'CONTENT' },
+  { label: 'CMS Content Blocks', href: '/admin/cms', icon: FileEdit, section: 'CONTENT' },
   { label: 'Report Templates', href: '/admin/templates', icon: FileText, section: 'CONTENT' },
   { label: 'Email Templates', href: '/admin/email-templates', icon: Mail, section: 'CONTENT' },
   { label: 'Instruments', href: '/admin/instruments', icon: FlaskConical, section: 'INSTRUMENTS' },
@@ -105,15 +106,20 @@ export function AdminLayoutShell({
     .map((part, i, arr) => {
       const isLast = i === arr.length - 1;
       const isTemplateId = arr[i - 1] === 'templates' && arr[i - 2] === 'admin';
+      const isEmailTemplateId = arr[i - 1] === 'email-templates' && arr[i - 2] === 'admin';
       return {
-        label: isTemplateId && templateDisplayName ? templateDisplayName : part.charAt(0).toUpperCase() + part.slice(1),
+        label: isTemplateId && templateDisplayName
+          ? templateDisplayName
+          : isEmailTemplateId
+            ? getEmailTemplateLabel(part)
+            : part.charAt(0).toUpperCase() + part.slice(1),
         href: '/' + arr.slice(0, i + 1).join('/'),
         active: isLast,
       };
     });
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8FAFC] text-[#1E293B] dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
+    <div className="admin-panel flex h-screen overflow-hidden bg-[#F8FAFC] text-[#1E293B] dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
       {/* Sidebar Overlay for mobile */}
       {isMobileOpen && (
         <div 

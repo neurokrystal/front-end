@@ -148,7 +148,7 @@ export default function UserManagementPage() {
           />
         </div>
         <select 
-          className="h-10 px-3 py-2 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           value={roleFilter}
           onChange={(e) => { setRoleFilter(e.target.value); setPage(0); }}
         >
@@ -158,7 +158,7 @@ export default function UserManagementPage() {
           <option value="user">User</option>
         </select>
         <select 
-          className="h-10 px-3 py-2 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           value={typeFilter}
           onChange={(e) => { setTypeFilter(e.target.value); setPage(0); }}
         >
