@@ -228,7 +228,7 @@ function GlassCard({
     <div
       className={cn(
         "relative rounded-2xl overflow-hidden glass-panel glass-card",
-        "bg-white/[0.07] backdrop-blur-xl border border-white/[0.12]",
+        "bg-[#0B0F19]/60 backdrop-blur-xl border border-white/[0.08]",
         glow ? glowColors[glow] : glowColors["none"],
         className
       )}
@@ -238,7 +238,7 @@ function GlassCard({
       }}
     >
       {/* Top highlight line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       {children}
     </div>
   );
@@ -260,6 +260,21 @@ export default function AdminDashboard() {
   const [distribution, setDistribution] = useState<DomainDistribution[]>([]);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Ensure the dashboard canvas goes edge-to-edge: override layout <main> padding/bg
+  useEffect(() => {
+    const main = document.querySelector('main') as HTMLElement | null;
+    if (main) {
+      main.style.backgroundColor = '#0B0F19';
+      main.style.padding = '0';
+    }
+    return () => {
+      if (main) {
+        main.style.backgroundColor = '';
+        main.style.padding = '';
+      }
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -287,9 +302,9 @@ export default function AdminDashboard() {
     return (
       <div className="relative min-h-screen overflow-hidden font-sans">
         <div className="absolute inset-0 bg-[#0B0F19]" />
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#4A90D9] opacity-[0.15] blur-[120px]" />
-        <div className="absolute top-[30%] right-[-5%] w-[500px] h-[500px] rounded-full bg-[#F5A623] opacity-[0.12] blur-[100px]" />
-        <div className="absolute bottom-[-10%] left-[30%] w-[500px] h-[500px] rounded-full bg-[#7ED321] opacity-[0.10] blur-[100px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#4A90D9] opacity-[0.08] blur-[120px]" />
+        <div className="absolute top-[30%] right-[-5%] w-[500px] h-[500px] rounded-full bg-[#F5A623] opacity-[0.06] blur-[100px]" />
+        <div className="absolute bottom-[-10%] left-[30%] w-[500px] h-[500px] rounded-full bg-[#7ED321] opacity-[0.05] blur-[100px]" />
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -347,9 +362,9 @@ export default function AdminDashboard() {
       <div className="absolute inset-0 bg-[#0B0F19]" />
 
       {/* Ambient color orbs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#4A90D9] opacity-[0.15] blur-[120px]" />
-      <div className="absolute top-[30%] right-[-5%] w-[500px] h-[500px] rounded-full bg-[#F5A623] opacity-[0.12] blur-[100px]" />
-      <div className="absolute bottom-[-10%] left-[30%] w-[500px] h-[500px] rounded-full bg-[#7ED321] opacity-[0.10] blur-[100px]" />
+      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#4A90D9] opacity-[0.08] blur-[120px]" />
+      <div className="absolute top-[30%] right-[-5%] w-[500px] h-[500px] rounded-full bg-[#F5A623] opacity-[0.06] blur-[100px]" />
+      <div className="absolute bottom-[-10%] left-[30%] w-[500px] h-[500px] rounded-full bg-[#7ED321] opacity-[0.05] blur-[100px]" />
 
       {/* Subtle grid pattern overlay */}
       <div
@@ -458,7 +473,7 @@ export default function AdminDashboard() {
             { icon: Search, label: "View audit log", color: "#A78BFA", href: "/admin/audit-logs" },
           ].map((action, idx) => (
             <Link key={idx} href={action.href} className="group relative">
-              <GlassCard className="p-4 flex items-center gap-3 transition-all duration-300 group-hover:bg-white/[0.12] group-hover:border-white/[0.2]">
+              <GlassCard className="p-4 flex items-center gap-3 transition-all duration-300 group-hover:bg-white/[0.05] group-hover:border-white/[0.2]">
                 <div
                   className="p-2 rounded-xl transition-colors duration-300 border"
                   style={{ background: `${action.color}15`, borderColor: `${action.color}30` }}

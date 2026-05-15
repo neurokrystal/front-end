@@ -197,56 +197,7 @@ export function AdminLayoutShell({
         "lg:ml-60",
         isCollapsed && "lg:ml-20"
       )}>
-        {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-30 shrink-0">
-          <div className="flex items-center gap-4 min-w-0">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="lg:hidden shrink-0" 
-              onClick={() => setIsMobileOpen(true)}
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-            <div className="min-w-0">
-               <nav className="flex items-center gap-1.5 text-sm mb-0.5">
-                  <span className="text-slate-400">Admin</span>
-                  {breadcrumbs.filter(c => c.label !== 'Admin').map((crumb, i) => (
-                    <React.Fragment key={crumb.href}>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-                      <span className={cn(
-                        crumb.active ? "text-slate-700 font-medium" : "text-slate-400"
-                      )}>
-                        {crumb.label}
-                      </span>
-                    </React.Fragment>
-                  ))}
-               </nav>
-               <h1 className="text-xl font-semibold text-slate-900 tracking-tight truncate">
-                  {breadcrumbs[breadcrumbs.length - 1]?.label || "Dashboard"}
-               </h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
-            <div className="w-px h-6 bg-slate-200 mx-1" />
-            <div className="flex items-center gap-2.5 pl-2 cursor-pointer group">
-               <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium text-slate-900 group-hover:text-blue-600 transition-colors">{user.name}</p>
-                  <p className="text-xs text-slate-400 uppercase tracking-tight">Platform Admin</p>
-               </div>
-               <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-sm font-medium text-slate-600 shrink-0 group-hover:ring-2 group-hover:ring-blue-500/20 transition-all">
-                 {user.name.charAt(0)}
-               </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
+        {/* Content (header removed as per requirements) */}
         <main className="flex-1 overflow-y-auto p-8 bg-[#F8FAFC] transition-colors duration-200">
           {children}
         </main>

@@ -43,17 +43,19 @@ export function Dialog({ open, defaultOpen, onOpenChange, children }: DialogProp
 
 export interface DialogTriggerProps {
   asChild?: boolean
-  children: React.ReactElement
+  children: React.ReactElement<any>
 }
 export function DialogTrigger({ asChild, children }: DialogTriggerProps) {
   const ctx = React.useContext(DialogContext)!
+  const child = children as React.ReactElement<any>
   const props = {
     onClick: (e: any) => {
-      children.props.onClick?.(e)
+      // Ensure any existing onClick on the child is invoked first
+      child.props?.onClick?.(e)
       ctx.setOpen(true)
     }
   }
-  return asChild ? React.cloneElement(children, props) : (
+  return asChild ? React.cloneElement(child, props) : (
     <button type="button" {...props}>{children}</button>
   )
 }
@@ -113,6 +115,10 @@ export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLD
 
 export function DialogTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
   return <h3 className={cn("text-lg font-semibold text-slate-900 mb-4", className)} {...props} />
+}
+
+export function DialogDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
+  return <p className={cn("text-sm text-slate-600", className)} {...props} />
 }
 
 export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
