@@ -87,20 +87,48 @@ server.register(async (authApp) => {
   // Remove aggressive per-auth rate limit. Rely on global (production-only) limiter above
   // or add fine-grained limits per-route if needed in the future.
 
-  // Better Auth handler
-  authApp.all("/auth/*", async (request, reply) => {
-    return handleAuth(request, reply);
-  });
+  // Better-Auth paths — handle with and without /api and /auth prefixes
+  // In production, DO App Platform strips the /api prefix from the URL
+  // Better-Auth client sends paths like /sign-in/email, /sign-up/email, /session, etc.
+  const AUTH_PATH_PREFIXES = [
+    '/sign-in', '/sign-up', '/sign-out', '/session',
+    '/forget-password', '/reset-password', '/callback',
+    '/verify-email', '/change-password', '/update-user',
+    '/delete-user', '/organization', '/error',
+  ];
 
-  // Support /api/auth/* for local development where /api prefix isn't trimmed
-  authApp.all("/api/auth/*", async (request, reply) => {
-    return handleAuth(request, reply);
-  });
+  // Explicit /auth/* and /api/auth/* for local dev
+  authApp.all("/auth/*", async (request, reply) => handleAuth(request, reply));
+  authApp.all("/api/auth/*", async (request, reply) => handleAuth(request, reply));
+
+  // Root-level paths for when DO strips the /api prefix
+  for (const prefix of AUTH_PATH_PREFIXES) {
+    authApp.all(`${prefix}`, async (request, reply) => handleAuth(request, reply));
+    authApp.all(`${prefix}/*`, async (request, reply) => handleAuth(request, reply));
+  }
 
   async function handleAuth(request: any, reply: any) {
     const protocol = request.protocol;
     const host = request.headers.host || request.hostname;
-    const url = `${protocol}://${host}${request.url}`;
+    
+    // Normalize the path: Better-Auth's baseURL is configured as ${APP_URL}/api
+    // so it expects all paths to be under /api/auth/...
+    // But in production, DO strips the /api prefix.
+    // Reconstruct the URL with the /api prefix if missing.
+    let path = request.url as string;
+    
+    // If the path doesn't start with /api, prepend it
+    // This handles the DO prefix-stripping case
+    if (!path.startsWith('/api/') && !path.startsWith('/api?')) {
+      // Also ensure /auth prefix if not present
+      if (!path.startsWith('/auth/') && !path.startsWith('/auth?')) {
+        path = '/api/auth' + path;
+      } else {
+        path = '/api' + path;
+      }
+    }
+    
+    const url = `${protocol}://${host}${path}`;
 
     const response = await auth.handler(
       new Request(url, {
