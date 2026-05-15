@@ -244,12 +244,12 @@ function GlassCard({
   );
 }
 
-function getActionStyle(action: string) {
-  if (action.toLowerCase().includes("denied") || action.toLowerCase().includes("delete"))
+function getActionStyle(action?: string) {
+  if (action?.toLowerCase()?.includes("denied") || action?.toLowerCase()?.includes("delete"))
     return { background: "rgba(239,68,68,0.15)", color: "#FCA5A5", borderColor: "rgba(239,68,68,0.3)" } as React.CSSProperties;
-  if (action.toLowerCase().includes("share") || action.toLowerCase().includes("report"))
+  if (action?.toLowerCase()?.includes("share") || action?.toLowerCase()?.includes("report"))
     return { background: "rgba(74,144,217,0.15)", color: "#93C5FD", borderColor: "rgba(74,144,217,0.3)" } as React.CSSProperties;
-  if (action.toLowerCase().includes("admin") || action.toLowerCase().includes("billing"))
+  if (action?.toLowerCase()?.includes("admin") || action?.toLowerCase()?.includes("billing"))
     return { background: "rgba(245,166,35,0.15)", color: "#FCD34D", borderColor: "rgba(245,166,35,0.3)" } as React.CSSProperties;
   return { background: "rgba(126,211,33,0.15)", color: "#BEF264", borderColor: "rgba(126,211,33,0.3)" } as React.CSSProperties;
 }
@@ -511,7 +511,7 @@ export default function AdminDashboard() {
                     <td className="px-6 py-3 text-xs text-white/40 whitespace-nowrap">{getRelativeTime(log.createdAt)}</td>
                     <td className="px-6 py-3 text-sm text-white/70">
                       <Link href={`/admin/users/${log.actorUserId}`} className="hover:text-white/90 transition-colors">
-                        {log.actorName || log.actorUserId.slice(0, 8)}
+                        {log.actorName || log.actorUserId?.slice(0, 8)}
                       </Link>
                     </td>
                     <td className="px-6 py-3">
@@ -527,7 +527,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="px-6 py-3 text-sm text-white/50">
                       <Link href={`/admin/users/${log.subjectUserId}`} className="hover:text-white/80 transition-colors">
-                        {log.subjectName || (log.subjectUserId === log.actorUserId ? "—" : log.subjectUserId.slice(0, 8))}
+                        {log.subjectName || (log.subjectUserId ? (log.subjectUserId === log.actorUserId ? "—" : log.subjectUserId.slice(0, 8)) : "—")}
                       </Link>
                     </td>
                   </tr>
