@@ -13,6 +13,26 @@ import { securityHeaders } from "./infrastructure/security/headers";
 
 const server = fastify({
   logger: true,
+  // Rewrite URLs when running behind a proxy (e.g., DigitalOcean App Platform)
+  // that strips the /api prefix. Controlled by PROXY_STRIPS_PREFIX env var.
+  rewriteUrl: (req) => {
+    const url = (req as any).url || "/";
+
+    // If not behind a prefix-stripping proxy, pass through unchanged
+    if (process.env.PROXY_STRIPS_PREFIX !== 'true') return url;
+
+    // Already has /api prefix or is a health check — no rewrite
+    if (url.startsWith('/api/') || url === '/health' || url.startsWith('/health')) return url;
+
+    // /v1/... → /api/v1/... (domain API routes)
+    if (url.startsWith('/v1/') || url.startsWith('/v1?')) return '/api' + url;
+
+    // /auth/... → /api/auth/... (Better-Auth with /auth prefix)
+    if (url.startsWith('/auth/') || url.startsWith('/auth?')) return '/api' + url;
+
+    // Everything else → /api/auth/... (Better-Auth root paths like /sign-in/email, /session)
+    return '/api/auth' + url;
+  },
 }).withTypeProvider<ZodTypeProvider>();
 
 // Guarded compilers to avoid zod cross-instance/runtime crashes when no schema is provided
@@ -41,7 +61,7 @@ const container = createContainer();
 
 // Wire password reset email sender (H2)
 setResetEmailSender(async (to: string, url: string) => {
-  await container.emailService.send({
+  await container.emailService.sendEmail({
     to,
     subject: 'Reset your password — The Dimensional System',
     text: `Click this link to reset your password: ${url}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, you can ignore this email.`,
@@ -115,51 +135,13 @@ server.register(async (authApp) => {
     return handleAuth(request, reply);
   });
 
-  // When DigitalOcean App Platform strips the /api prefix,
-  // Better-Auth paths arrive at the root (e.g. /sign-in/email instead of /api/auth/sign-in/email).
-  // Register all known Better-Auth paths at root level.
-  const betterAuthPaths = [
-    '/sign-in', '/sign-up', '/sign-out',
-    '/session', '/forget-password', '/reset-password',
-    '/callback', '/verify-email', '/change-password',
-    '/update-user', '/delete-user', '/change-email',
-    '/error', '/ok', '/organization',
-  ];
-  for (const path of betterAuthPaths) {
-    console.log(`[DEBUG] Registering auth catch: ${path} and ${path}/*`);
-    authApp.all(path, async (request, reply) => {
-      console.log(`[DEBUG AUTH] Matched root path ${path} for ${request.url}`);
-      return handleAuth(request, reply);
-    });
-    authApp.all(`${path}/*`, async (request, reply) => {
-      console.log(`[DEBUG AUTH] Matched root path ${path}/* for ${request.url}`);
-      return handleAuth(request, reply);
-    });
-  }
-
   console.log('[DEBUG] Auth routes registered');
 
   async function handleAuth(request: any, reply: any) {
     const protocol = request.protocol;
     const host = request.headers.host || request.hostname;
-
-    // Reconstruct the URL with /api/auth prefix that Better-Auth expects.
-    // DO's ingress strips /api, so /sign-in/email arrives here.
-    // Better-Auth's baseURL is configured as ${APP_URL}/api, so it
-    // expects paths like /api/auth/sign-in/email.
-    let path = request.url;
-    if (!path.startsWith('/api/')) {
-      if (path.startsWith('/auth/')) {
-        path = '/api' + path;
-      } else {
-        path = '/api/auth' + path;
-      }
-    } else if (!path.startsWith('/api/auth/')) {
-      // Has /api but not /api/auth — insert /auth
-      path = '/api/auth' + path.slice(4);
-    }
-
-    const url = `${protocol}://${host}${path}`;
+    // request.url has already been rewritten by Fastify's rewriteUrl (if enabled)
+    const url = `${protocol}://${host}${request.url}`;
 
     const response = await auth.handler(
       new Request(url, {

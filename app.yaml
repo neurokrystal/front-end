@@ -29,6 +29,9 @@ services:
         value: production
       - key: PORT
         value: "8080"
+      - key: PROXY_STRIPS_PREFIX
+        scope: RUN_TIME
+        value: "true"
       - key: POSTGRES_DB_URL
         scope: RUN_TIME
         value: ${db.DATABASE_URL}
