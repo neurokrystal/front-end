@@ -82,11 +82,38 @@ await server.register(rawBody, {
   runFirst: true,
 });
 
+// DEBUG: Catch-all to log every request that would 404
+server.addHook('onRequest', async (request, reply) => {
+  console.log(`[DEBUG] Incoming: ${request.method} ${request.url} (host: ${request.headers.host})`);
+});
+
+server.setNotFoundHandler(async (request, reply) => {
+  console.log(`[DEBUG 404] ${request.method} ${request.url} — no route matched`);
+  console.log(`[DEBUG 404] Headers:`, JSON.stringify({
+    host: request.headers.host,
+    'content-type': request.headers['content-type'],
+    origin: (request.headers as any).origin,
+  }));
+  return reply.status(404).send({ 
+    code: 'NOT_FOUND', 
+    message: `Route ${request.method}:${request.url} not found`,
+    debug_hint: 'Check auth route registration'
+  });
+});
+
 // Auth & Rate Limiting scope
 server.register(async (authApp) => {
+  console.log('[DEBUG] Registering auth routes...');
+
   // Better Auth handler — existing paths
-  authApp.all("/auth/*", async (request, reply) => handleAuth(request, reply));
-  authApp.all("/api/auth/*", async (request, reply) => handleAuth(request, reply));
+  authApp.all("/auth/*", async (request, reply) => {
+    console.log(`[DEBUG AUTH] Matched /auth/* for ${request.url}`);
+    return handleAuth(request, reply);
+  });
+  authApp.all("/api/auth/*", async (request, reply) => {
+    console.log(`[DEBUG AUTH] Matched /api/auth/* for ${request.url}`);
+    return handleAuth(request, reply);
+  });
 
   // When DigitalOcean App Platform strips the /api prefix,
   // Better-Auth paths arrive at the root (e.g. /sign-in/email instead of /api/auth/sign-in/email).
@@ -99,9 +126,18 @@ server.register(async (authApp) => {
     '/error', '/ok', '/organization',
   ];
   for (const path of betterAuthPaths) {
-    authApp.all(path, async (request, reply) => handleAuth(request, reply));
-    authApp.all(`${path}/*`, async (request, reply) => handleAuth(request, reply));
+    console.log(`[DEBUG] Registering auth catch: ${path} and ${path}/*`);
+    authApp.all(path, async (request, reply) => {
+      console.log(`[DEBUG AUTH] Matched root path ${path} for ${request.url}`);
+      return handleAuth(request, reply);
+    });
+    authApp.all(`${path}/*`, async (request, reply) => {
+      console.log(`[DEBUG AUTH] Matched root path ${path}/* for ${request.url}`);
+      return handleAuth(request, reply);
+    });
   }
+
+  console.log('[DEBUG] Auth routes registered');
 
   async function handleAuth(request: any, reply: any) {
     const protocol = request.protocol;
@@ -198,6 +234,12 @@ await server.register(healthRoutes);
 
 const start = async () => {
   try {
+    // DEBUG: Log all registered routes at startup
+    console.log('=== REGISTERED ROUTES ===');
+    const routes = (server as any).printRoutes({ commonPrefix: false });
+    console.log(routes);
+    console.log('=== END ROUTES ===');
+
     await server.listen({ 
         port: env.PORT, 
         host: "0.0.0.0" 
