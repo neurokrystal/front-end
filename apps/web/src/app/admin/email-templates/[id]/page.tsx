@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { getTemplateLabel } from "@/lib/email-templates";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 interface EmailTemplate {
   id: string;
@@ -94,7 +95,27 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Plain Text Body</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Plain Text Body</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const plain = (template.body_html || '')
+                      .replace(/<br\s*\/?>(?=\n?)/gi, '\n')
+                      .replace(/<\/p>/gi, '\n\n')
+                      .replace(/<\/h[1-6]>/gi, '\n\n')
+                      .replace(/<\/li>/gi, '\n')
+                      .replace(/<[^>]+>/g, '')
+                      .replace(/&nbsp;/g, ' ')
+                      .replace(/\n{3,}/g, '\n\n')
+                      .trim();
+                    setTemplate(prev => ({ ...(prev as EmailTemplate), body_text: plain }));
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Auto-generate from HTML ↓
+                </button>
+              </div>
               <p className="text-[10px] text-slate-400 -mt-1 mb-1 italic">Handlebars syntax supported (e.g. {"{{user.name}}"}).</p>
               <textarea 
                 className="w-full h-32 p-3 border border-slate-200 rounded-xl font-mono text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
@@ -103,13 +124,19 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">HTML Body</label>
-              <p className="text-[10px] text-slate-400 -mt-1 mb-1 italic">Raw HTML. Placeholders like {"{{name}}"} are not rendered in preview.</p>
-              <textarea 
-                className="w-full h-64 p-3 border border-slate-200 rounded-xl font-mono text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                value={template.body_html} 
-                onChange={(e) => setTemplate({ ...template, body_html: e.target.value })}
-              />
+              <div>
+                <label className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1.5 block">
+                  HTML Body
+                </label>
+                <p className="text-xs text-slate-400 mb-2">
+                  Edit with the toolbar below. Template variables like {'{{name}}'} will be resolved when sent.
+                </p>
+                <RichTextEditor
+                  content={template.body_html || ''}
+                  onChange={(html) => setTemplate(prev => ({ ...(prev as EmailTemplate), body_html: html }))}
+                  placeholder="Write your email content..."
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Live HTML Preview</label>
