@@ -12,27 +12,14 @@ import { errorHandlerPlugin } from "./shared/errors/error-handler";
 import { securityHeaders } from "./infrastructure/security/headers";
 
 const server = fastify({
-  logger: true,
-  // Rewrite URLs when running behind a proxy (e.g., DigitalOcean App Platform)
-  // that strips the /api prefix. Controlled by PROXY_STRIPS_PREFIX env var.
   rewriteUrl: (req) => {
     const url = (req as any).url || "/";
-
-    // If not behind a prefix-stripping proxy, pass through unchanged
-    if (process.env.PROXY_STRIPS_PREFIX !== 'true') return url;
-
-    // Already has /api prefix or is a health check — no rewrite
     if (url.startsWith('/api/') || url === '/health' || url.startsWith('/health')) return url;
-
-    // /v1/... → /api/v1/... (domain API routes)
-    if (url.startsWith('/v1/') || url.startsWith('/v1?')) return '/api' + url;
-
-    // /auth/... → /api/auth/... (Better-Auth with /auth prefix)
-    if (url.startsWith('/auth/') || url.startsWith('/auth?')) return '/api' + url;
-
-    // Everything else → /api/auth/... (Better-Auth root paths like /sign-in/email, /session)
+    if (url.startsWith('/v1/')) return '/api' + url;
+    if (url.startsWith('/auth/')) return '/api' + url;
     return '/api/auth' + url;
   },
+  logger: true,
 }).withTypeProvider<ZodTypeProvider>();
 
 // Guarded compilers to avoid zod cross-instance/runtime crashes when no schema is provided
@@ -102,45 +89,16 @@ await server.register(rawBody, {
   runFirst: true,
 });
 
-// DEBUG: Catch-all to log every request that would 404
-server.addHook('onRequest', async (request, reply) => {
-  console.log(`[DEBUG] Incoming: ${request.method} ${request.url} (host: ${request.headers.host})`);
-});
-
-server.setNotFoundHandler(async (request, reply) => {
-  console.log(`[DEBUG 404] ${request.method} ${request.url} — no route matched`);
-  console.log(`[DEBUG 404] Headers:`, JSON.stringify({
-    host: request.headers.host,
-    'content-type': request.headers['content-type'],
-    origin: (request.headers as any).origin,
-  }));
-  return reply.status(404).send({ 
-    code: 'NOT_FOUND', 
-    message: `Route ${request.method}:${request.url} not found`,
-    debug_hint: 'Check auth route registration'
-  });
-});
+// (Removed debug onRequest hook and custom notFound handler)
 
 // Auth & Rate Limiting scope
 server.register(async (authApp) => {
-  console.log('[DEBUG] Registering auth routes...');
-
-  // Better Auth handler — existing paths
-  authApp.all("/auth/*", async (request, reply) => {
-    console.log(`[DEBUG AUTH] Matched /auth/* for ${request.url}`);
-    return handleAuth(request, reply);
-  });
-  authApp.all("/api/auth/*", async (request, reply) => {
-    console.log(`[DEBUG AUTH] Matched /api/auth/* for ${request.url}`);
-    return handleAuth(request, reply);
-  });
-
-  console.log('[DEBUG] Auth routes registered');
+  authApp.all("/auth/*", async (request, reply) => handleAuth(request, reply));
+  authApp.all("/api/auth/*", async (request, reply) => handleAuth(request, reply));
 
   async function handleAuth(request: any, reply: any) {
     const protocol = request.protocol;
     const host = request.headers.host || request.hostname;
-    // request.url has already been rewritten by Fastify's rewriteUrl (if enabled)
     const url = `${protocol}://${host}${request.url}`;
 
     const response = await auth.handler(
@@ -151,15 +109,12 @@ server.register(async (authApp) => {
       })
     );
 
-    // Forward status
     reply.status(response.status);
 
-    // Forward headers
     response.headers.forEach((value: string, key: string) => {
       reply.header(key, value);
     });
 
-    // Forward body
     const body = await response.arrayBuffer();
     return reply.send(Buffer.from(body));
   }
@@ -216,12 +171,6 @@ await server.register(healthRoutes);
 
 const start = async () => {
   try {
-    // DEBUG: Log all registered routes at startup
-    console.log('=== REGISTERED ROUTES ===');
-    const routes = (server as any).printRoutes({ commonPrefix: false });
-    console.log(routes);
-    console.log('=== END ROUTES ===');
-
     await server.listen({ 
         port: env.PORT, 
         host: "0.0.0.0" 
