@@ -30,7 +30,8 @@ export default async function runRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    await fastify.container.runService.submitBatchResponses(id, request.body as SubmitBatchResponsesInput);
+    const userId = request.session!.user.id;
+    await fastify.container.runService.submitBatchResponses(id, userId, request.body as SubmitBatchResponsesInput);
     return reply.status(204).send();
   });
 
@@ -43,7 +44,8 @@ export default async function runRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    await fastify.container.runService.completeRun(id);
+    const userId = request.session!.user.id;
+    await fastify.container.runService.completeRun(id, userId);
     return reply.status(204).send();
   });
 
@@ -56,7 +58,8 @@ export default async function runRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const result = await fastify.container.runService.getRunStatus(id);
+    const userId = request.session!.user.id;
+    const result = await fastify.container.runService.getRunStatus(id, userId);
     return result;
   });
 
@@ -69,7 +72,8 @@ export default async function runRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const result = await fastify.container.runService.getRunDetail(id);
+    const userId = request.session!.user.id;
+    const result = await fastify.container.runService.getRunDetail(id, userId);
     return result;
   });
 }

@@ -57,7 +57,8 @@ export default async function coachingAdminRoutes(fastify: FastifyInstance) {
     });
     const parsed = schema.safeParse(request.body);
     if (!parsed.success) {
-      return reply.status(400).send({ code: 'BAD_REQUEST', message: parsed.error.message });
+      fastify.log.warn({ validationError: (parsed.error as any).flatten?.() ?? parsed.error }, 'Request validation failed');
+      return reply.status(400).send({ code: 'VALIDATION_ERROR', message: 'Invalid request data. Check your input and try again.' });
     }
     const { userId, firmId, expiresAt } = parsed.data;
 
@@ -206,7 +207,8 @@ export default async function coachingAdminRoutes(fastify: FastifyInstance) {
     const schema = z.object({ name: z.string().min(1) });
     const parsed = schema.safeParse(request.body);
     if (!parsed.success) {
-      return reply.status(400).send({ code: 'BAD_REQUEST', message: parsed.error.message });
+      fastify.log.warn({ validationError: (parsed.error as any).flatten?.() ?? parsed.error }, 'Request validation failed');
+      return reply.status(400).send({ code: 'VALIDATION_ERROR', message: 'Invalid request data. Check your input and try again.' });
     }
     const { name } = parsed.data;
 

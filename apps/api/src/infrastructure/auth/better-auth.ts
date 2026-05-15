@@ -3,21 +3,24 @@ import { organization, admin } from "better-auth/plugins";
 import { env } from "@/infrastructure/config";
 import { pool } from "@/infrastructure/database/connection";
 
+// H2: Provide a pluggable reset email sender (configured from container/index)
+let _sendResetEmail: ((to: string, url: string) => Promise<void>) | null = null;
+export function setResetEmailSender(fn: (to: string, url: string) => Promise<void>) {
+  _sendResetEmail = fn;
+}
+
 export const auth = betterAuth({
   database: pool,
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
-    // Password reset token expires after 7 days (in seconds)
-    resetPasswordTokenExpiresIn: 60 * 60 * 24 * 7,
+    // H1: Reduce password reset token lifetime to 1 hour (in seconds)
+    resetPasswordTokenExpiresIn: 60 * 60,
     async sendResetPassword({ user, url }) {
-      // Note: This logic will eventually move to a dedicated auth service or remain here
-      // For now, keeping it simple as it's better-auth specific
-      // We'll need access to the email service which will be in the container
-      // However, better-auth config is often static.
-      // One way is to import the container or the services directly if they are singletons (which we avoid).
-      // Or just re-implement the minimal logic here for now.
-      console.log(`[AUTH] Sending reset password email to ${user.email}: ${url}`);
+      // H2: Delegate to configured email sender (no console logging of reset tokens)
+      if (_sendResetEmail) {
+        await _sendResetEmail(user.email, url);
+      }
     },
   },
   plugins: [

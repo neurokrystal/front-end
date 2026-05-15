@@ -16,7 +16,8 @@ export default async function instrumentAdminRoutes(fastify: FastifyInstance) {
     });
     const parsed = schema.safeParse(request.body);
     if (!parsed.success) {
-      return reply.status(400).send({ code: 'BAD_REQUEST', message: parsed.error.message });
+      fastify.log.warn({ validationError: (parsed.error as any).flatten?.() ?? parsed.error }, 'Request validation failed');
+      return reply.status(400).send({ code: 'VALIDATION_ERROR', message: 'Invalid request data. Check your input and try again.' });
     }
     const { name, slug, description } = parsed.data;
 
@@ -111,7 +112,8 @@ export default async function instrumentAdminRoutes(fastify: FastifyInstance) {
     const schema = z.object({ items: z.array(ItemSchema) });
     const parsed = schema.safeParse(request.body);
     if (!parsed.success) {
-      return reply.status(400).send({ code: 'BAD_REQUEST', message: parsed.error.message });
+      fastify.log.warn({ validationError: (parsed.error as any).flatten?.() ?? parsed.error }, 'Request validation failed');
+      return reply.status(400).send({ code: 'VALIDATION_ERROR', message: 'Invalid request data. Check your input and try again.' });
     }
 
     // Verify version belongs to instrument

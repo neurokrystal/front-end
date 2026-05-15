@@ -1,10 +1,11 @@
 import fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
+import rawBody from "@fastify/raw-body";
 import rateLimit from "@fastify/rate-limit";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { env } from "@/infrastructure/config";
-import { auth } from "@/infrastructure/auth/better-auth";
+import { auth, setResetEmailSender } from "@/infrastructure/auth/better-auth";
 import { createContainer } from "./container";
 import { containerPlugin } from "./shared/plugins/container.plugin";
 import { errorHandlerPlugin } from "./shared/errors/error-handler";
@@ -38,26 +39,48 @@ server.setSerializerCompiler(() => {
 
 const container = createContainer();
 
+// Wire password reset email sender (H2)
+setResetEmailSender(async (to: string, url: string) => {
+  await container.emailService.send({
+    to,
+    subject: 'Reset your password — The Dimensional System',
+    text: `Click this link to reset your password: ${url}\n\nThis link expires in 1 hour.\n\nIf you didn't request this, you can ignore this email.`,
+    html: `<p>Click <a href="${url}">here</a> to reset your password.</p><p>This link expires in 1 hour.</p><p>If you didn't request this, you can ignore this email.</p>`,
+  });
+});
+
 await server.register(containerPlugin, { container });
 await server.register(errorHandlerPlugin);
 await server.register(securityHeaders);
 
-// Disable global rate limiting in non-production to avoid hindering local/dev work.
-if (env.NODE_ENV === 'production') {
-  await server.register(rateLimit, {
-    max: 1000,
-    timeWindow: '1 minute',
-  });
-}
+// Global rate limiting enabled in all environments (higher threshold in non-prod)
+await server.register(rateLimit, {
+  max: env.NODE_ENV === 'production' ? 1000 : 5000,
+  timeWindow: '1 minute',
+});
 
 await server.register(cors, {
-  origin: env.NODE_ENV === 'production' ? env.CORS_ORIGIN.split(',') : true,
+  origin: env.CORS_ORIGIN ? env.CORS_ORIGIN.split(',').map(o => o.trim()) : ['http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 });
 
-await server.register(multipart);
+// Multipart with restrictive limits
+await server.register(multipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB max
+    files: 1, // single file per request
+    fieldSize: 1024 * 1024, // 1MB for non-file fields
+  }
+});
+
+// Raw body plugin for Stripe webhook and other signature-verified endpoints
+await server.register(rawBody, {
+  field: 'rawBody',
+  global: false,
+  runFirst: true,
+});
 
 // Auth & Rate Limiting scope
 server.register(async (authApp) => {

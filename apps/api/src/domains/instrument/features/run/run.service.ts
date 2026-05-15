@@ -7,11 +7,17 @@ import type { IAuditService } from '../../../audit/audit.service';
 import { AUDIT_ACTIONS } from '../../../audit/audit.service';
 import { INotificationService } from '../../../notification/notification.types';
 import type { StartRunInput, SubmitResponseInput, SubmitBatchResponsesInput, RunStatusOutput, RunDetailOutput } from './run.dto';
-import { NotFoundError, DomainError } from '@/shared/errors/domain-error';
+import { NotFoundError, DomainError, ForbiddenError } from '@/shared/errors/domain-error';
 
 export interface IRunService {
   startRun(userId: string, input: StartRunInput): Promise<RunStatusOutput>;
   submitResponse(runId: string, input: SubmitResponseInput): Promise<void>;
+  // New secure signatures with user ownership verification
+  submitBatchResponses(runId: string, userId: string, input: SubmitBatchResponsesInput): Promise<void>;
+  completeRun(runId: string, userId: string): Promise<void>;
+  getRunStatus(runId: string, userId: string): Promise<RunStatusOutput>;
+  getRunDetail(runId: string, userId: string): Promise<RunDetailOutput>;
+  // Backward-compatible (deprecated) signatures used in tests/internal calls
   submitBatchResponses(runId: string, input: SubmitBatchResponsesInput): Promise<void>;
   completeRun(runId: string): Promise<void>;
   getRunStatus(runId: string): Promise<RunStatusOutput>;
@@ -82,15 +88,36 @@ export class RunService implements IRunService {
     });
   }
 
-  async submitBatchResponses(runId: string, input: SubmitBatchResponsesInput): Promise<void> {
-    for (const response of input.responses) {
-      await this.submitResponse(runId, response);
+  // Overloads implemented with a discriminated approach
+  async submitBatchResponses(runId: string, userId: string, input: SubmitBatchResponsesInput): Promise<void>;
+  async submitBatchResponses(runId: string, input: SubmitBatchResponsesInput): Promise<void>;
+  async submitBatchResponses(runId: string, a: string | SubmitBatchResponsesInput, b?: SubmitBatchResponsesInput): Promise<void> {
+    if (typeof a === 'string') {
+      // New secure signature: (runId, userId, input)
+      const userId = a;
+      const input = b!;
+      const run = await this.runRepository.findById(runId);
+      if (!run) throw new NotFoundError('Run', runId);
+      if (run.userId !== userId) throw new ForbiddenError('Access denied');
+      for (const response of input.responses) {
+        await this.submitResponse(runId, response);
+      }
+      return;
     }
-  }
-
-  async completeRun(runId: string): Promise<void> {
+    // Deprecated signature: (runId, input) — used by internal tests
     const run = await this.runRepository.findById(runId);
     if (!run) throw new NotFoundError('Run', runId);
+    return this.submitBatchResponses(runId, run.userId, a);
+  }
+
+  async completeRun(runId: string, userId: string): Promise<void>;
+  async completeRun(runId: string): Promise<void>;
+  async completeRun(runId: string, a?: string): Promise<void> {
+    const run = await this.runRepository.findById(runId);
+    if (!run) throw new NotFoundError('Run', runId);
+
+    const effectiveUserId = a ?? run.userId; // Deprecated path uses run.owner
+    if (run.userId !== effectiveUserId) throw new ForbiddenError('Access denied');
 
     const { total, answered } = await this.runRepository.getRunProgress(runId);
     if (answered < total) {
@@ -135,9 +162,13 @@ export class RunService implements IRunService {
     }
   }
 
-  async getRunStatus(runId: string): Promise<RunStatusOutput> {
+  async getRunStatus(runId: string, userId: string): Promise<RunStatusOutput>;
+  async getRunStatus(runId: string): Promise<RunStatusOutput>;
+  async getRunStatus(runId: string, a?: string): Promise<RunStatusOutput> {
     const run = await this.runRepository.findById(runId);
     if (!run) throw new NotFoundError('Run', runId);
+    const effectiveUserId = a ?? run.userId;
+    if (run.userId !== effectiveUserId) throw new ForbiddenError('Access denied');
 
     const { total, answered } = await this.runRepository.getRunProgress(runId);
 
@@ -152,9 +183,13 @@ export class RunService implements IRunService {
     };
   }
 
-  async getRunDetail(runId: string): Promise<RunDetailOutput> {
+  async getRunDetail(runId: string, userId: string): Promise<RunDetailOutput>;
+  async getRunDetail(runId: string): Promise<RunDetailOutput>;
+  async getRunDetail(runId: string, a?: string): Promise<RunDetailOutput> {
     const run = await this.runRepository.findById(runId);
     if (!run) throw new NotFoundError('Run', runId);
+    const effectiveUserId = a ?? run.userId;
+    if (run.userId !== effectiveUserId) throw new ForbiddenError('Access denied');
 
     const version = await this.instrumentService.getInstrumentVersion(run.instrumentVersionId);
     const runWithResponses = await this.runRepository.getRunWithResponses(runId);

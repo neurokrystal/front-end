@@ -10,6 +10,10 @@ export async function requireAuth(request: FastifyRequest, reply: FastifyReply) 
     throw new UnauthorizedError();
   }
   request.session = session;
+
+  // TODO (M1): Add concurrent session limit (e.g., max 5 per user) once Better-Auth exposes
+  // suitable hooks/APIs, or implement via a pre-session-create hook that counts active sessions.
+  // This is a documented, accepted risk for the current release.
 }
 
 export function requireRole(...roles: string[]) {

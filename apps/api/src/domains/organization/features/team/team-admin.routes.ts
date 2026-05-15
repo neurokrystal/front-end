@@ -138,7 +138,8 @@ export default async function teamAdminRoutes(fastify: FastifyInstance) {
     });
     const parsed = schema.safeParse(request.body);
     if (!parsed.success) {
-      return reply.status(400).send({ code: 'BAD_REQUEST', message: parsed.error.message });
+      fastify.log.warn({ validationError: (parsed.error as any).flatten?.() ?? parsed.error }, 'Request validation failed');
+      return reply.status(400).send({ code: 'VALIDATION_ERROR', message: 'Invalid request data. Check your input and try again.' });
     }
     const { name, organizationId } = parsed.data;
 
@@ -163,7 +164,8 @@ export default async function teamAdminRoutes(fastify: FastifyInstance) {
     });
     const parsed = schema.safeParse(request.body);
     if (!parsed.success) {
-      return reply.status(400).send({ code: 'BAD_REQUEST', message: parsed.error.message });
+      fastify.log.warn({ validationError: (parsed.error as any).flatten?.() ?? parsed.error }, 'Request validation failed');
+      return reply.status(400).send({ code: 'VALIDATION_ERROR', message: 'Invalid request data. Check your input and try again.' });
     }
     const { userId, role } = parsed.data;
 

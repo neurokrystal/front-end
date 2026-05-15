@@ -63,19 +63,45 @@ export default async function assetAdminRoutes(app: FastifyInstance) {
     if (!data) return reply.status(400).send({ code: 'NO_FILE' });
     const fields = (data as any).fields || {};
 
-    const name = (fields.name as any)?.value || data.filename;
+    // Validate MIME type
+    const ALLOWED_MIME_TYPES = [
+      'image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml',
+      'application/pdf',
+      'font/woff', 'font/woff2', 'font/ttf', 'font/otf',
+      'text/plain', 'text/csv',
+      'application/json',
+    ];
+    const mimeType = data.mimetype as string;
+    if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
+      return reply.status(400).send({
+        code: 'INVALID_FILE_TYPE',
+        message: `File type ${mimeType} is not allowed`
+      });
+    }
+
+    // Sanitise filename — strip path separators, limit characters/length
+    const sanitisedFilename = (data.filename as string)
+      .replace(/[\/\\]/g, '')
+      .replace(/\.\./g, '')
+      .replace(/[^a-zA-Z0-9._-]/g, '_')
+      .substring(0, 255);
+
+    const nameRaw = (fields.name as any)?.value || sanitisedFilename;
+    const name = String(nameRaw).substring(0, 255);
     const description = (fields.description as any)?.value as string | undefined;
     const environment = (fields.environment as any)?.value || 'production';
     const category = (fields.category as any)?.value as string | undefined;
 
     const buffer = await data.toBuffer();
-    const filename = data.filename as string;
-    const mimeType = data.mimetype as string;
+    // Double-check size even though multipart limits are set
+    if (buffer.length > 10 * 1024 * 1024) {
+      return reply.status(400).send({ code: 'FILE_TOO_LARGE', message: 'Maximum file size is 10MB' });
+    }
 
     const result = await fastify.container.assetService.upload(buffer, {
       name,
       description,
-      filename,
+      filename: sanitisedFilename,
       mimeType,
       environment,
       category,

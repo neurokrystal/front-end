@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { AUDIT_ACTIONS } from '@/domains/audit/audit.service';
 import { BulkOperationInput } from './admin.service';
 import crypto from 'node:crypto';
+import jwt from 'jsonwebtoken';
+import { env } from '@/infrastructure/config';
 import { sql } from 'drizzle-orm';
 import { auth } from '@/infrastructure/auth/better-auth';
 
@@ -122,25 +124,13 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       metadata: { adminEmail: adminUser.email, action: 'start' },
     });
 
-    // Create short-lived token (30 mins)
-    const token = crypto.randomUUID();
+    // Create short-lived signed JWT (30 mins)
     const expiresAt = Date.now() + 30 * 60 * 1000;
-
-    const containerAny = fastify.container as any;
-    if (!containerAny._impersonationTokens) {
-      containerAny._impersonationTokens = new Map<string, any>();
-    }
-    // Housekeeping: purge expired
-    for (const [k, v] of containerAny._impersonationTokens.entries() as Iterable<[string, any]>) {
-      if (v.expiresAt < Date.now()) containerAny._impersonationTokens.delete(k);
-    }
-    containerAny._impersonationTokens.set(token, {
-      adminUserId: adminUser.id,
-      targetUserId,
-      reason: reason.trim(),
-      expiresAt,
-      createdAt: Date.now(),
-    });
+    const token = jwt.sign(
+      { adminUserId: adminUser.id, targetUserId, reason: reason.trim() },
+      env.BETTER_AUTH_SECRET,
+      { expiresIn: '30m', subject: 'impersonation' }
+    );
 
     return { token, expiresAt: new Date(expiresAt).toISOString() };
   });
@@ -151,15 +141,12 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     const token = q.token;
     if (!token) return reply.status(400).send({ code: 'BAD_REQUEST', message: 'token is required' });
 
-    const containerAny = fastify.container as any;
-    const tokens: Map<string, any> | undefined = containerAny._impersonationTokens;
-    if (!tokens || !tokens.has(token)) {
+    // Verify JWT
+    let imp: any;
+    try {
+      imp = jwt.verify(token, env.BETTER_AUTH_SECRET, { subject: 'impersonation' });
+    } catch (_e) {
       return reply.status(401).send({ code: 'INVALID_TOKEN' });
-    }
-    const imp = tokens.get(token);
-    if (imp.expiresAt < Date.now()) {
-      tokens.delete(token);
-      return reply.status(401).send({ code: 'EXPIRED_TOKEN' });
     }
 
     // Confirm target still exists
@@ -167,7 +154,6 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       sql`SELECT id, email, role FROM "user" WHERE id = ${imp.targetUserId} LIMIT 1`
     );
     if (!targetUser.rows[0]) {
-      tokens.delete(token);
       return reply.status(404).send({ code: 'USER_NOT_FOUND' });
     }
 
@@ -199,9 +185,6 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       }
     }
 
-    // One-time token use
-    tokens.delete(token);
-
     // Redirect to consumer dashboard with an impersonation hint
     return reply.redirect(`/dashboard?impersonating=true&admin=${encodeURIComponent(imp.adminUserId)}`);
   });
@@ -217,8 +200,8 @@ export default async function adminRoutes(fastify: FastifyInstance) {
           resourceType: 'user',
           resourceId: request.session.user.id,
           subjectUserId: request.session.user.id,
-          reason: 'Impersonation ended by banner',
-          metadata: { action: 'end' },
+          reason: 'Impersonation session ended',
+          metadata: { action: 'end', note: 'Actor is the impersonated user; admin identity in the start log' },
         });
       }
     } catch {}

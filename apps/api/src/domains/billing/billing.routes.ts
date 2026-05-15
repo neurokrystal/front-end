@@ -57,7 +57,11 @@ export default async function billingRoutes(fastify: FastifyInstance) {
       },
     }, async (request, reply) => {
       const { id } = request.params as { id: string };
-      return fastify.container.billingService.getPurchaseById(id);
+      const userId = request.session!.user.id;
+      const purchase = await fastify.container.billingService.getPurchaseById(id);
+      if (!purchase) return reply.status(404).send({ code: 'NOT_FOUND' });
+      if (purchase.userId !== userId) return reply.status(403).send({ code: 'FORBIDDEN', message: 'Access denied' });
+      return purchase;
     });
 
     // Comparison checkout
@@ -92,33 +96,35 @@ export default async function billingRoutes(fastify: FastifyInstance) {
   // Public routes
   // Webhook handler
   fastify.post('/webhook', {
-    config: { rawBody: true }, // We need to handle raw body for signature verification
+    config: { rawBody: true }, // Ensure @fastify/raw-body registered in index.ts
   }, async (request, reply) => {
     const sig = request.headers['stripe-signature'] as string;
-    // Fastify-raw-body plugin would be ideal here. 
-    // For now, assuming request.body is either Buffer or we use a workaround.
-    const payload = request.body as Buffer;
+    if (!sig) return reply.status(400).send({ code: 'MISSING_SIGNATURE' });
+    const payload = (request as any).rawBody;
+    if (!payload) {
+      fastify.log.error('Stripe webhook: rawBody not available — @fastify/raw-body may not be registered');
+      return reply.status(500).send({ code: 'INTERNAL_ERROR' });
+    }
     await fastify.container.billingService.handleWebhook(payload, sig);
     return { received: true };
   });
 
-  // Mock completion (Dev-only)
-  fastify.post('/mock/complete/:sessionId', async (request, reply) => {
-    if (process.env.NODE_ENV === 'production') {
-      return reply.status(404).send();
-    }
-    const { sessionId } = request.params as { sessionId: string };
-    // We need to find the purchase associated with this mock session
-    // For simplicity in mock mode, the provider could have a way to trigger it.
-    // In MockPaymentProvider, we have simulatePaymentComplete(sessionId).
-    // But we need to call BillingService.completePurchase(purchaseId, paymentId).
-    
-    // As a workaround for the mock route:
-    const query = request.query as { purchaseId?: string };
-    if (query.purchaseId) {
-      await fastify.container.billingService.completePurchase(query.purchaseId, `mock_pay_${Date.now()}`);
-      return { success: true };
-    }
-    return { success: false, message: 'purchaseId query param required for mock complete' };
-  });
+  // Mock completion (Dev-only) — only register in non-production
+  if (process.env.NODE_ENV !== 'production') {
+    fastify.post('/mock/complete/:sessionId', async (request, reply) => {
+      const { sessionId } = request.params as { sessionId: string };
+      // We need to find the purchase associated with this mock session
+      // For simplicity in mock mode, the provider could have a way to trigger it.
+      // In MockPaymentProvider, we have simulatePaymentComplete(sessionId).
+      // But we need to call BillingService.completePurchase(purchaseId, paymentId).
+      
+      // As a workaround for the mock route:
+      const query = request.query as { purchaseId?: string };
+      if (query.purchaseId) {
+        await fastify.container.billingService.completePurchase(query.purchaseId, `mock_pay_${Date.now()}`);
+        return { success: true };
+      }
+      return { success: false, message: 'purchaseId query param required for mock complete' };
+    });
+  }
 }
