@@ -5,7 +5,7 @@ import { env } from "./config";
 export default async function middleware(request: NextRequest) {
   // Check for the session cookie
   // Cookie prefix configured in Better Auth is 'dimensional', so name is 'dimensional.session_token'
-  const sessionCookie = request.cookies.get("dimensional.session_token");
+  const sessionCookie = request.cookies.get("__Secure-dimensional.session_token") || request.cookies.get("dimensional.session_token");
 
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
