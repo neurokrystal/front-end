@@ -155,13 +155,13 @@ export class AdminRepository implements IAdminRepository {
   }
 
   async getAssessmentsTimeline(): Promise<Array<{ date: string; count: number }>> {
-    const rows = await this.db.execute(sql`
+    const result = await this.db.execute(sql`
       SELECT DATE(completed_at) as date, COUNT(*) as count 
       FROM instrument_runs 
       WHERE status = 'completed' AND completed_at > NOW() - INTERVAL '30 days'
       GROUP BY DATE(completed_at) ORDER BY date
     `);
-    return rows.map((r: any) => ({
+    return result.rows.map((r: any) => ({
       date: new Date(r.date).toISOString().split('T')[0],
       count: Number(r.count)
     }));
@@ -170,7 +170,7 @@ export class AdminRepository implements IAdminRepository {
   async getDomainDistribution(): Promise<any> {
     // This is a bit more complex, we want counts per band per domain
     // We can do it in 3 queries or one with case statements
-    const rows = await this.db.execute(sql`
+    const result = await this.db.execute(sql`
       SELECT 
         safety_band as band, 'safety' as domain, count(*) as count
       FROM scored_profiles GROUP BY safety_band
@@ -183,6 +183,6 @@ export class AdminRepository implements IAdminRepository {
         play_band as band, 'play' as domain, count(*) as count
       FROM scored_profiles GROUP BY play_band
     `);
-    return rows;
+    return result.rows;
   }
 }

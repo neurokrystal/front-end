@@ -32,7 +32,8 @@ function PageCanvasImpl({ page, state, dispatch, pagePixelWidth }: {
 
   const renderElement = (el: any, isSelected: boolean) => {
     const common = { pxPerMm } as any;
-    switch (el.type as TemplateElement['type']) {
+    // Use a permissive discriminant to accommodate editor-only element types (e.g., 'repeating_section')
+    switch (el.type as any) {
       case 'text': return <TextPreview element={el} isSelected={isSelected} dispatch={dispatch} {...common} />;
       case 'cms_block': return <CmsBlockPreview element={el} dispatch={dispatch} />;
       case 'image': return <ImagePreview element={el} {...common} />;

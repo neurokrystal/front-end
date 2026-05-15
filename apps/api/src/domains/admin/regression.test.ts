@@ -19,7 +19,7 @@ describe('Category 11: Admin', () => {
     await createTestUser();
 
     const stats = await adminService.getDashboardStats(admin.id);
-    expect(stats.userCount).toBeGreaterThanOrEqual(3); // 2 users + 1 admin
+    expect(stats.totalUsers).toBeGreaterThanOrEqual(3); // 2 users + 1 admin
   });
 
   it('11.3 Comp grant → $0 purchase, user can start run', async () => {

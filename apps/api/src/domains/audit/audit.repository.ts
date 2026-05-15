@@ -36,13 +36,13 @@ export class AuditRepository implements IAuditRepository {
     const actorUser = aliasedTable(betterAuthUser, 'actor_user');
     const subjectUser = aliasedTable(betterAuthUser, 'subject_user');
 
-    const conditions = [];
+    const conditions = [] as any[];
     if (filters.actorUserId) conditions.push(eq(auditLogs.actorUserId, filters.actorUserId));
     if (filters.subjectUserId) conditions.push(eq(auditLogs.subjectUserId, filters.subjectUserId));
     if (filters.resourceType) conditions.push(eq(auditLogs.resourceType, filters.resourceType));
     if (filters.resourceId) conditions.push(eq(auditLogs.resourceId, filters.resourceId));
 
-    let query = this.db
+    const results = await this.db
       .select({
         id: auditLogs.id,
         actorUserId: auditLogs.actorUserId,
@@ -57,17 +57,10 @@ export class AuditRepository implements IAuditRepository {
       .from(auditLogs)
       .leftJoin(actorUser, eq(auditLogs.actorUserId, actorUser.id))
       .leftJoin(subjectUser, eq(auditLogs.subjectUserId, subjectUser.id))
-      .orderBy(sql`created_at DESC`);
+      .where(conditions.length > 0 ? and(...conditions) : undefined as any)
+      .orderBy(sql`created_at DESC`)
+      .limit(filters.limit ?? 200);
 
-    if (conditions.length > 0) {
-      // @ts-ignore
-      query = query.where(and(...conditions));
-    }
-
-    if (filters.limit) {
-      query = query.limit(filters.limit);
-    }
-
-    return query;
+    return results;
   }
 }

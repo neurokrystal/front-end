@@ -69,7 +69,8 @@ export default function TemplateEditor({
 
   const selectedPage = useMemo(() => state.template.pages.find(p => p.id === state.selectedPageId)!, [state]);
 
-  const addElement = useCallback((type: TemplateElement['type']) => {
+  // Accept editor-only element types as well (e.g., 'repeating_section')
+  const addElement = useCallback((type: TemplateElement['type'] | 'repeating_section') => {
     const base = {
       id: crypto.randomUUID(),
       type,

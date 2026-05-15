@@ -53,7 +53,6 @@ export default function ElementWrapper({
         "rounded-sm",
       ].join(" ")}
       style={{
-        minHeight: 8,
         width,
         height,
         minWidth: 40,

@@ -20,8 +20,8 @@ describe('Category 11: Admin Features', () => {
       await createTestUser();
       
       const stats = await adminService.getDashboardStats();
-      expect(stats.userCount).toBe(2);
-      expect(stats.revenueCents).toBe(0);
+      expect(stats.totalUsers).toBe(2);
+      expect(stats.totalRevenueCents).toBe(0);
     });
   });
 

@@ -64,7 +64,7 @@ export default async function instrumentRoutes(fastify: FastifyInstance) {
     }
 
     if (!result[0]) {
-      return reply.status(404).send({ code: 'NOT_FOUND' });
+      return (reply as any).code(404).send({ code: 'NOT_FOUND' });
     }
     return result[0];
   });
@@ -85,7 +85,7 @@ export default async function instrumentRoutes(fastify: FastifyInstance) {
       .where(eq(instrumentVersions.id, versionId))
       .limit(1);
     if (!ver[0] || ver[0].instrumentId !== instrumentId) {
-      return reply.status(404).send({ code: 'NOT_FOUND' });
+      return (reply as any).code(404).send({ code: 'NOT_FOUND' });
     }
 
     await fastify.container.db

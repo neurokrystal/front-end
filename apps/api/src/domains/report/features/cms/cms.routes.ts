@@ -23,8 +23,6 @@ export default async function cmsRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     const q = request.query as any;
-    let query = fastify.container.db.select().from(reportContentBlocks);
-
     const conditions: any[] = [];
     if (q.reportType) conditions.push(eq(reportContentBlocks.reportType, q.reportType));
     if (q.sectionKey) conditions.push(eq(reportContentBlocks.sectionKey, q.sectionKey));
@@ -34,14 +32,13 @@ export default async function cmsRoutes(fastify: FastifyInstance) {
     if (q.isActive === 'true') conditions.push(eq(reportContentBlocks.isActive, true));
     if (q.isActive === 'false') conditions.push(eq(reportContentBlocks.isActive, false));
 
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
-
     const limit = parseInt(q.limit || '200');
     const offset = parseInt(q.offset || '0');
 
-    const results = await query
+    const results = await fastify.container.db
+      .select()
+      .from(reportContentBlocks)
+      .where(conditions.length > 0 ? and(...conditions) : undefined as any)
       .orderBy(reportContentBlocks.displayOrder)
       .limit(limit)
       .offset(offset);

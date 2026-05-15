@@ -37,7 +37,7 @@ export default async function billingAdminRoutes(fastify: FastifyInstance) {
     schema: { params: z.object({ id: z.string().uuid() }) }
   }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const purchase = await fastify.container.billingRepository.getPurchaseById(id);
+    const purchase = await (fastify.container as any).billingRepository?.getPurchaseById(id);
     if (!purchase) return reply.status(404).send({ code: 'NOT_FOUND' });
     const buyer = await fastify.container.userService.getUserById(purchase.buyerUserId).catch(() => null);
     return {

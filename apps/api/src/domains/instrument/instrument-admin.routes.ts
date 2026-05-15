@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { requirePlatformAdmin } from '@/infrastructure/auth/auth-middleware';
 import { z } from 'zod';
 import { instruments, instrumentItems, instrumentVersions } from './instrument.schema';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 
 export default async function instrumentAdminRoutes(fastify: FastifyInstance) {
   fastify.addHook('preHandler', requirePlatformAdmin);
@@ -126,17 +126,28 @@ export default async function instrumentAdminRoutes(fastify: FastifyInstance) {
     const items = parsed.data.items;
     // Delete any items not present in payload (by ordinal)
     const ordinals = items.map(i => i.ordinal);
-    await fastify.container.db.execute(`
-      DELETE FROM instrument_items WHERE instrument_version_id = $1 AND ordinal NOT IN (${ordinals.length ? ordinals.map((_, i) => `$${i+2}`).join(',') : 'NULL'})
-    ` as any, [vid, ...ordinals] as any);
+    if (ordinals.length > 0) {
+      await fastify.container.db.execute(sql`
+        DELETE FROM instrument_items 
+        WHERE instrument_version_id = ${vid} 
+        AND ordinal NOT IN (${sql.join(ordinals, sql`, `)})
+      `);
+    } else {
+      await fastify.container.db.execute(sql`
+        DELETE FROM instrument_items 
+        WHERE instrument_version_id = ${vid}
+      `);
+    }
 
     // Upsert each item
     for (const it of items) {
       const idToUse = it.id ?? (globalThis as any).crypto?.randomUUID?.() ?? require('crypto').randomUUID();
-      await fastify.container.db.execute(
-        `
+      await fastify.container.db.execute(sql`
         INSERT INTO instrument_items (id, instrument_version_id, ordinal, item_text, locale, response_format, domain_tag, dimension_tag, state_tag, category_tag, score_group_tag, config_json, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, now())
+        VALUES (
+          ${idToUse}, ${vid}, ${it.ordinal}, ${it.itemText}, ${it.locale ?? 'en'}, ${it.responseFormat ?? 'likert_5'},
+          ${it.domainTag ?? null}, ${it.dimensionTag ?? null}, ${it.stateTag ?? null}, ${it.categoryTag ?? null}, ${it.scoreGroupTag ?? null}, ${it.configJson ?? null}, now()
+        )
         ON CONFLICT (id) DO UPDATE SET
           ordinal = EXCLUDED.ordinal,
           item_text = EXCLUDED.item_text,
@@ -148,22 +159,7 @@ export default async function instrumentAdminRoutes(fastify: FastifyInstance) {
           category_tag = EXCLUDED.category_tag,
           score_group_tag = EXCLUDED.score_group_tag,
           config_json = EXCLUDED.config_json
-        ` as any,
-        [
-          idToUse,
-          vid,
-          it.ordinal,
-          it.itemText,
-          it.locale ?? 'en',
-          it.responseFormat ?? 'likert_5',
-          it.domainTag ?? null,
-          it.dimensionTag ?? null,
-          it.stateTag ?? null,
-          it.categoryTag ?? null,
-          it.scoreGroupTag ?? null,
-          it.configJson ?? null,
-        ] as any
-      );
+      `);
     }
 
     // Update itemCount

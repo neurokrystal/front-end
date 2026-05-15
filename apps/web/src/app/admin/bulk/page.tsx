@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { RefreshCw, Play, AlertCircle, CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface BulkOperation {
   id: string;

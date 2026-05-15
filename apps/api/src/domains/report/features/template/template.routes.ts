@@ -15,12 +15,11 @@ export default async function templateRoutes(fastify: FastifyInstance) {
     const q = (request.query ?? {}) as Record<string, unknown>;
     const reportType = typeof q.reportType === 'string' && q.reportType.length > 0 ? q.reportType : undefined;
     // TODO: Gated by admin role
-    // Build Drizzle query and ensure we await execution before returning
-    let query = fastify.container.db.select().from(reportTemplates);
-    if (reportType) {
-      query = query.where(eq(reportTemplates.reportType, reportType));
-    }
-    const rows = await query;
+    // Build Drizzle query in a single chain to avoid intermediate type narrowing
+    const rows = await fastify.container.db
+      .select()
+      .from(reportTemplates)
+      .where(reportType ? eq(reportTemplates.reportType, reportType) : (undefined as any));
     return rows;
   });
 
@@ -128,12 +127,11 @@ export default async function templateRoutes(fastify: FastifyInstance) {
     };
 
     const cmsBlocks = await fastify.container.cmsService.getActiveBlocks(templateJson.reportType);
-    const htmlRenderer = fastify.container.reportService.getHtmlRenderer
-      ? (fastify.container.reportService as any).getHtmlRenderer()
-      : (fastify.container as any).reportService.getHtmlRenderer?.();
-
-    // Fallback: HtmlTemplateRenderer is also constructible, but we should use the service instance
-    const renderer = htmlRenderer ?? (fastify.container as any).htmlRenderer ?? fastify.container.reportService['htmlRenderer'];
+    // Access renderer via container with a safe cast to avoid interface mismatch errors
+    const renderer =
+      (fastify.container as any).reportService?.getHtmlRenderer?.() ??
+      (fastify.container as any).htmlTemplateRenderer ??
+      (fastify.container.reportService as any)['htmlRenderer'];
 
     const html = renderer.render({
       template: templateJson,

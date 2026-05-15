@@ -17,7 +17,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   // once impersonating, the user will not have admin privileges but still
   // needs to establish/end the session.
   server.addHook('preHandler', async (request, reply) => {
-    const allowImpersonation = (request.routeConfig as any)?.allowImpersonation === true;
+    const allowImpersonation = (request as any).routeConfig?.allowImpersonation === true;
     if (allowImpersonation) return;
     return requirePlatformAdmin(request, reply);
   });
