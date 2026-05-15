@@ -5,6 +5,9 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { AssetPicker } from '@/components/admin/AssetPicker';
 
 interface RichTextEditorProps {
   content: string;          // HTML string
@@ -38,6 +41,8 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
   }, [content, editor]);
 
   const [showVarMenu, setShowVarMenu] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [imgUrl, setImgUrl] = useState('');
 
   if (!editor) return null;
 
@@ -98,6 +103,12 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         </ToolbarButton>
         <div className="w-px bg-slate-200 mx-1" />
         <ToolbarButton
+          onClick={() => { setImgUrl(''); setShowImagePicker(true); }}
+          title="Insert Image"
+        >
+          🖼 Image
+        </ToolbarButton>
+        <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}
           title="Undo"
         >
@@ -150,6 +161,32 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         <span>{(editor.storage.characterCount as any)?.words?.() ?? 0} words</span>
         <span>{(editor.storage.characterCount as any)?.characters?.() ?? 0} characters</span>
       </div>
+
+      {/* Insert Image Modal */}
+      <Dialog open={showImagePicker} onOpenChange={setShowImagePicker}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Insert Image</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <AssetPicker value={imgUrl} onChange={setImgUrl} mimeTypeFilter="image/*" label="Image URL" />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setShowImagePicker(false)}>Cancel</Button>
+            <Button
+              type="button"
+              onClick={() => {
+                if (!imgUrl) return;
+                editor?.chain().focus().insertContent(`<img src="${imgUrl}" />`).run();
+                setShowImagePicker(false);
+              }}
+              disabled={!imgUrl}
+            >
+              Insert
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

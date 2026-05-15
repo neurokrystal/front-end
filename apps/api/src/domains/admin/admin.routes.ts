@@ -5,11 +5,22 @@ import { AdminStatsOutput, AdminUserSummary, GrantCompInput, ManualCorrectionInp
 import { z } from 'zod';
 import { AUDIT_ACTIONS } from '@/domains/audit/audit.service';
 import { BulkOperationInput } from './admin.service';
+import crypto from 'node:crypto';
+import { sql } from 'drizzle-orm';
+import { auth } from '@/infrastructure/auth/better-auth';
 
 export default async function adminRoutes(fastify: FastifyInstance) {
   const server = fastify.withTypeProvider<ZodTypeProvider>();
   
-  server.addHook('preHandler', requirePlatformAdmin);
+  // Wrap admin guard to allow certain routes (impersonation bootstrap/end)
+  // to be accessible without platform_admin role. This is necessary because
+  // once impersonating, the user will not have admin privileges but still
+  // needs to establish/end the session.
+  server.addHook('preHandler', async (request, reply) => {
+    const allowImpersonation = (request.routeConfig as any)?.allowImpersonation === true;
+    if (allowImpersonation) return;
+    return requirePlatformAdmin(request, reply);
+  });
 
   server.get("/stats", async (request, reply) => {
     const stats = await fastify.container.adminService.getDashboardStats();
@@ -79,25 +90,142 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   });
 
   server.post("/impersonate", async (request, reply) => {
+    // Accept { targetUserId, reason } (preferred) or { userId, reason } for backwards-compat
     const body = (request.body ?? {}) as any;
-    const userId: string | undefined = body.userId;
+    const targetUserId: string | undefined = body.targetUserId || body.userId;
     const reason: string | undefined = body.reason;
-    if (!userId || typeof userId !== 'string') {
-      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'userId is required' });
+    if (!targetUserId || typeof targetUserId !== 'string') {
+      return reply.status(400).send({ code: 'BAD_REQUEST', message: 'targetUserId is required' });
     }
     if (!reason || typeof reason !== 'string' || reason.trim().length < 10) {
       return reply.status(400).send({ code: 'BAD_REQUEST', message: 'reason must be at least 10 characters' });
     }
-    const actorUserId = request.session!.user.id;
+
+    const adminUser = request.session!.user;
+
+    // Verify target exists to provide early feedback (and avoid issuing junk tokens)
+    const targetUser = await fastify.container.db.execute(
+      sql`SELECT id, email FROM "user" WHERE id = ${targetUserId} LIMIT 1`
+    );
+    if (!targetUser.rows[0]) {
+      return reply.status(404).send({ code: 'NOT_FOUND', message: 'Target user not found' });
+    }
+
+    // Audit log — start impersonation issuance
     await fastify.container.auditService.log({
-      actorUserId,
+      actorUserId: adminUser.id,
       actionType: AUDIT_ACTIONS.ADMIN_IMPERSONATE,
       resourceType: 'user',
-      resourceId: userId,
-      subjectUserId: userId,
+      resourceId: targetUserId,
+      subjectUserId: targetUserId,
       reason: reason.trim(),
+      metadata: { adminEmail: adminUser.email, action: 'start' },
     });
-    return reply.status(202).send({ ok: true, message: 'Impersonation recorded. Read-only View As mode to be handled by client.' });
+
+    // Create short-lived token (30 mins)
+    const token = crypto.randomUUID();
+    const expiresAt = Date.now() + 30 * 60 * 1000;
+
+    const containerAny = fastify.container as any;
+    if (!containerAny._impersonationTokens) {
+      containerAny._impersonationTokens = new Map<string, any>();
+    }
+    // Housekeeping: purge expired
+    for (const [k, v] of containerAny._impersonationTokens.entries() as Iterable<[string, any]>) {
+      if (v.expiresAt < Date.now()) containerAny._impersonationTokens.delete(k);
+    }
+    containerAny._impersonationTokens.set(token, {
+      adminUserId: adminUser.id,
+      targetUserId,
+      reason: reason.trim(),
+      expiresAt,
+      createdAt: Date.now(),
+    });
+
+    return { token, expiresAt: new Date(expiresAt).toISOString() };
+  });
+
+  // Establish a real session for the impersonated user and redirect to consumer dashboard
+  server.get("/impersonate/session", { config: { allowImpersonation: true } }, async (request, reply) => {
+    const q = (request.query ?? {}) as { token?: string };
+    const token = q.token;
+    if (!token) return reply.status(400).send({ code: 'BAD_REQUEST', message: 'token is required' });
+
+    const containerAny = fastify.container as any;
+    const tokens: Map<string, any> | undefined = containerAny._impersonationTokens;
+    if (!tokens || !tokens.has(token)) {
+      return reply.status(401).send({ code: 'INVALID_TOKEN' });
+    }
+    const imp = tokens.get(token);
+    if (imp.expiresAt < Date.now()) {
+      tokens.delete(token);
+      return reply.status(401).send({ code: 'EXPIRED_TOKEN' });
+    }
+
+    // Confirm target still exists
+    const targetUser = await fastify.container.db.execute(
+      sql`SELECT id, email, role FROM "user" WHERE id = ${imp.targetUserId} LIMIT 1`
+    );
+    if (!targetUser.rows[0]) {
+      tokens.delete(token);
+      return reply.status(404).send({ code: 'USER_NOT_FOUND' });
+    }
+
+    // Attempt Better-Auth session creation by user id
+    // Prefer an official API if available; fall back to manual session creation via auth.api (cookie set)
+    try {
+      // Some better-auth versions support signInWithId; if not available, this will throw
+      const res: any = await (auth.api as any).signInWithId?.({
+        body: { userId: imp.targetUserId },
+        headers: new Headers(request.headers as Record<string, string>),
+      });
+      if (!res) {
+        throw new Error('signInWithId not supported');
+      }
+    } catch (_e) {
+      // Manual fallback: create session by calling auth.handler on the sign-in endpoint if exposed,
+      // or use internal createSession if present. As a minimal compatible path, call signInEmail with a one-time link is out-of-scope.
+      // Instead, try to leverage a generic createSession API if present.
+      const createSession = (auth.api as any).createSession;
+      if (typeof createSession === 'function') {
+        await createSession({
+          body: { userId: imp.targetUserId },
+          headers: new Headers(request.headers as Record<string, string>),
+        });
+      } else {
+        // As last resort, insert a session row and set cookie manually is complex and version-specific.
+        // Return a clear message to avoid silent failure.
+        return reply.status(501).send({ code: 'NOT_IMPLEMENTED', message: 'Server cannot create session for impersonation with current Better-Auth version' });
+      }
+    }
+
+    // One-time token use
+    tokens.delete(token);
+
+    // Redirect to consumer dashboard with an impersonation hint
+    return reply.redirect(`/dashboard?impersonating=true&admin=${encodeURIComponent(imp.adminUserId)}`);
+  });
+
+  // End impersonation: sign out current session and tell client where to go
+  server.post("/impersonate/end", { config: { allowImpersonation: true } }, async (request, reply) => {
+    try {
+      // Best-effort audit end of impersonation (actor is the currently impersonated user)
+      if (request.session?.user?.id) {
+        await fastify.container.auditService.log({
+          actorUserId: request.session.user.id,
+          actionType: AUDIT_ACTIONS.ADMIN_IMPERSONATE,
+          resourceType: 'user',
+          resourceId: request.session.user.id,
+          subjectUserId: request.session.user.id,
+          reason: 'Impersonation ended by banner',
+          metadata: { action: 'end' },
+        });
+      }
+    } catch {}
+    try {
+      await auth.api.signOut({ headers: new Headers(request.headers as Record<string, string>) });
+    } catch {}
+    return { redirectTo: '/admin/users' };
   });
 
   server.post("/bulk", async (request, reply) => {

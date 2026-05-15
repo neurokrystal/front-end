@@ -21,6 +21,7 @@ import { createProgrammeServices } from '@/domains/programme';
 import { StripePaymentProvider } from '@/domains/billing/payment/stripe-payment.provider';
 import { MockPaymentProvider } from '@/domains/billing/payment/mock-payment.provider';
 import type { IPaymentProvider } from '@/domains/billing/payment/payment-provider.interface';
+import { createAssetServices } from '@/domains/asset/asset.service';
 
 export function createContainer() {
   const storageService = env.DO_SPACES_KEY && env.DO_SPACES_SECRET 
@@ -92,6 +93,9 @@ export function createContainer() {
     notificationService
   );
 
+  // 4b. Assets (needs storage)
+  const { assetService } = createAssetServices(db, storageService);
+
   // 5. Resolve Late-Bound Dependencies (Phased Initialization)
   coachingService.setShareService(shareService);
   shareService.setReportRepository(reportRepository);
@@ -125,6 +129,7 @@ export function createContainer() {
     pdfGenerator,
     notificationService,
     emailTemplateRepository,
+    assetService,
     db,
   };
 }

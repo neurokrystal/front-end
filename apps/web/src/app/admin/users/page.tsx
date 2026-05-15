@@ -31,6 +31,9 @@ export default function UserManagementPage() {
   const [compTarget, setCompTarget] = useState<UserSummary | null>(null);
   const [compReason, setCompReason] = useState("");
   const [compSubmitting, setCompSubmitting] = useState(false);
+  const [impersonateTarget, setImpersonateTarget] = useState<UserSummary | null>(null);
+  const [impersonateReason, setImpersonateReason] = useState("");
+  const [impersonateSubmitting, setImpersonateSubmitting] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const limit = 50;
 
@@ -93,6 +96,29 @@ export default function UserManagementPage() {
     } catch (error) {
       setToast({ type: 'error', message: "Failed to grant complimentary access" });
       setCompSubmitting(false);
+    }
+  };
+
+  const closeImpersonateModal = () => {
+    setImpersonateTarget(null);
+    setImpersonateReason("");
+    setImpersonateSubmitting(false);
+  };
+
+  const handleStartTesting = async () => {
+    if (!impersonateTarget) return;
+    setImpersonateSubmitting(true);
+    try {
+      const response = await apiFetch<{ token: string }>("/api/v1/admin/impersonate", {
+        method: "POST",
+        body: JSON.stringify({ targetUserId: impersonateTarget.id, reason: impersonateReason.trim() }),
+      });
+      // Open in new tab to establish session and redirect to consumer dashboard
+      window.open(`/api/v1/admin/impersonate/session?token=${response.token}` , "_blank");
+      closeImpersonateModal();
+    } catch (e) {
+      setToast({ type: 'error', message: 'Failed to start Test As session' });
+      setImpersonateSubmitting(false);
     }
   };
 
@@ -213,6 +239,14 @@ export default function UserManagementPage() {
                         </Link>
                       </Button>
                       <button
+                        onClick={() => setImpersonateTarget(user)}
+                        className="p-1.5 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                        title="Test the platform as this user"
+                        aria-label={`Test as ${user.displayName || user.email}`}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => setCompTarget(user)}
                         className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
                         title="Grant complimentary access"
@@ -315,6 +349,57 @@ export default function UserManagementPage() {
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 {compSubmitting ? 'Granting...' : 'Grant Access'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Test As (Impersonate) Modal */}
+      {impersonateTarget && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/30" onClick={closeImpersonateModal} />
+          <div className="relative z-50 w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h3 className="text-lg font-semibold text-slate-900">Test As User</h3>
+            </div>
+            <div className="px-6 py-4 space-y-4">
+              <p className="text-sm text-slate-600">You will be logged in as this user and can experience the platform exactly as they would — including taking assessments and viewing reports.</p>
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50">
+                <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-semibold">
+                  {(impersonateTarget.displayName || impersonateTarget.email).slice(0,1).toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-slate-900">{impersonateTarget.displayName || impersonateTarget.name}</div>
+                  <div className="text-xs text-slate-500">{impersonateTarget.email}</div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-500">Reason (required)</label>
+                <textarea
+                  className="w-full min-h-[88px] p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                  value={impersonateReason}
+                  onChange={(e) => setImpersonateReason(e.target.value)}
+                  placeholder="Explain why you are testing as this user..."
+                />
+                <div className={`text-xs ${impersonateReason.trim().length >= 10 ? 'text-slate-400' : 'text-red-600'}`}>
+                  {impersonateReason.trim().length}/10 characters
+                </div>
+              </div>
+
+              <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-2 rounded">
+                This creates a real session as this user. Actions you take (like completing an assessment) will be real and permanent. Session expires in 30 minutes.
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50/50">
+              <Button variant="outline" onClick={closeImpersonateModal} className="border-slate-200">Cancel</Button>
+              <Button 
+                onClick={handleStartTesting}
+                disabled={impersonateSubmitting || impersonateReason.trim().length < 10}
+                className="bg-violet-600 hover:bg-violet-700"
+              >
+                {impersonateSubmitting ? 'Starting…' : 'Start Testing'}
               </Button>
             </div>
           </div>

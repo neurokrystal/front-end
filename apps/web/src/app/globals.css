@@ -154,6 +154,33 @@
     color: #94a3b8 !important; /* slate-400 */
   }
 
+  /* Date/time inputs: force light chrome and visible text */
+  .admin-panel input[type="date"],
+  .admin-panel input[type="datetime-local"],
+  .admin-panel input[type="time"],
+  .admin-panel input[type="month"],
+  .admin-panel input[type="week"] {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #1e293b !important;
+    color-scheme: light;
+  }
+
+  .admin-panel input[type="date"]::-webkit-calendar-picker-indicator,
+  .admin-panel input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: none;
+    opacity: 0.6;
+  }
+
+  .admin-panel input[type="date"]:focus,
+  .admin-panel input[type="datetime-local"]:focus {
+    border-color: #4A90D9 !important;
+    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2) !important;
+  }
+
   /* Select dropdown arrow and sizing */
   .admin-panel select {
     appearance: none;

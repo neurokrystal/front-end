@@ -8,6 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, Plus, Settings2, FileEdit, BadgeCheck, Clock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function InstrumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -16,6 +19,11 @@ export default function InstrumentDetailPage({ params }: { params: Promise<{ id:
   const [error, setError] = useState<string | null>(null);
   const [instrument, setInstrument] = useState<any>(null);
   const [versions, setVersions] = useState<any[]>([]);
+  const [itemsOpen, setItemsOpen] = useState(false);
+  const [itemsLoading, setItemsLoading] = useState(false);
+  const [currentVid, setCurrentVid] = useState<string | null>(null);
+  const [items, setItems] = useState<any[]>([]);
+  const [savingItems, setSavingItems] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -38,6 +46,51 @@ export default function InstrumentDetailPage({ params }: { params: Promise<{ id:
     load();
   }, [id]);
 
+  const openItemsEditor = async (vid: string) => {
+    setCurrentVid(vid);
+    setItemsOpen(true);
+    setItemsLoading(true);
+    try {
+      const data = await api.get<any[]>(`/api/v1/admin/instruments/${id}/versions/${vid}/items`);
+      // Ensure ordinals are numbers and sort
+      const sorted = [...data].sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0));
+      setItems(sorted);
+    } catch (e) {
+      setItems([]);
+    } finally {
+      setItemsLoading(false);
+    }
+  };
+
+  const saveItems = async () => {
+    if (!currentVid) return;
+    setSavingItems(true);
+    try {
+      const payload = {
+        items: items.map((it, idx) => ({
+          id: it.id,
+          ordinal: Number(it.ordinal) || idx + 1,
+          itemText: String(it.itemText || '').trim() || `Item ${idx + 1}`,
+          locale: it.locale || 'en',
+          responseFormat: it.responseFormat || 'likert_5',
+          domainTag: it.domainTag || undefined,
+          dimensionTag: it.dimensionTag || undefined,
+          stateTag: it.stateTag || undefined,
+          categoryTag: it.categoryTag || undefined,
+          scoreGroupTag: it.scoreGroupTag || undefined,
+          configJson: it.configJson || undefined,
+        }))
+      };
+      await api.post(`/api/v1/admin/instruments/${id}/versions/${currentVid}/items`, payload);
+      // Reload versions to update itemCount
+      const vers = await api.get<any[]>(`/api/v1/instruments/${id}/versions`);
+      setVersions(vers);
+      setItemsOpen(false);
+    } finally {
+      setSavingItems(false);
+    }
+  };
+
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>;
   if (error) return <div className="p-8 bg-red-50 text-red-600 rounded-xl border border-red-100">{error}</div>;
 
@@ -54,7 +107,11 @@ export default function InstrumentDetailPage({ params }: { params: Promise<{ id:
           </div>
           <p className="text-slate-500 max-w-2xl">{instrument.description}</p>
         </div>
-        <Button className="shadow-sm">
+        <Button className="shadow-sm" onClick={async () => {
+          await api.post(`/api/v1/admin/instruments/${id}/versions`, {});
+          const vers = await api.get<any[]>(`/api/v1/instruments/${id}/versions`);
+          setVersions(vers);
+        }}>
           <Plus className="w-4 h-4 mr-2" /> New Version
         </Button>
       </div>
@@ -100,7 +157,7 @@ export default function InstrumentDetailPage({ params }: { params: Promise<{ id:
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                      <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50" onClick={() => openItemsEditor(v.id)}>
                         <FileEdit className="w-4 h-4 mr-1.5" /> Edit Items
                       </Button>
                       <Button variant="ghost" size="sm" className="text-slate-400 hover:text-slate-600">
@@ -121,6 +178,57 @@ export default function InstrumentDetailPage({ params }: { params: Promise<{ id:
           </table>
         </div>
       </div>
+
+      {/* Items Editor modal */}
+      <Dialog open={itemsOpen} onOpenChange={(o) => { if (!o) { setItemsOpen(false); setCurrentVid(null); setItems([]); } }}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Edit Items</DialogTitle>
+          </DialogHeader>
+          {itemsLoading ? (
+            <div className="text-sm text-slate-500">Loading…</div>
+          ) : (
+            <div className="space-y-4">
+              <div className="overflow-x-auto border rounded-md">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="text-xs text-slate-500 uppercase tracking-wider">
+                      <th className="text-left py-2 px-3 w-20">#</th>
+                      <th className="text-left py-2 px-3">Item Text</th>
+                      <th className="text-left py-2 px-3 w-24">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((it, idx) => (
+                      <tr key={it.id || idx} className="border-t">
+                        <td className="py-2 px-3">
+                          <Input type="number" className="w-20" value={it.ordinal ?? (idx + 1)} onChange={(e) => {
+                            const v = Number(e.target.value);
+                            setItems(prev => prev.map((p, i) => i === idx ? { ...p, ordinal: v } : p));
+                          }} />
+                        </td>
+                        <td className="py-2 px-3">
+                          <Input value={it.itemText || ''} onChange={(e) => setItems(prev => prev.map((p, i) => i === idx ? { ...p, itemText: e.target.value } : p))} />
+                        </td>
+                        <td className="py-2 px-3">
+                          <Button variant="ghost" className="text-red-600" onClick={() => setItems(prev => prev.filter((_, i) => i !== idx))}>Remove</Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <Button variant="secondary" onClick={() => setItems(prev => [...prev, { ordinal: prev.length + 1, itemText: '' }])}>Add Item</Button>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setItemsOpen(false)}>Cancel</Button>
+            <Button onClick={saveItems} disabled={savingItems}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

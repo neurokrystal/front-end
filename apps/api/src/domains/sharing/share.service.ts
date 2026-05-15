@@ -11,6 +11,7 @@ import { NotFoundError, ForbiddenError, DomainError } from '@/shared/errors/doma
 export interface IShareService {
   grantShare(subjectUserId: string, input: GrantShareInput): Promise<ShareGrantOutput>;
   revokeShare(grantId: string, revokingUserId: string): Promise<void>;
+  adminRevokeShare(grantId: string, adminUserId: string, reason: string): Promise<void>;
   revokeAllSharesForTarget(subjectUserId: string, targetType: string, targetId: string): Promise<void>;
   getMyShares(userId: string): Promise<ShareGrantOutput[]>;
   getSharedWithMe(userId: string): Promise<AccessibleResource[]>;
@@ -171,6 +172,47 @@ export class ShareService implements IShareService {
         subjectDisplayName: subject?.displayName || 'Someone',
       });
     }
+  }
+
+  async adminRevokeShare(grantId: string, adminUserId: string, reason: string): Promise<void> {
+    const grant = await this.shareGrantRepository.findById(grantId);
+    if (!grant) {
+      throw new NotFoundError('ShareGrant', grantId);
+    }
+
+    // 1. Mark as revoked
+    await this.shareGrantRepository.revoke(grantId);
+
+    // 2. CASCADE: Invalidate viewer reports (reuse same logic as user-driven revoke)
+    let invalidatedCount = 0;
+    if (this.reportRepository) {
+      if (grant.targetType === 'user' || grant.targetType === 'coach') {
+        if (grant.targetUserId) {
+          invalidatedCount = await this.reportRepository.invalidateViewerReports(
+            grant.subjectUserId,
+            grant.targetUserId,
+          );
+        }
+      } else if (grant.targetType === 'team' || grant.targetType === 'organisation') {
+        invalidatedCount = await this.reportRepository.invalidateAllViewerReportsForSubject(
+          grant.subjectUserId,
+        );
+      }
+    }
+
+    // 3. Audit with admin actor and reason
+    await this.auditService.log({
+      actorUserId: adminUserId,
+      actionType: AUDIT_ACTIONS.SHARE_REVOKED,
+      resourceType: 'share_grant',
+      resourceId: grantId,
+      subjectUserId: grant.subjectUserId,
+      metadata: { 
+        targetType: grant.targetType,
+        adminReason: reason,
+        invalidatedCount,
+      },
+    });
   }
 
   async revokeAllSharesForTarget(subjectUserId: string, targetType: string, targetId: string): Promise<void> {

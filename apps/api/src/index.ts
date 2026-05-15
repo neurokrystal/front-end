@@ -104,6 +104,7 @@ server.register(async (authApp) => {
 import userRoutes from './domains/user/user.routes';
 import organizationRoutes from './domains/organization/organization.routes';
 import instrumentRoutes from './domains/instrument/instrument.routes';
+import instrumentAdminRoutes from './domains/instrument/instrument-admin.routes';
 import runRoutes from './domains/instrument/features/run/run.routes';
 import reportRoutes from './domains/report/report.routes';
 import templateRoutes from './domains/report/features/template/template.routes';
@@ -116,6 +117,12 @@ import programmeRoutes from './domains/programme/programme.routes';
 import auditRoutes from './domains/audit/audit.routes';
 import adminRoutes from './domains/admin/admin.routes';
 import healthRoutes from './domains/health/health.routes';
+import orgAdminRoutes from './domains/organization/organization-admin.routes';
+import teamAdminRoutes from './domains/organization/features/team/team-admin.routes';
+import coachingAdminRoutes from './domains/coaching/coaching-admin.routes';
+import sharingAdminRoutes from './domains/sharing/sharing-admin.routes';
+import billingAdminRoutes from './domains/billing/billing-admin.routes';
+import assetAdminRoutes from './domains/asset/asset.routes';
 
 // ... existing code ...
 
@@ -123,6 +130,7 @@ import healthRoutes from './domains/health/health.routes';
 await server.register(userRoutes, { prefix: '/api/v1/users' });
 await server.register(organizationRoutes, { prefix: '/api/v1/organizations' });
 await server.register(instrumentRoutes, { prefix: '/api/v1/instruments' });
+await server.register(instrumentAdminRoutes, { prefix: '/api/v1/admin/instruments' });
 await server.register(runRoutes, { prefix: '/api/v1' });
 await server.register(reportRoutes, { prefix: '/api/v1/reports' });
 await server.register(templateRoutes, { prefix: '/api/v1/admin/templates' });
@@ -134,6 +142,12 @@ await server.register(commercialRoutes, { prefix: '/api/v1/commercial' });
 await server.register(programmeRoutes, { prefix: '/api/v1/programmes' });
 await server.register(auditRoutes, { prefix: '/api/v1/admin/audit' });
 await server.register(adminRoutes, { prefix: '/api/v1/admin' });
+await server.register(orgAdminRoutes, { prefix: '/api/v1/admin/organisations' });
+await server.register(teamAdminRoutes, { prefix: '/api/v1/admin/teams' });
+await server.register(coachingAdminRoutes, { prefix: '/api/v1/admin/coaches' });
+await server.register(sharingAdminRoutes, { prefix: '/api/v1/admin/share-grants' });
+await server.register(billingAdminRoutes, { prefix: '/api/v1/admin/purchases' });
+await server.register(assetAdminRoutes, { prefix: '/api/v1/admin/assets' });
 await server.register(healthRoutes);
 
 const start = async () => {
