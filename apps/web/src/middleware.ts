@@ -28,7 +28,7 @@ export default async function middleware(request: NextRequest) {
 
   // Validate session server-side to ensure cookie isn't stale/expired
   try {
-    const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/session`, {
+    const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/session`, {
       method: "GET",
       headers: {
         // Forward cookies for Better Auth to read session

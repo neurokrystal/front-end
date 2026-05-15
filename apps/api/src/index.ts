@@ -12,13 +12,11 @@ import { errorHandlerPlugin } from "./shared/errors/error-handler";
 import { securityHeaders } from "./infrastructure/security/headers";
 
 const server = fastify({
-  rewriteUrl: (req) => {
-    const url = (req as any).url || "/";
-    if (url.startsWith('/api/') || url === '/health' || url.startsWith('/health')) return url;
-    if (url.startsWith('/v1/')) return '/api' + url;
-    if (url.startsWith('/auth/')) return '/api' + url;
-    return '/api/auth' + url;
-  },
+	rewriteUrl: (req) => {
+		const url = (req as any).url || "/";
+		if (url.startsWith('/api/') || url === '/health' || url.startsWith('/health')) return url;
+		return '/api' + url;
+	},
   logger: true,
 }).withTypeProvider<ZodTypeProvider>();
 
@@ -93,8 +91,7 @@ await server.register(rawBody, {
 
 // Auth & Rate Limiting scope
 server.register(async (authApp) => {
-  authApp.all("/auth/*", async (request, reply) => handleAuth(request, reply));
-  authApp.all("/api/auth/*", async (request, reply) => handleAuth(request, reply));
+	authApp.all("/api/*", async (request, reply) => handleAuth(request, reply));
 
   async function handleAuth(request: any, reply: any) {
     const protocol = request.protocol;
