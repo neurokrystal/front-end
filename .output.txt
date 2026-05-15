@@ -1,0 +1,213 @@
+ WARN  Unsupported engine: wanted: {"node":"22.x"} (current: {"node":"v24.14.0","pnpm":"9.15.9"})
+src/domains/programme/programme.service.ts:81:14 - error TS2339: Property 'leaderUserId' does not exist on type '{ id: string; organizationId: string; name: string; createdAt: Date; updatedAt: Date; }'.
+81     if (team.leaderUserId !== leaderUserId) throw new Error('Only team leader can enrol team');
+                ~~~~~~~~~~~~
+src/domains/report/features/renderer/html-template.renderer.ts:116:37 - error TS2345: Argument of type '{ style: "solid" | "dashed" | "dotted" | "none"; color: string; width: number; radius: number; } | { style: "solid" | "dashed" | "dotted" | "none"; color: string; width: number; radius: number; } | ... 5 more ... | undefined' is not assignable to parameter of type 'undefined'.
+  Type '{ style: "solid" | "dashed" | "dotted" | "none"; color: string; width: number; radius: number; }' is not assignable to type 'undefined'.
+116       border: ${this.getBorderStyle(element.border)};
+                                        ~~~~~~~~~~~~~~
+src/domains/report/features/renderer/html-template.renderer.ts:346:17 - error TS2339: Property 'style' does not exist on type 'never'.
+346     if (!b || b.style === 'none') return 'none';
+                    ~~~~~
+src/domains/report/features/renderer/html-template.renderer.ts:347:17 - error TS2339: Property 'width' does not exist on type 'never'.
+347     return `${b.width}pt ${b.style} ${b.color}; border-radius: ${b.radius}pt;`;
+                    ~~~~~
+src/domains/report/features/renderer/html-template.renderer.ts:347:30 - error TS2339: Property 'style' does not exist on type 'never'.
+347     return `${b.width}pt ${b.style} ${b.color}; border-radius: ${b.radius}pt;`;
+                                 ~~~~~
+src/domains/report/features/renderer/html-template.renderer.ts:347:41 - error TS2339: Property 'color' does not exist on type 'never'.
+347     return `${b.width}pt ${b.style} ${b.color}; border-radius: ${b.radius}pt;`;
+                                            ~~~~~
+src/domains/report/features/renderer/html-template.renderer.ts:347:68 - error TS2339: Property 'radius' does not exist on type 'never'.
+347     return `${b.width}pt ${b.style} ${b.color}; border-radius: ${b.radius}pt;`;
+                                                                       ~~~~~~
+src/domains/report/report.routes.ts:27:39 - error TS2345: Argument of type 'FastifyRequest<RouteGenericInterface, RawServerDefault, IncomingMessage, { readonly body: ZodObject<{ reportType: ZodEnum<["base" | "professional_self" | ... 14 more ... | "post_restructuring", ...("base" | ... 15 more ... | "post_restructuring")[]]>; subjectUserId: ZodOptional<...>; }, "strip", ZodTypeAny, { ...; }...' is not assignable to parameter of type 'FastifyRequest<{ Params: { userId?: string | undefined; }; Body: { subjectUserId?: string | undefined; }; Querystring: { teamId?: string | undefined; orgId?: string | undefined; }; }, RawServerDefault, ... 5 more ..., ResolveFastifyRequestType<...>>'.
+  Type 'RouteGenericInterface' is not assignable to type '{ Params: { userId?: string | undefined; }; Body: { subjectUserId?: string | undefined; }; Querystring: { teamId?: string | undefined; orgId?: string | undefined; }; }'.
+    Types of property 'Params' are incompatible.
+      Type 'unknown' is not assignable to type '{ userId?: string | undefined; }'.
+27       await requireAccess(reportType)(request, reply);
+                                         ~~~~~~~
+src/domains/report/report.service.ts:92:54 - error TS2551: Property 'findActiveGrantsForTeam' does not exist on type 'IShareGrantRepository'. Did you mean 'findActiveGrantsByTeam'?
+92       const grants = await this.shareGrantRepository.findActiveGrantsForTeam(params.teamId);
+                                                        ~~~~~~~~~~~~~~~~~~~~~~~
+  src/domains/sharing/share-grant.repository.ts:20:3
+    20   findActiveGrantsByTeam(teamId: string): Promise<ShareGrantRow[]>;
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    'findActiveGrantsByTeam' is declared here.
+src/domains/report/report.service.ts:93:41 - error TS7006: Parameter 'g' implicitly has an 'any' type.
+93       const sharingUserIds = grants.map(g => g.subjectUserId);
+                                           ~
+src/domains/report/report.service.ts:100:28 - error TS7006: Parameter 'userId' implicitly has an 'any' type.
+100         sharingUserIds.map(userId =>
+                               ~~~~~~
+src/domains/report/report.service.ts:104:39 - error TS7006: Parameter 'p' implicitly has an 'any' type.
+104       teamProfiles = profiles.filter((p): p is ScoredProfileOutput => !!p).map(p => p.profilePayload);
+                                          ~
+src/domains/report/report.service.ts:104:80 - error TS7006: Parameter 'p' implicitly has an 'any' type.
+104       teamProfiles = profiles.filter((p): p is ScoredProfileOutput => !!p).map(p => p.profilePayload);
+                                                                                   ~
+src/domains/report/report.service.ts:133:7 - error TS2353: Object literal may only specify known properties, and 'longitudinalProfiles' does not exist in type 'RenderParams'.
+133       longitudinalProfiles,
+          ~~~~~~~~~~~~~~~~~~~~
+src/domains/report/report.service.ts:164:7 - error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+164       primaryScoredProfileId: params.scoredProfileId,
+          ~~~~~~~~~~~~~~~~~~~~~~
+  ../../node_modules/.pnpm/drizzle-orm@0.45.2_@types+pg@8.20.0_kysely@0.28.17_pg@8.20.0/node_modules/drizzle-orm/utils.d.ts:12:27
+    12 export type Simplify<T> = {
+                                 ~
+    13     [K in keyof T]: T[K];
+       ~~~~~~~~~~~~~~~~~~~~~~~~~
+    14 } & {};
+       ~
+    The expected type comes from property 'primaryScoredProfileId' which is declared here on type '{ subjectUserId: string; reportType: string; audience: "subject_facing" | "viewer_facing" | "aggregate"; primaryScoredProfileId: string; id?: string | undefined; createdAt?: Date | undefined; ... 5 more ...; generatedAt?: Date | undefined; }'
+src/domains/report/report.service.ts:188:5 - error TS2322: Type '{ id: string; createdAt: Date; status: string; subjectUserId: string; reportType: string; audience: "subject_facing" | "viewer_facing" | "aggregate"; viewerUserId: string | null; ... 4 more ...; generatedAt: Date; }' is not assignable to type 'ReportOutput'.
+  Types of property 'renderedPayload' are incompatible.
+    Type 'unknown' is not assignable to type '{ html: string; pdfUrl: string; } | null'.
+188     return report;
+        ~~~~~~
+src/domains/report/report.test.ts:85:14 - error TS18047: 'report.renderedPayload' is possibly 'null'.
+85       expect(report.renderedPayload.html).toContain(user.name);
+                ~~~~~~~~~~~~~~~~~~~~~~
+src/domains/report/report.test.ts:86:14 - error TS18047: 'report.renderedPayload' is possibly 'null'.
+86       expect(report.renderedPayload.html).toContain('Your safety is balanced.');
+                ~~~~~~~~~~~~~~~~~~~~~~
+src/domains/sharing/share-grant.repository.ts:192:9 - error TS2353: Object literal may only specify known properties, and 'updatedAt' does not exist in type '{ subjectUserId?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; targetType?: "user" | ... 6 more ... | undefined; ... 11 more ...; grantContext?: string | ... 3 more ... | undefined; }'.
+192         updatedAt: new Date()
+            ~~~~~~~~~
+src/domains/sharing/share.service.ts:62:9 - error TS2322: Type 'string | undefined' is not assignable to type 'Date | null | undefined'.
+  Type 'string' is not assignable to type 'Date'.
+62         expiresAt: input.expiresAt,
+           ~~~~~~~~~
+src/domains/sharing/sharing.routes.ts:80:80 - error TS2345: Argument of type '"both" | "give" | "take"' is not assignable to parameter of type '"one_way" | "mutual"'.
+  Type '"both"' is not assignable to type '"one_way" | "mutual"'.
+80       return fastify.container.peerShareService.invite(userId, recipientEmail, direction);
+                                                                                  ~~~~~~~~~
+src/domains/sharing/sharing.test.ts:38:61 - error TS2345: Argument of type '{ targetType: "user"; targetUserId: string; }' is not assignable to parameter of type '{ targetType: "user" | "team" | "organisation" | "coach" | "public"; resourceTypes: string[]; targetUserId?: string | undefined; targetTeamId?: string | undefined; targetOrgId?: string | undefined; expiresAt?: string | undefined; grantContext?: string | undefined; }'.
+  Property 'resourceTypes' is missing in type '{ targetType: "user"; targetUserId: string; }' but required in type '{ targetType: "user" | "team" | "organisation" | "coach" | "public"; resourceTypes: string[]; targetUserId?: string | undefined; targetTeamId?: string | undefined; targetOrgId?: string | undefined; expiresAt?: string | undefined; grantContext?: string | undefined; }'.
+38       const grant = await shareService.grantShare(userA.id, {
+                                                               ~
+39         targetType: 'user',
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+40         targetUserId: userB.id,
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+41       });
+   ~~~~~~~
+  src/domains/sharing/sharing.dto.ts:9:3
+    9   resourceTypes: z.array(z.string()).default([]),    // Empty = share all
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    'resourceTypes' is declared here.
+src/domains/sharing/sharing.test.ts:90:63 - error TS2345: Argument of type '{ targetType: "user"; targetUserId: string; }' is not assignable to parameter of type '{ targetType: "user" | "team" | "organisation" | "coach" | "public"; resourceTypes: string[]; targetUserId?: string | undefined; targetTeamId?: string | undefined; targetOrgId?: string | undefined; expiresAt?: string | undefined; grantContext?: string | undefined; }'.
+  Property 'resourceTypes' is missing in type '{ targetType: "user"; targetUserId: string; }' but required in type '{ targetType: "user" | "team" | "organisation" | "coach" | "public"; resourceTypes: string[]; targetUserId?: string | undefined; targetTeamId?: string | undefined; targetOrgId?: string | undefined; expiresAt?: string | undefined; grantContext?: string | undefined; }'.
+90         const grant = await shareService.grantShare(userA.id, {
+                                                                 ~
+91           targetType: 'user',
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+92           targetUserId: userB.id,
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+93         });
+   ~~~~~~~~~
+  src/domains/sharing/sharing.dto.ts:9:3
+    9   resourceTypes: z.array(z.string()).default([]),    // Empty = share all
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    'resourceTypes' is declared here.
+src/domains/sharing/sharing.test.ts:120:47 - error TS2345: Argument of type '{ targetType: "team"; targetTeamId: `${string}-${string}-${string}-${string}-${string}`; }' is not assignable to parameter of type '{ targetType: "user" | "team" | "organisation" | "coach" | "public"; resourceTypes: string[]; targetUserId?: string | undefined; targetTeamId?: string | undefined; targetOrgId?: string | undefined; expiresAt?: string | undefined; grantContext?: string | undefined; }'.
+  Property 'resourceTypes' is missing in type '{ targetType: "team"; targetTeamId: `${string}-${string}-${string}-${string}-${string}`; }' but required in type '{ targetType: "user" | "team" | "organisation" | "coach" | "public"; resourceTypes: string[]; targetUserId?: string | undefined; targetTeamId?: string | undefined; targetOrgId?: string | undefined; expiresAt?: string | undefined; grantContext?: string | undefined; }'.
+120       await shareService.grantShare(userA.id, {
+                                                  ~
+121         targetType: 'team',
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+122         targetTeamId: teamId,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+123       });
+    ~~~~~~~
+  src/domains/sharing/sharing.dto.ts:9:3
+    9   resourceTypes: z.array(z.string()).default([]),    // Empty = share all
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    'resourceTypes' is declared here.
+src/domains/user/data-deletion.service.ts:17:26 - error TS2305: Module '"@/infrastructure/auth/better-auth-refs.schema"' has no exported member 'session'.
+17 import { betterAuthUser, session, account } from '@/infrastructure/auth/better-auth-refs.schema';
+                            ~~~~~~~
+src/domains/user/data-deletion.service.ts:17:35 - error TS2305: Module '"@/infrastructure/auth/better-auth-refs.schema"' has no exported member 'account'.
+17 import { betterAuthUser, session, account } from '@/infrastructure/auth/better-auth-refs.schema';
+                                     ~~~~~~~
+src/domains/user/data-deletion.service.ts:58:46 - error TS2339: Property 'DELETION_RETENTION_DAYS' does not exist on type '{ readonly ANONYMISATION_THRESHOLD: 5; readonly PARTIAL_RUN_EXPIRY_DAYS: 7; readonly REASSESSMENT_COOLDOWN_DAYS: 30; readonly MAX_TEAMS_PER_USER: 10; readonly MAX_PEERS_PER_SHARE: 50; readonly CONSENT_GRACE_PERIOD_DAYS: 0; readonly COACH_CERT_GRACE_PERIOD_DAYS: 30; }'.
+58     const retentionDays = PLATFORM_CONSTANTS.DELETION_RETENTION_DAYS || 30;
+                                                ~~~~~~~~~~~~~~~~~~~~~~~
+src/index.ts:81:17 - error TS2769: No overload matches this call.
+  Overload 1 of 6, '(plugin: FastifyPluginCallback<{ prefix: string; }, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>, opts: FastifyRegisterOptions<...>): FastifyInstance<...> & ... 1 more ... & { ...; }', gave the following error.
+    Argument of type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/notification/notification.routes")>' is not assignable to parameter of type 'FastifyPluginCallback<{ prefix: string; }, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>'.
+      Type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/notification/notification.routes")>' provides no match for the signature '(instance: FastifyInstance<RawServerDefault, IncomingMessage, ServerResponse<IncomingMessage>, FastifyBaseLogger, FastifyTypeProvider>, opts: { ...; }, done: (err?: Error | undefined) => void): void'.
+  Overload 2 of 6, '(plugin: FastifyPluginAsync<{ prefix: string; }, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>, opts: FastifyRegisterOptions<...>): FastifyInstance<...> & ... 1 more ... & { ...; }', gave the following error.
+    Argument of type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/notification/notification.routes")>' is not assignable to parameter of type 'FastifyPluginAsync<{ prefix: string; }, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>'.
+      Type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/notification/notification.routes")>' provides no match for the signature '(instance: FastifyInstance<RawServerDefault, IncomingMessage, ServerResponse<IncomingMessage>, FastifyBaseLogger, FastifyTypeProvider>, opts: { ...; }): Promise<...>'.
+  Overload 3 of 6, '(plugin: FastifyPluginCallback<{ prefix: string; }, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger> | FastifyPluginAsync<...> | Promise<...> | Promise<...>, opts: FastifyRegisterOptions<...>): FastifyInstance<...> & ... 1 more ... & { ...; }', gave the following error.
+    Argument of type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/notification/notification.routes")>' is not assignable to parameter of type 'FastifyPluginCallback<{ prefix: string; }, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger> | FastifyPluginAsync<...> | Promise<...> | Promise<...>'.
+      Type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/notification/notification.routes")>' is not assignable to type 'Promise<{ default: FastifyPluginCallback<{ prefix: string; }, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>; }>'.
+        Property 'default' is missing in type 'typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/notification/notification.routes")' but required in type '{ default: FastifyPluginCallback<{ prefix: string; }, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>; }'.
+81 server.register(import('./domains/notification/notification.routes'), { prefix: '/api/v1' });
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ../../node_modules/.pnpm/fastify@5.8.5/node_modules/fastify/types/register.d.ts:39:146
+    39     plugin: FastifyPluginCallback<Options, Server, TypeProvider, Logger> | FastifyPluginAsync<Options, Server, TypeProvider, Logger> | Promise<{ default: FastifyPluginCallback<Options, Server, TypeProvider, Logger> }> | Promise<{ default: FastifyPluginAsync<Options, Server, TypeProvider, Logger> }>,
+                                                                                                                                                        ~~~~~~~
+    'default' is declared here.
+src/index.ts:87:17 - error TS2769: No overload matches this call.
+  Overload 1 of 6, '(plugin: FastifyPluginCallback<FastifyPluginOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>): FastifyInstance<...> & ... 1 more ... & { ...; }', gave the following error.
+    Argument of type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/health/health.routes")>' is not assignable to parameter of type 'FastifyPluginCallback<FastifyPluginOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>'.
+      Type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/health/health.routes")>' provides no match for the signature '(instance: FastifyInstance<RawServerDefault, IncomingMessage, ServerResponse<IncomingMessage>, FastifyBaseLogger, FastifyTypeProvider>, opts: FastifyPluginOptions, done: (err?: Error | undefined) => void): void'.
+  Overload 2 of 6, '(plugin: FastifyPluginAsync<FastifyPluginOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>): FastifyInstance<...> & ... 1 more ... & { ...; }', gave the following error.
+    Argument of type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/health/health.routes")>' is not assignable to parameter of type 'FastifyPluginAsync<FastifyPluginOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>'.
+      Type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/health/health.routes")>' provides no match for the signature '(instance: FastifyInstance<RawServerDefault, IncomingMessage, ServerResponse<IncomingMessage>, FastifyBaseLogger, FastifyTypeProvider>, opts: FastifyPluginOptions): Promise<...>'.
+  Overload 3 of 6, '(plugin: FastifyPluginCallback<FastifyPluginOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger> | FastifyPluginAsync<...> | Promise<...> | Promise<...>): FastifyInstance<...> & ... 1 more ... & { ...; }', gave the following error.
+    Argument of type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/health/health.routes")>' is not assignable to parameter of type 'FastifyPluginCallback<FastifyPluginOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger> | FastifyPluginAsync<...> | Promise<...> | Promise<...>'.
+      Type 'Promise<typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/health/health.routes")>' is not assignable to type 'Promise<{ default: FastifyPluginCallback<FastifyPluginOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>; }>'.
+        Property 'default' is missing in type 'typeof import("/Users/alistair/Documents/projects/dimensional/mono/apps/api/src/domains/health/health.routes")' but required in type '{ default: FastifyPluginCallback<FastifyPluginOptions, RawServerDefault, FastifyTypeProvider, FastifyBaseLogger>; }'.
+87 server.register(import('./domains/health/health.routes'));
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ../../node_modules/.pnpm/fastify@5.8.5/node_modules/fastify/types/register.d.ts:36:172
+    36     plugin: FastifyPluginCallback<FastifyPluginOptions, Server, TypeProvider, Logger> | FastifyPluginAsync<FastifyPluginOptions, Server, TypeProvider, Logger> | Promise<{ default: FastifyPluginCallback<FastifyPluginOptions, Server, TypeProvider, Logger> }> | Promise<{ default: FastifyPluginAsync<FastifyPluginOptions, Server, TypeProvider, Logger> }>,
+                                                                                                                                                                                  ~~~~~~~
+    'default' is declared here.
+src/infrastructure/auth/auth-middleware.ts:35:30 - error TS2532: Object is possibly 'undefined'.
+35   const createdAt = new Date(request.session!.session.createdAt).getTime();
+                                ~~~~~~~~~~~~~~~~~~~~~~~~
+src/infrastructure/auth/auth-middleware.ts:35:55 - error TS2339: Property 'createdAt' does not exist on type '{ id: string; }'.
+35   const createdAt = new Date(request.session!.session.createdAt).getTime();
+                                                         ~~~~~~~~~
+src/infrastructure/auth/better-auth.ts:11:7 - error TS2353: Object literal may only specify known properties, and 'minPasswordLength' does not exist in type '{ hash?: ((password: string) => Promise<string>) | undefined; verify?: ((data: { hash: string; password: string; }) => Promise<boolean>) | undefined; }'.
+11       minPasswordLength: 12,
+         ~~~~~~~~~~~~~~~~~
+src/infrastructure/database/seeds/demo-ecosystem.seed.ts:5:33 - error TS2307: Cannot find module '../../../domains/organization/features/team/team-membership.schema' or its corresponding type declarations.
+5 import { teamMemberships } from '../../../domains/organization/features/team/team-membership.schema';
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/infrastructure/database/seeds/demo-ecosystem.seed.ts:25:37 - error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { name: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; email: string | SQL<unknown> | Placeholder<string, any>; ... 4 more ...; role?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ id: string; }' is not assignable to parameter of type '{ name: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; email: string | SQL<unknown> | Placeholder<string, any>; ... 4 more ...; role?: string | ... 3 more ... | undefined; }'.
+      Type '{ id: string; }' is missing the following properties from type '{ name: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; email: string | SQL<unknown> | Placeholder<string, any>; ... 4 more ...; role?: string | ... 3 more ... | undefined; }': name, email, emailVerified, createdAt, updatedAt
+  Overload 2 of 2, '(values: { name: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; email: string | SQL<unknown> | Placeholder<string, any>; ... 4 more ...; role?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'id' does not exist in type '{ name: string | SQL<unknown> | Placeholder<string, any>; id: string | SQL<unknown> | Placeholder<string, any>; email: string | SQL<unknown> | Placeholder<string, any>; ... 4 more ...; role?: string | ... 3 more ... | undefined; }[]'.
+25     await db.insert(betterAuthUser).values({ id: u.id }).onConflictDoNothing();
+                                       ~~~~~~
+src/test/e2e/full-pipeline.test.ts:101:72 - error TS2554: Expected 1 arguments, but got 2.
+101     const userReports = await reportService.getReportsForUser(user.id, user.id);
+                                                                           ~~~~~~~
+src/test/e2e/full-pipeline.test.ts:107:12 - error TS18047: 'reportDetail.renderedPayload' is possibly 'null'.
+107     expect(reportDetail.renderedPayload.html).toContain(user.name);
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Found 36 errors in 15 files.
+Errors  Files
+     1  src/domains/programme/programme.service.ts:81
+     6  src/domains/report/features/renderer/html-template.renderer.ts:116
+     1  src/domains/report/report.routes.ts:27
+     8  src/domains/report/report.service.ts:92
+     2  src/domains/report/report.test.ts:85
+     1  src/domains/sharing/share-grant.repository.ts:192
+     1  src/domains/sharing/share.service.ts:62
+     1  src/domains/sharing/sharing.routes.ts:80
+     3  src/domains/sharing/sharing.test.ts:38
+     3  src/domains/user/data-deletion.service.ts:17
+     2  src/index.ts:81
+     2  src/infrastructure/auth/auth-middleware.ts:35
+     1  src/infrastructure/auth/better-auth.ts:11
+     2  src/infrastructure/database/seeds/demo-ecosystem.seed.ts:5
+     2  src/test/e2e/full-pipeline.test.ts:101

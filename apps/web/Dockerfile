@@ -1,7 +1,7 @@
 # ============================================
 # Stage 1: Install dependencies
 # ============================================
-FROM node:20-slim AS deps
+FROM node:22-slim AS deps
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
@@ -16,7 +16,7 @@ RUN pnpm install --frozen-lockfile
 # ============================================
 # Stage 2: Build
 # ============================================
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
@@ -30,6 +30,9 @@ COPY libs/shared ./libs/shared
 COPY apps/web ./apps/web
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 
+# Copy root tsconfig for workspace TypeScript references
+COPY tsconfig.base.json ./
+
 # Build shared first, then web
 RUN pnpm --filter @dimensional/shared build
 
@@ -42,7 +45,7 @@ RUN pnpm --filter web build
 # ============================================
 # Stage 3: Production image
 # ============================================
-FROM node:20-slim AS runner
+FROM node:22-slim AS runner
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 

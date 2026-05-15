@@ -1,0 +1,43 @@
+name: dimensional-monorepo
+services:
+  - name: web
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: your-repo/dimensional-monorepo # User will need to update this or DO will handle it if imported
+    source_dir: /
+    build_command: pnpm --filter web... build
+    run_command: pnpm --filter web start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    routes:
+      - path: /
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: APP_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+  - name: api
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: your-repo/dimensional-monorepo
+    source_dir: /
+    build_command: pnpm --filter api... build
+    run_command: pnpm --filter api start
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 8080
+    routes:
+      - path: /api
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: APP_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production

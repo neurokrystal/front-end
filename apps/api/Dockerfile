@@ -1,7 +1,7 @@
 # ============================================
 # Stage 1: Install dependencies
 # ============================================
-FROM node:20-slim AS deps
+FROM node:22-slim AS deps
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -19,7 +19,7 @@ RUN pnpm install --frozen-lockfile
 # ============================================
 # Stage 2: Build
 # ============================================
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
@@ -35,6 +35,9 @@ COPY libs/shared ./libs/shared
 COPY apps/api ./apps/api
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
 
+# Copy root tsconfig for workspace TypeScript references
+COPY tsconfig.base.json ./
+
 # Build shared lib first, then API
 RUN pnpm --filter @dimensional/shared build
 RUN pnpm --filter api build
@@ -42,7 +45,7 @@ RUN pnpm --filter api build
 # ============================================
 # Stage 3: Production image with Chromium
 # ============================================
-FROM node:20-slim AS runner
+FROM node:22-slim AS runner
 
 # -----------------------------------------------
 # Chromium dependencies for Puppeteer
