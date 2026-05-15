@@ -1,7 +1,7 @@
 import fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
-import rawBody from "@fastify/raw-body";
+import rawBody from "fastify-raw-body";
 import rateLimit from "@fastify/rate-limit";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { env } from "@/infrastructure/config";
