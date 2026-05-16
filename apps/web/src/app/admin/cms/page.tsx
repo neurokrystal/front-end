@@ -174,11 +174,12 @@ export default function CmsBlocksPage() {
           ) : rows.length === 0 ? (
             <div className="text-slate-600">No blocks found for current filters.</div>
           ) : (
-            <div className="overflow-x-auto -mx-2 md:mx-0">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="text-left text-slate-500 border-b">
-                    <th className="py-2 px-2">Report</th>
+            <div className="overflow-x-auto -mx-4 md:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-slate-500 border-b">
+                  <th className="py-2 px-2">Report</th>
                     <th className="py-2 px-2">Section</th>
                     <th className="py-2 px-2">Domain</th>
                     <th className="py-2 px-2">Dimension</th>
@@ -215,7 +216,8 @@ export default function CmsBlocksPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+                </table>
+              </div>
             </div>
           )}
 

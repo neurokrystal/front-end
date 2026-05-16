@@ -122,7 +122,9 @@ export default function InstrumentDetailPage({ params }: { params: Promise<{ id:
         </div>
         
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <table className="w-full">
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100">
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Version</th>
@@ -175,7 +177,9 @@ export default function InstrumentDetailPage({ params }: { params: Promise<{ id:
                 </tr>
               )}
             </tbody>
-          </table>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -189,8 +193,9 @@ export default function InstrumentDetailPage({ params }: { params: Promise<{ id:
             <div className="text-sm text-slate-500">Loading…</div>
           ) : (
             <div className="space-y-4">
-              <div className="overflow-x-auto border rounded-md">
-                <table className="min-w-full text-sm">
+              <div className="overflow-x-auto border rounded-md -mx-4 md:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="min-w-full text-sm">
                   <thead>
                     <tr className="text-xs text-slate-500 uppercase tracking-wider">
                       <th className="text-left py-2 px-3 w-20">#</th>
@@ -216,7 +221,8 @@ export default function InstrumentDetailPage({ params }: { params: Promise<{ id:
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                  </table>
+                </div>
               </div>
               <div>
                 <Button variant="secondary" onClick={() => setItems(prev => [...prev, { ordinal: prev.length + 1, itemText: '' }])}>Add Item</Button>

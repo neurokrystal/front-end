@@ -200,8 +200,9 @@ export default function AssetStoragePage() {
           </div>
         </div>
       ) : (
-        <div className="overflow-x-auto border rounded">
-          <table className="min-w-full text-sm">
+        <div className="overflow-x-auto border rounded -mx-4 md:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full text-sm">
             <thead className="bg-slate-50 text-slate-600">
               <tr>
                 <th className="p-2 text-left">Preview</th>
@@ -237,7 +238,8 @@ export default function AssetStoragePage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
 

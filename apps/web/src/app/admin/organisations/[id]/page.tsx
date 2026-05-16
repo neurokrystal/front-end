@@ -117,7 +117,7 @@ export default function OrganisationDetailPage() {
     <div className="space-y-6">
       <Card className="border border-slate-200 rounded-xl bg-white">
         <CardHeader>
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <CardTitle className="font-semibold">{org.name}</CardTitle>
             <div className="flex items-center gap-2">
               <Button variant="secondary" onClick={() => setEditOpen(true)}>Edit</Button>
@@ -142,7 +142,7 @@ export default function OrganisationDetailPage() {
 
       <Card className="border border-slate-200 rounded-xl bg-white">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <CardTitle className="text-base">Members</CardTitle>
             <div className="flex items-center gap-2">
               <Button onClick={() => { setInviteOpen(true); setInviteEmail(""); setInviteRole('member'); setInviteAllocateSeat(false); setInviteSendEmail(true); }}>Invite Member</Button>
@@ -150,8 +150,9 @@ export default function OrganisationDetailPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <table className="min-w-full text-sm">
               <thead>
                 <tr className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                   <th className="text-left py-2 px-3">Name</th>
@@ -193,21 +194,23 @@ export default function OrganisationDetailPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       <Card className="border border-slate-200 rounded-xl bg-white">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <CardTitle className="text-base">Teams</CardTitle>
             <Button variant="secondary" onClick={() => setCreateTeamOpen(true)}>Create Team</Button>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <table className="min-w-full text-sm">
               <thead>
                 <tr className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                   <th className="text-left py-2 px-3">Team</th>
@@ -230,7 +233,8 @@ export default function OrganisationDetailPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -242,8 +246,9 @@ export default function OrganisationDetailPage() {
           </CardHeader>
           <CardContent>
             <div className="text-sm mb-3">Purchased: <span className="font-medium">{org.seats.purchased}</span> | Allocated: <span className="font-medium">{seats.filter(s => s.userId && !s.reclaimedAt).length}</span> | Remaining: <span className="font-medium">{org.seats.purchased - seats.filter(s => s.userId && !s.reclaimedAt).length}</span></div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
+            <div className="overflow-x-auto -mx-4 md:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full text-sm">
                 <thead>
                   <tr className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                     <th className="text-left py-2 px-3">User</th>
@@ -260,7 +265,8 @@ export default function OrganisationDetailPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+                </table>
+              </div>
             </div>
             <div className="mt-4">
               <label className="text-sm text-slate-600 mr-2">Allocate Seat to Member</label>

@@ -153,8 +153,9 @@ export default function CoachesAndCertsPage() {
           {loading ? (
             <div className="text-sm text-slate-500">Loading…</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
+            <div className="overflow-x-auto -mx-4 md:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full text-sm">
                 <thead>
                   <tr className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                     <th className="text-left py-2 px-3">Coach</th>
@@ -186,7 +187,8 @@ export default function CoachesAndCertsPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+                </table>
+              </div>
             </div>
           )}
         </CardContent>
@@ -203,8 +205,9 @@ export default function CoachesAndCertsPage() {
           {loading ? (
             <div className="text-sm text-slate-500">Loading…</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
+            <div className="overflow-x-auto -mx-4 md:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full text-sm">
                 <thead>
                   <tr className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                     <th className="text-left py-2 px-3">Firm</th>
@@ -227,7 +230,8 @@ export default function CoachesAndCertsPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+                </table>
+              </div>
             </div>
           )}
         </CardContent>

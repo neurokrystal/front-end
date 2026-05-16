@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, FileEdit, FileText, Mail, FlaskConical, Settings, 
   Users, Building2, Briefcase, GraduationCap, Link as LinkIcon, 
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { getTemplateLabel as getEmailTemplateLabel } from "@/lib/email-templates";
+import { signOut } from "@/lib/auth-client";
 
 const navItems = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, section: 'Admin Panel' },
@@ -47,6 +48,7 @@ export function AdminLayoutShell({
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     // Check local storage for theme preference
@@ -56,19 +58,40 @@ export function AdminLayoutShell({
       document.documentElement.classList.add('dark');
     }
 
-    // Responsive collapse
+    // Responsive collapse (collapse below md: 768px)
     const handleResize = () => {
-      if (window.innerWidth < 1024) {
+      if (window.innerWidth < 768) {
         setIsCollapsed(true);
       } else {
         setIsCollapsed(false);
       }
     };
-    
+
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Close mobile sidebar on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMobileOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+
+  // Lock body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileOpen]);
 
   const toggleTheme = () => {
     const newDark = !isDark;
@@ -119,20 +142,20 @@ export function AdminLayoutShell({
     });
 
   return (
-    <div className="admin-panel flex h-screen overflow-hidden bg-[#F8FAFC] text-[#1E293B] dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
+    <div className="admin-panel flex min-h-screen bg-[#F8FAFC] text-[#1E293B] dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
       {/* Sidebar Overlay for mobile */}
       {isMobileOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden" 
+          className="fixed inset-0 z-40 bg-black/50 md:hidden" 
           onClick={() => setIsMobileOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 flex flex-col bg-slate-900 text-slate-300 transition-all duration-300",
+        "fixed inset-y-0 left-0 z-50 flex flex-col h-full bg-slate-900 text-slate-300 transition-all duration-300 border-r border-slate-800",
         isCollapsed ? "w-20" : "w-60",
-        isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       )}>
         {/* Logo Area */}
         <div className="px-5 py-5 flex items-center gap-2.5 shrink-0">
@@ -173,32 +196,72 @@ export function AdminLayoutShell({
           ))}
         </nav>
 
-        {/* Admin Footer */}
-        <div className="p-4 border-t border-slate-800 shrink-0">
-           <div className={cn("flex items-center gap-3", isCollapsed && "justify-center")}>
-              <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
-                <div className="w-full h-full bg-slate-700 flex items-center justify-center text-xs font-medium text-slate-300">
-                  {user.name.charAt(0)}
-                </div>
+        {/* Logout / User Section */}
+        <div className="mt-auto border-t border-slate-700/50 p-4">
+          <button
+            onClick={async () => {
+              await signOut();
+              router.push('/login');
+            }}
+            className={cn(
+              "flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors",
+              isCollapsed && "justify-center"
+            )}
+          >
+            <LogOut className="w-4 h-4" />
+            {!isCollapsed && <span>Sign out</span>}
+          </button>
+          <div className={cn("mt-3 flex items-center gap-3", isCollapsed && "justify-center")}
+          >
+            <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+              <div className="w-full h-full bg-slate-700 flex items-center justify-center text-xs font-medium text-slate-300">
+                {user.name.charAt(0)}
               </div>
-              {!isCollapsed && (
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{user.name}</p>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-wider truncate">{user.role}</p>
-                </div>
-              )}
-           </div>
+            </div>
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{user.name}</p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider truncate">{user.role}</p>
+              </div>
+            )}
+          </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
       <div className={cn(
-        "flex-1 flex flex-col overflow-hidden transition-all duration-300",
-        "lg:ml-60",
-        isCollapsed && "lg:ml-20"
+        "flex-1 flex flex-col min-h-screen overflow-hidden transition-all duration-300",
+        "md:ml-60",
+        isCollapsed && "md:ml-20"
       )}>
-        {/* Content (header removed as per requirements) */}
-        <main className="flex-1 overflow-y-auto p-8 bg-[#F8FAFC] transition-colors duration-200">
+        {/* Header */}
+        <header className="sticky top-0 z-30 bg-[#0f1623]/80 backdrop-blur-sm border-b border-slate-800 px-4 md:px-6 py-3 flex items-center gap-4">
+          {/* Hamburger button — mobile only */}
+          <button
+            onClick={() => setIsMobileOpen(true)}
+            className="p-1 text-slate-400 hover:text-white md:hidden"
+            aria-label="Open menu"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
+          {/* Breadcrumbs / Title */}
+          <div className="flex items-center gap-2 text-sm text-slate-300">
+            {breadcrumbs.map((bc, i) => (
+              <React.Fragment key={bc.href}>
+                {i > 0 && <span className="text-slate-600">/</span>}
+                {bc.active ? (
+                  <span className="text-white font-medium truncate max-w-[50vw] md:max-w-none">{bc.label}</span>
+                ) : (
+                  <Link href={bc.href} className="hover:text-white truncate max-w-[40vw] md:max-w-none">{bc.label}</Link>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 p-4 md:p-8 bg-[#F8FAFC] transition-colors duration-200">
           {children}
         </main>
       </div>

@@ -98,7 +98,9 @@ export default function PartnerDetailPage() {
         <Button onClick={() => router.push('/admin/referral-codes')}>+ Add Code</Button>
       </div>
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-4 md:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="w-full text-sm">
           <thead className="bg-slate-50 text-slate-600">
             <tr className="text-left">
               <th className="px-4 py-3 font-medium">CODE</th>
@@ -124,13 +126,17 @@ export default function PartnerDetailPage() {
               );
             })}
           </tbody>
-        </table>
+            </table>
+          </div>
+        </div>
       </div>
 
       {/* Attribution history */}
       <h2 className="text-lg font-semibold">Attribution History</h2>
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-4 md:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="w-full text-sm">
           <thead className="bg-slate-50 text-slate-600">
             <tr className="text-left">
               <th className="px-4 py-3 font-medium">DATE</th>
@@ -159,7 +165,9 @@ export default function PartnerDetailPage() {
               );
             })}
           </tbody>
-        </table>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

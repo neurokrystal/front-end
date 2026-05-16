@@ -74,7 +74,7 @@ export default function TeamDetailPage() {
     <div className="space-y-6">
       <Card className="border border-slate-200 rounded-xl bg-white">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <CardTitle className="font-semibold">{team.name}</CardTitle>
             <Button variant="secondary" onClick={() => setAddOpen(true)}>Add Member</Button>
           </div>
@@ -93,8 +93,9 @@ export default function TeamDetailPage() {
           <CardTitle className="text-base">Members</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <table className="min-w-full text-sm">
               <thead>
                 <tr className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                   <th className="text-left py-2 px-3">Name</th>
@@ -119,7 +120,8 @@ export default function TeamDetailPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -139,7 +139,9 @@ export default function PartnerOrgsPage() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-4 md:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="w-full text-sm">
           <thead className="bg-slate-50 text-slate-600">
             <tr className="text-left">
               <th className="px-4 py-3 font-medium">PARTNER</th>
@@ -178,7 +180,9 @@ export default function PartnerOrgsPage() {
               </tr>
             ))}
           </tbody>
-        </table>
+            </table>
+          </div>
+        </div>
       </div>
 
       {error && <div className="text-sm text-red-600">{error}</div>}

@@ -177,7 +177,9 @@ export default function ScoringConfigsPage() {
           <div>
             <h3 className="text-sm font-semibold text-slate-900 mb-2">Score Groups ({scoreGroups.length})</h3>
             <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto -mx-4 md:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 text-slate-600 uppercase text-[11px] tracking-wider">
                     <th className="px-4 py-2 text-left">Key</th>
@@ -207,14 +209,18 @@ export default function ScoringConfigsPage() {
                     </tr>
                   )}
                 </tbody>
-              </table>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
 
           <div>
             <h3 className="text-sm font-semibold text-slate-900 mb-2">Computed Fields ({computedFields.length})</h3>
             <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto -mx-4 md:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 text-slate-600 uppercase text-[11px] tracking-wider">
                     <th className="px-4 py-2 text-left">Key</th>
@@ -240,7 +246,9 @@ export default function ScoringConfigsPage() {
                     </tr>
                   )}
                 </tbody>
-              </table>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
 

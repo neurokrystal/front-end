@@ -64,7 +64,7 @@ export default function AdminInstrumentsPage() {
 
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Instruments Manager</h1>
         <Button className="shadow-sm" onClick={() => setCreateOpen(true)}>
           <Plus className="w-4 h-4 mr-2" /> Create New Instrument

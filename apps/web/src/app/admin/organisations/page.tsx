@@ -36,7 +36,7 @@ export default function OrganisationsAdminListPage() {
     <div className="space-y-6">
       <Card className="border border-slate-200 rounded-xl bg-white">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <CardTitle className="font-semibold">Organisations</CardTitle>
             <div className="w-64">
               <Input placeholder="Search by name" value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -49,8 +49,9 @@ export default function OrganisationsAdminListPage() {
           ) : filtered.length === 0 ? (
             <div className="text-sm text-slate-500">No organisations found.</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
+            <div className="overflow-x-auto -mx-4 md:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <table className="min-w-full text-sm">
                 <thead>
                   <tr className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                     <th className="text-left py-2 px-3">Organisation</th>
@@ -75,7 +76,8 @@ export default function OrganisationsAdminListPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+                </table>
+              </div>
             </div>
           )}
         </CardContent>

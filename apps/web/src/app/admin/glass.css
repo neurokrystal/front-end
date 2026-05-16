@@ -1,0 +1,373 @@
+/* =============================================
+   DASHBOARD GLASS THEME — STYLE F MESH GRADIENT
+   Do not modify these values.
+   ============================================= */
+
+/* ---- Background layer ---- */
+.glass-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #0B0F19;
+  overflow: hidden;
+}
+
+.glass-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(59, 130, 246, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 30%, rgba(168, 85, 247, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at 50% 80%, rgba(16, 185, 129, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 70% 70%, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
+}
+
+.glass-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ---- Glass card base ---- */
+.glass-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-top-color: rgba(255, 255, 255, 0.22);
+  border-radius: 1rem;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.08),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15),
+    0 8px 40px rgba(0, 0, 0, 0.5),
+    0 0 1px rgba(255, 255, 255, 0.1);
+  color: white;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+
+/* Specular highlight line across top */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 3%;
+  right: 3%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Inner top-down gradient wash */
+.glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* All card children above pseudo-elements */
+.glass-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover state */
+.glass-card:hover {
+  box-shadow:
+    inset 0 2px 6px rgba(255, 255, 255, 0.12),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.2),
+    0 12px 48px rgba(0, 0, 0, 0.6),
+    0 0 2px rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+/* ---- Stat card (Total Users, Revenue, etc.) ---- */
+.glass-card-stat {
+  padding: 1.25rem 1.5rem;
+}
+
+.glass-card-stat .stat-label {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.375rem 0;
+}
+
+.glass-card-stat .stat-value {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.glass-card-stat .stat-change {
+  font-size: 0.6875rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.glass-card-stat .stat-change-positive {
+  color: #4ade80;
+}
+
+.glass-card-stat .stat-change-neutral {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.glass-card-stat .stat-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  z-index: 1;
+}
+
+/* ---- Action card (Grant comp, Export, etc.) ---- */
+.glass-card-action {
+  padding: 0.875rem 1.125rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.10);
+  border-top-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.glass-card-action::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.glass-card-action:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.glass-card-action .action-text {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  margin: 0;
+}
+
+.glass-card-action .action-icon {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 1.125rem;
+}
+
+/* ---- Panel card (charts, activity table) ---- */
+.glass-card-panel {
+  padding: 1.25rem 1.5rem;
+}
+
+.glass-card-panel .panel-title {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin: 0 0 0.75rem 0;
+}
+
+.glass-card-panel .panel-empty {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 2.5rem 0;
+}
+
+.glass-card-panel .panel-empty-icon {
+  color: rgba(255, 255, 255, 0.15);
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ---- Activity table inside panel ---- */
+.glass-table-header {
+  display: grid;
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-table-row {
+  display: grid;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.glass-table-row:last-child {
+  border-bottom: none;
+}
+
+.glass-table-muted {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.glass-table-link {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+}
+
+.glass-table-link:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ---- Badges (action tags like admin.comp_grant) ---- */
+.glass-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+
+.glass-badge-amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.glass-badge-blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+}
+
+.glass-badge-green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+}
+
+.glass-badge-red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+/* ---- Domain legend dots ---- */
+.glass-legend {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.glass-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.glass-legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 0.125rem;
+  display: inline-block;
+}
+
+.glass-legend-dot-safety { background: #3b82f6; }
+.glass-legend-dot-challenge { background: #f59e0b; }
+.glass-legend-dot-play { background: #10b981; }
+
+/* ---- System healthy badge ---- */
+.glass-system-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.glass-system-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ---- Page header ---- */
+.glass-page-header {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0 0 0.25rem 0;
+}
+
+.glass-page-title {
+  color: white;
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin: 0 0 1.25rem 0;
+}
+
+/* ---- View all link ---- */
+.glass-link {
+  color: #60a5fa;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.glass-link:hover {
+  color: #93c5fd;
+}
+
+/* ---- Select/dropdown on dark glass ---- */
+.glass-select {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.375rem 2rem 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  cursor: pointer;
+}
+
+.glass-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.glass-select option {
+  background: #1e293b;
+  color: white;
+}
